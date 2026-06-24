@@ -1,0 +1,11 @@
+# Cloud Build 업로드 제외 (data/ 와 web/ 소스, Dockerfile, nginx.conf 는 포함)
+.git
+.gitignore
+.env
+**/node_modules
+web/dist
+web/.vite
+.venv
+**/__pycache__
+*.pyc
+NEXT_STEPS.md

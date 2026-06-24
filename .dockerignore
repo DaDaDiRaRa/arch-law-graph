@@ -1,0 +1,10 @@
+# 빌드에 불필요한 것 제외 (data/ 와 web/ 소스는 포함되어야 함)
+.git
+.env
+**/node_modules
+web/dist
+web/.vite
+.venv
+**/__pycache__
+*.pyc
+NEXT_STEPS.md
