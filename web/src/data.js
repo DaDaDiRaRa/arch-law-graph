@@ -1,0 +1,150 @@
+// 모든 뷰가 공유하는 graph.json 파생 데이터 + 색상 헬퍼
+import rawGraph from "../../data/graph.json";
+
+export const meta = rawGraph.meta || {};
+export const nodes = rawGraph.nodes;
+export const links = rawGraph.links;
+
+const idOf = (x) => (typeof x === "object" ? x.id : x);
+
+// ─── 법령(군 내부) 목록 ──────────────────────────────────────────────────
+export const internalLaws = nodes
+  .filter((n) => n.type === "law" && !n.external)
+  .map((n) => n.id);
+const internalSet = new Set(internalLaws);
+
+// ─── 법령군(family) → 색상 ───────────────────────────────────────────────
+// 절제된 팔레트: 군별 1 hue. 시행령/규칙은 같은 hue 명도 차.
+const FAMILY = [
+  { test: (n) => n.startsWith("건축법"), hue: "#4dabf7", name: "건축법" },
+  { test: (n) => n.startsWith("국토의 계획"), hue: "#51cf66", name: "국토계획법" },
+  { test: (n) => n.startsWith("주차장법"), hue: "#ffa94d", name: "주차장법" },
+  { test: (n) => n.startsWith("건축물의 분양"), hue: "#cc5de8", name: "분양법" },
+  { test: (n) => n.startsWith("녹색건축물"), hue: "#20c997", name: "녹색건축물법" },
+];
+
+function shade(hex, factor) {
+  const r = Math.round(parseInt(hex.slice(1, 3), 16) * factor);
+  const g = Math.round(parseInt(hex.slice(3, 5), 16) * factor);
+  const b = Math.round(parseInt(hex.slice(5, 7), 16) * factor);
+  const c = (v) => Math.min(255, v).toString(16).padStart(2, "0");
+  return `#${c(r)}${c(g)}${c(b)}`;
+}
+
+export function lawColor(name) {
+  const fam = FAMILY.find((f) => f.test(name));
+  if (!fam) return "#868e96"; // 외부/기타
+  if (name.endsWith("시행규칙")) return shade(fam.hue, 0.6);
+  if (name.endsWith("시행령")) return shade(fam.hue, 0.8);
+  return fam.hue;
+}
+
+export function familyOf(name) {
+  return FAMILY.find((f) => f.test(name))?.name || "기타";
+}
+
+// ─── 피인용 수 (contains 제외 in-degree) ─────────────────────────────────
+export const citeIn = (() => {
+  const m = new Map();
+  for (const l of links) {
+    if (l.type === "contains") continue;
+    const t = idOf(l.target);
+    m.set(t, (m.get(t) || 0) + 1);
+  }
+  return m;
+})();
+
+// ─── 법령별 조문 목록 (트리 뷰용) ────────────────────────────────────────
+export const articlesByLaw = (() => {
+  const m = new Map();
+  for (const law of internalLaws) m.set(law, []);
+  for (const n of nodes) {
+    if (n.type === "article" && m.has(n.law_nm)) m.get(n.law_nm).push(n);
+  }
+  return m;
+})();
+
+// 조문 id → 노드 (탐색 뷰 인용 미리보기용)
+export const nodeById = new Map(nodes.map((n) => [n.id, n]));
+
+// ─── 법령 ↔ 법령 인용 매트릭스 (Chord 뷰용) ──────────────────────────────
+// cross_law 엣지(article→law)를 출발 법령 기준으로 집계. 군 내부 11개만.
+export function citationMatrix() {
+  const idx = new Map(internalLaws.map((l, i) => [l, i]));
+  const n = internalLaws.length;
+  const M = Array.from({ length: n }, () => new Array(n).fill(0));
+  for (const l of links) {
+    if (l.type !== "cross_law") continue;
+    const srcNode = nodeById.get(idOf(l.source));
+    const srcLaw = srcNode?.law_nm;
+    const tgtLaw = idOf(l.target);
+    if (idx.has(srcLaw) && idx.has(tgtLaw) && srcLaw !== tgtLaw) {
+      M[idx.get(srcLaw)][idx.get(tgtLaw)] += 1;
+    }
+  }
+  return { matrix: M, laws: internalLaws };
+}
+
+// ─── 위임 흐름 (Sankey 뷰용) ─────────────────────────────────────────────
+// delegates 엣지(법령→하위법령)를 그대로 사용.
+export function delegateFlows() {
+  const used = new Set();
+  const flows = [];
+  for (const l of links) {
+    if (l.type !== "delegates") continue;
+    const s = idOf(l.source);
+    const t = idOf(l.target);
+    if (internalSet.has(s) && internalSet.has(t)) {
+      flows.push({ source: s, target: t });
+      used.add(s);
+      used.add(t);
+    }
+  }
+  return { flows, laws: [...used] };
+}
+
+// 법령의 위계 단계 (0=법률, 1=시행령, 2=시행규칙)
+export function tier(name) {
+  if (name.endsWith("시행규칙")) return 2;
+  if (name.endsWith("시행령")) return 1;
+  return 0;
+}
+
+// ─── 1-hop 관계 (탐색 뷰 ②: 미니맵·목록용) ───────────────────────────────
+// contains(법→조문 구조) 제외. 방향 보존.
+export const outRel = new Map(); // id → [{id, type}]  이 조문이 인용한
+export const inRel = new Map(); //  id → [{id, type}]  이 조문을 인용한
+for (const l of links) {
+  if (l.type === "contains") continue;
+  const s = idOf(l.source);
+  const t = idOf(l.target);
+  if (!outRel.has(s)) outRel.set(s, []);
+  outRel.get(s).push({ id: t, type: l.type });
+  if (!inRel.has(t)) inRel.set(t, []);
+  inRel.get(t).push({ id: s, type: l.type });
+}
+
+// 노드 id → 소속 법령명 (article=law_nm, law=자기 자신)
+export function lawOf(id) {
+  const n = nodeById.get(id);
+  if (!n) return id;
+  return n.type === "law" ? n.id : n.law_nm;
+}
+
+// ─── 도메인(주제) — 차별화 핵심: 주제로 법 횡단 ──────────────────────────
+export const DOMAINS = [
+  "건폐율", "용적률", "높이·일조", "주차",
+  "조경", "설비·소방", "행위제한", "도시계획시설",
+];
+
+// 도메인별 조문 수
+export const domainCount = (() => {
+  const m = new Map(DOMAINS.map((d) => [d, 0]));
+  for (const n of nodes) {
+    if (n.type !== "article") continue;
+    for (const t of n.domain_tags || []) if (m.has(t)) m.set(t, m.get(t) + 1);
+  }
+  return m;
+})();
+
+export const maxCite = Math.max(1, ...[...citeIn.values()]);

@@ -1,0 +1,16 @@
+# 비밀키
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node / 프론트
+node_modules/
+web/dist/
+web/.vite/
+
+# 빌드 산출물 (필요 시 주석 해제하여 graph.json 도 추적 가능)
+# data/graph.json
+data/*.db
