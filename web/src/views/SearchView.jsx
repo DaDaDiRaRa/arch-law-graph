@@ -13,7 +13,9 @@ import {
 } from "../data.js";
 import { LawBody, highlightTerms } from "../lib/lawContent.jsx";
 import ComplianceCard from "./ComplianceCard.jsx";
+import ParkingCard from "./ParkingCard.jsx";
 import { ZONES, ZONE_GROUPS, REGION } from "../zoning.js";
+import { USES } from "../parking.js";
 
 const TYPE_LABEL = { references: "참조", cross_law: "타법령", byeolpyo: "별표", delegates: "위임", applied: "판례", interpreted: "해석례" };
 
@@ -53,7 +55,9 @@ const BM_KEY = "alg.bookmarks";
 
 export default function SearchView() {
   const [mode, setMode] = useState("search"); // "search" | "zoning"
+  const [zaxis, setZaxis] = useState("zone"); // "zone" | "parking"
   const [zone, setZone] = useState(null);
+  const [use, setUse] = useState(null);
   const [q, setQ] = useState("");
   const [domain, setDomain] = useState(null);
   const [selected, setSelected] = useState(null);
@@ -109,26 +113,56 @@ export default function SearchView() {
       </div>
 
       {mode === "zoning" ? (
+        <>
+        {/* 서브축 전환: 용도지역 ↔ 주차(건물용도) */}
+        <div className="zaxis-switch">
+          <button className={"zaxis-btn" + (zaxis === "zone" ? " on" : "")} onClick={() => { setZaxis("zone"); setSelected(null); }}>
+            용도지역 기준
+          </button>
+          <button className={"zaxis-btn" + (zaxis === "parking" ? " on" : "")} onClick={() => { setZaxis("parking"); setSelected(null); }}>
+            주차 기준 (건물 용도)
+          </button>
+        </div>
+
         <div className="sv-body">
-          {/* 용도지역 선택 */}
+          {/* 선택 패널: 용도지역 또는 건물 용도 */}
           <aside className="result-col zone-col">
-            <div className="rc-head">{REGION.name} · 용도지역<span>{ZONES.length}</span></div>
-            <div className="zone-list">
-              {ZONE_GROUPS.map((g) => (
-                <div key={g} className="zone-group">
-                  <div className="zg-label">{g}지역</div>
-                  {ZONES.filter((z) => z.group === g).map((z) => (
+            {zaxis === "zone" ? (
+              <>
+                <div className="rc-head">{REGION.name} · 용도지역<span>{ZONES.length}</span></div>
+                <div className="zone-list">
+                  {ZONE_GROUPS.map((g) => (
+                    <div key={g} className="zone-group">
+                      <div className="zg-label">{g}지역</div>
+                      {ZONES.filter((z) => z.group === g).map((z) => (
+                        <button
+                          key={z.key}
+                          className={"zone-item" + (zone?.key === z.key ? " on" : "")}
+                          onClick={() => { setZone(z); setSelected(null); }}
+                        >
+                          {z.label}
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="rc-head">{REGION.name} · 건물 용도<span>{USES.length}</span></div>
+                <div className="zone-list">
+                  {USES.map((u) => (
                     <button
-                      key={z.key}
-                      className={"zone-item" + (zone?.key === z.key ? " on" : "")}
-                      onClick={() => { setZone(z); setSelected(null); }}
+                      key={u.key}
+                      className={"zone-item" + (use?.key === u.key ? " on" : "")}
+                      onClick={() => { setUse(u); setSelected(null); }}
                     >
-                      {z.label}
+                      {u.label}
                     </button>
                   ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </aside>
 
           {/* 기준 카드 또는 근거 조문 본문 */}
@@ -145,13 +179,20 @@ export default function SearchView() {
                   onLaw={() => {}}
                 />
               </div>
-            ) : zone ? (
-              <ComplianceCard zone={zone} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
+            ) : zaxis === "zone" ? (
+              zone ? (
+                <ComplianceCard zone={zone} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
+              ) : (
+                <div className="empty"><div className="empty-art">📐</div>왼쪽에서 용도지역을 고르세요.</div>
+              )
+            ) : use ? (
+              <ParkingCard use={use} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
             ) : (
-              <div className="empty"><div className="empty-art">📐</div>왼쪽에서 용도지역을 고르세요.</div>
+              <div className="empty"><div className="empty-art">🅿️</div>왼쪽에서 건물 용도를 고르세요.</div>
             )}
           </main>
         </div>
+        </>
       ) : (
       <>
       {/* 검색-우선 진입 */}
