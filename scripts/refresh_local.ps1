@@ -35,7 +35,9 @@ try {
     Write-Log "after  hash = $after"
 
     if ($before -eq $after) {
-        Write-Log "법령 변경 없음 — 커밋 생략"
+        # built_at 만 바뀐 파일을 원복해 작업 트리를 깨끗하게 유지
+        git checkout -- data/graph.json
+        Write-Log "법령 변경 없음 — 커밋 생략 (파일 원복)"
         Write-Log "=== 완료 ==="
         return
     }
