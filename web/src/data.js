@@ -20,10 +20,18 @@ const admrulSet = new Set(
 const ordinSet = new Set(
   nodes.filter((n) => n.type === "law" && n.category === "조례").map((n) => n.id)
 );
+const precSet = new Set(
+  nodes.filter((n) => n.type === "law" && n.category === "판례").map((n) => n.id)
+);
+const expcSet = new Set(
+  nodes.filter((n) => n.type === "law" && n.category === "해석례").map((n) => n.id)
+);
 export const isAdmrul = (name) => admrulSet.has(name);
 export const isOrdin = (name) => ordinSet.has(name);
 const ADMRUL_HUE = "#7950f2"; // 고시 = 보라
 const ORDIN_HUE = "#e64980"; // 조례 = 분홍
+const PREC_HUE = "#343a40"; // 판례 = 진회색
+const EXPC_HUE = "#0c8599"; // 해석례 = 청록
 
 // ─── 법령군(family) → 색상 ───────────────────────────────────────────────
 // 절제된 팔레트: 군별 1 hue. 시행령/규칙은 같은 hue 명도 차.
@@ -54,6 +62,8 @@ function shade(hex, factor) {
 export function lawColor(name) {
   if (admrulSet.has(name)) return ADMRUL_HUE; // 고시
   if (ordinSet.has(name)) return ORDIN_HUE; // 조례
+  if (precSet.has(name)) return PREC_HUE; // 판례
+  if (expcSet.has(name)) return EXPC_HUE; // 해석례
   const fam = FAMILY.find((f) => f.test(name));
   if (!fam) return "#868e96"; // 외부/기타
   if (name.endsWith("시행규칙")) return shade(fam.hue, 0.6);
@@ -65,6 +75,8 @@ export function lawColor(name) {
 export function familyOf(name) {
   if (admrulSet.has(name)) return "고시";
   if (ordinSet.has(name)) return "조례";
+  if (precSet.has(name)) return "판례";
+  if (expcSet.has(name)) return "해석례";
   return FAMILY.find((f) => f.test(name))?.name || "기타";
 }
 

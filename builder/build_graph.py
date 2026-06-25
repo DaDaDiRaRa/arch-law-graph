@@ -89,6 +89,34 @@ ORDIN_GROUP = [
     ("서울특별시", "서울특별시 도시계획 조례 시행규칙"),
 ]
 
+# ─── 판례·해석례 수집 키워드/상한 ──────────────────────────────────────────
+PREC_KEYWORDS = ["건축법", "건폐율", "용적률", "건축물 높이", "일조", "주차장법", "용도지역"]
+EXPC_KEYWORDS = ["건축법", "건폐율", "용적률", "건축물 높이", "주차장법", "용도지역", "녹색건축물"]
+PREC_CAP = 40   # 대법원 판례 상한
+EXPC_CAP = 60   # 법령해석례 상한
+
+
+def _ref_pattern(law_names: list[str]) -> re.Pattern:
+    """법령명(긴 것 우선) 또는 '제N조[의M]' 매칭 패턴."""
+    alt = "|".join(re.escape(n) for n in sorted(set(law_names), key=len, reverse=True))
+    return re.compile(f"(?P<law>{alt})|제\\s*(?P<no>\\d+)\\s*조(?:의\\s*(?P<br>\\d+))?")
+
+
+def extract_article_refs(text: str, pat: re.Pattern) -> list[tuple[str, str]]:
+    """본문/참조조문에서 (법령명, 조문번호) 추출.
+
+    직전 등장 법령명에 후속 '제N조'를 귀속 (예: '건축법 제19조, 제20조' → 둘 다 건축법).
+    """
+    refs: list[tuple[str, str]] = []
+    cur: str | None = None
+    for m in pat.finditer(text):
+        if m.group("law"):
+            cur = m.group("law")
+        elif cur:
+            no, br = m.group("no"), m.group("br")
+            refs.append((cur, f"{no}의{br}" if br else no))
+    return refs
+
 # ─── domain_tags 분류 (자매 앱 진단 8카테고리) ──────────────────────────────
 
 DOMAIN_KEYWORDS: dict[str, list[str]] = {
@@ -176,6 +204,35 @@ def add_law_nodes(
             source_url=source_url,
         )
         G.add_edge(law_nm, nid, type="contains", method="structure")
+
+
+def add_doc_node(
+    G: nx.DiGraph, node_id: str, title: str, content: str, source_url: str,
+    category: str, refs: list[tuple[str, str]], edge_type: str,
+    existing_articles: set[str],
+) -> int:
+    """판례/해석례 = law 노드 1개 + 단일 article('전문') + 참조 조문으로의 엣지.
+
+    refs 중 그래프에 실재하는 조문 노드로만 edge_type 엣지를 연결. 연결 수 반환.
+    """
+    G.add_node(node_id, type="law", law_nm=node_id, category=category)
+    aid = f"{node_id}/전문"
+    G.add_node(
+        aid, type="article", law_nm=node_id, article_no="전문",
+        title=title, content=content, ef_yd="",
+        domain_tags=classify_domain(f"{title}\n{content}"), source_url=source_url,
+    )
+    G.add_edge(node_id, aid, type="contains", method="structure")
+
+    linked = 0
+    seen: set[str] = set()
+    for law, art in refs:
+        tgt = article_id(law, art)
+        if tgt in existing_articles and tgt not in seen:
+            seen.add(tgt)
+            G.add_edge(aid, tgt, type=edge_type, method="ref")
+            linked += 1
+    return linked
 
 
 def extract_edges(
@@ -384,6 +441,62 @@ async def build(targets: list[str], include_admrul: bool = True) -> None:
     for law_nm, articles in {**fetched, **fetched_admrul, **fetched_ordin}.items():
         extract_edges(G, law_nm, articles, known_laws)
 
+    # 2.5단계: 판례(대법원)·법령해석례 — 조문 단위로 연결
+    prec_count = expc_count = prec_links = expc_links = 0
+    if include_admrul:
+        existing_articles = {n for n, d in G.nodes(data=True) if d.get("type") == "article"}
+        law_names = [n for n, d in G.nodes(data=True)
+                     if d.get("type") == "law" and not d.get("external")]
+        pat = _ref_pattern(law_names)
+
+        # 판례 — 대법원만(본문 XML 제공). 키워드 합집합 → 상한.
+        print(f"\n[2.5] 판례(대법원) fetch")
+        prec_idx: dict[str, dict] = {}
+        for kw in PREC_KEYWORDS:
+            for it in await client.search_prec(kw, court="대법원"):
+                prec_idx.setdefault(it["prec_id"], it)
+        for pid in list(prec_idx)[:PREC_CAP]:
+            doc = await client.get_prec(pid)
+            if not doc:
+                continue
+            title = doc["사건명"] or doc["사건번호"]
+            content = "\n\n".join(filter(None, [
+                f"【판시사항】\n{doc['판시사항']}" if doc["판시사항"] else "",
+                f"【판결요지】\n{doc['판결요지']}" if doc["판결요지"] else "",
+                f"【참조조문】\n{doc['참조조문']}" if doc["참조조문"] else "",
+            ])) or doc["판례내용"][:1500]
+            refs = extract_article_refs(doc["참조조문"] + "\n" + doc["판시사항"], pat)
+            node_id = f"판례 {doc['사건번호']}"
+            url = f"https://www.law.go.kr/LSW/precInfoP.do?precSeq={pid}"
+            prec_links += add_doc_node(G, node_id, title, content, url,
+                                       "판례", refs, "applied", existing_articles)
+            prec_count += 1
+        print(f"  ✓ 판례 {prec_count}건, 조문 연결 {prec_links}건")
+
+        # 법령해석례
+        print(f"\n[2.6] 법령해석례 fetch")
+        expc_idx: dict[str, dict] = {}
+        for kw in EXPC_KEYWORDS:
+            for it in await client.search_expc(kw):
+                expc_idx.setdefault(it["expc_id"], it)
+        for eid in list(expc_idx)[:EXPC_CAP]:
+            doc = await client.get_expc(eid)
+            if not doc:
+                continue
+            title = doc["안건명"] or doc["안건번호"]
+            content = "\n\n".join(filter(None, [
+                f"【질의요지】\n{doc['질의요지']}" if doc["질의요지"] else "",
+                f"【회답】\n{doc['회답']}" if doc["회답"] else "",
+                f"【이유】\n{doc['이유'][:1500]}" if doc["이유"] else "",
+            ]))
+            refs = extract_article_refs(doc["안건명"] + "\n" + doc["이유"], pat)
+            node_id = f"해석례 {doc['안건번호']}" if doc["안건번호"] else f"해석례 {eid}"
+            url = f"https://www.law.go.kr/LSW/expcInfoP.do?expcSeq={eid}"
+            expc_links += add_doc_node(G, node_id, title, content, url,
+                                       "해석례", refs, "interpreted", existing_articles)
+            expc_count += 1
+        print(f"  ✓ 해석례 {expc_count}건, 조문 연결 {expc_links}건")
+
     await client.close()
 
     # 3단계: export
@@ -397,6 +510,8 @@ async def build(targets: list[str], include_admrul: bool = True) -> None:
         "law_count": len(fetched),
         "admrul_count": len(fetched_admrul),
         "ordin_count": len(fetched_ordin),
+        "prec_count": prec_count,
+        "expc_count": expc_count,
         "node_count": G.number_of_nodes(),
         "edge_count": G.number_of_edges(),
         "edge_types": edge_types,
@@ -408,6 +523,7 @@ async def build(targets: list[str], include_admrul: bool = True) -> None:
 
     print(f"\n[3] 저장 완료 → {OUT_PATH}")
     print(f"  law={len(fetched)}  고시={len(fetched_admrul)}  조례={len(fetched_ordin)}  "
+          f"판례={prec_count}  해석례={expc_count}  "
           f"node={G.number_of_nodes()}  edge={G.number_of_edges()}")
     print(f"  edge_types={edge_types}")
 

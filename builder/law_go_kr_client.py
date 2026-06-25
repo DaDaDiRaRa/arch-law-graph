@@ -182,6 +182,129 @@ class LawGoKrClient:
             return []
         return _parse_admrul_xml(xml_text)
 
+    # ─── 판례(prec) ────────────────────────────────────────────────────────
+
+    async def search_prec(
+        self, keyword: str, court: str = "대법원", pages: int = 5
+    ) -> list[dict]:
+        """판례 검색. court 지정 시 해당 법원만(대법원은 본문 XML 제공됨).
+
+        Returns: [{prec_id, 사건명, 사건번호, 선고일자, 법원명}, ...]
+        """
+        if not self._key:
+            return []
+        out: list[dict] = []
+        for page in range(1, pages + 1):
+            params = {"OC": self._key, "target": "prec", "type": "JSON",
+                      "query": keyword, "display": 100, "page": page}
+            try:
+                r = await self._http.get(f"{BASE}/lawSearch.do", params=params)
+                r.raise_for_status()
+                items = r.json().get("PrecSearch", {}).get("prec", []) or []
+            except Exception as e:
+                logger.error("판례 검색 오류 (%s): %s", keyword, e)
+                break
+            if isinstance(items, dict):
+                items = [items]
+            if not items:
+                break
+            for it in items:
+                if court and (it.get("법원명") or "").strip() != court:
+                    continue
+                pid = (it.get("판례일련번호") or "").strip()
+                if not pid:
+                    m = re.search(r"ID=(\d+)", it.get("판례상세링크", ""))
+                    pid = m.group(1) if m else ""
+                if pid:
+                    out.append({
+                        "prec_id": pid,
+                        "사건명": (it.get("사건명") or "").strip(),
+                        "사건번호": (it.get("사건번호") or "").strip(),
+                        "선고일자": (it.get("선고일자") or "").strip(),
+                        "법원명": (it.get("법원명") or "").strip(),
+                    })
+        return out
+
+    async def get_prec(self, prec_id: str) -> dict | None:
+        """판례 본문 조회. {사건명, 사건번호, 선고일자, 법원명, 참조조문,
+        판시사항, 판결요지, 판례내용} | None."""
+        if not self._key or not prec_id:
+            return None
+        params = {"OC": self._key, "target": "prec", "ID": prec_id, "type": "XML"}
+        try:
+            r = await self._http.get(f"{BASE}/lawService.do", params=params)
+            r.raise_for_status()
+            x = ET.fromstring(r.text)
+        except Exception as e:
+            logger.error("판례 본문 오류 (ID=%s): %s", prec_id, e)
+            return None
+        if x.tag != "PrecService":
+            return None  # 비대법원 등 본문 미제공
+        g = lambda t: html.unescape((x.findtext(f".//{t}") or "").strip())
+        return {
+            "사건명": g("사건명"), "사건번호": g("사건번호"),
+            "선고일자": g("선고일자"), "법원명": g("법원명"),
+            "참조조문": g("참조조문"), "판시사항": g("판시사항"),
+            "판결요지": g("판결요지"), "판례내용": g("판례내용"),
+        }
+
+    # ─── 법령해석례(expc) ─────────────────────────────────────────────────
+
+    async def search_expc(self, keyword: str, pages: int = 5) -> list[dict]:
+        """법령해석례 검색. Returns [{expc_id, 안건명, 안건번호, 회신일자}, ...]."""
+        if not self._key:
+            return []
+        out: list[dict] = []
+        for page in range(1, pages + 1):
+            params = {"OC": self._key, "target": "expc", "type": "JSON",
+                      "query": keyword, "display": 100, "page": page}
+            try:
+                r = await self._http.get(f"{BASE}/lawSearch.do", params=params)
+                r.raise_for_status()
+                items = r.json().get("Expc", {}).get("expc", []) or []
+            except Exception as e:
+                logger.error("해석례 검색 오류 (%s): %s", keyword, e)
+                break
+            if isinstance(items, dict):
+                items = [items]
+            if not items:
+                break
+            for it in items:
+                eid = (it.get("법령해석례일련번호") or "").strip()
+                if not eid:
+                    m = re.search(r"ID=(\d+)", it.get("법령해석례상세링크", ""))
+                    eid = m.group(1) if m else ""
+                if eid:
+                    out.append({
+                        "expc_id": eid,
+                        "안건명": (it.get("안건명") or "").strip(),
+                        "안건번호": (it.get("안건번호") or "").strip(),
+                        "회신일자": (it.get("회신일자") or "").strip(),
+                    })
+        return out
+
+    async def get_expc(self, expc_id: str) -> dict | None:
+        """해석례 본문 조회. {안건명, 안건번호, 해석일자, 해석기관명,
+        질의요지, 회답, 이유} | None."""
+        if not self._key or not expc_id:
+            return None
+        params = {"OC": self._key, "target": "expc", "ID": expc_id, "type": "XML"}
+        try:
+            r = await self._http.get(f"{BASE}/lawService.do", params=params)
+            r.raise_for_status()
+            x = ET.fromstring(r.text)
+        except Exception as e:
+            logger.error("해석례 본문 오류 (ID=%s): %s", expc_id, e)
+            return None
+        if x.tag != "ExpcService":
+            return None
+        g = lambda t: html.unescape((x.findtext(f".//{t}") or "").strip())
+        return {
+            "안건명": g("안건명"), "안건번호": g("안건번호"),
+            "해석일자": g("해석일자"), "해석기관명": g("해석기관명"),
+            "질의요지": g("질의요지"), "회답": g("회답"), "이유": g("이유"),
+        }
+
     # ─── 자치법규(조례) 정확 매칭 ─────────────────────────────────────────
 
     async def search_ordin(self, name: str, org: str) -> dict | None:

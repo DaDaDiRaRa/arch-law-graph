@@ -13,7 +13,7 @@ import {
 } from "../data.js";
 import { LawBody, highlightTerms } from "../lib/lawContent.jsx";
 
-const TYPE_LABEL = { references: "참조", cross_law: "타법령", byeolpyo: "별표", delegates: "위임" };
+const TYPE_LABEL = { references: "참조", cross_law: "타법령", byeolpyo: "별표", delegates: "위임", applied: "판례", interpreted: "해석례" };
 
 // 검색 문법: "정확구절"  -제외어  나머지는 AND
 function parseQuery(raw) {
