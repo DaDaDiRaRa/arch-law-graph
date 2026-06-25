@@ -17,6 +17,7 @@ import ComplianceCard from "./ComplianceCard.jsx";
 import ParkingCard from "./ParkingCard.jsx";
 import SetbackCard from "./SetbackCard.jsx";
 import LandscapeCard from "./LandscapeCard.jsx";
+import ChatPanel from "./ChatPanel.jsx";
 import { REGIONS, ZONE_GROUPS, zonesOf } from "../zoning.js";
 import { PARKING_REGIONS } from "../parking.js";
 import { SETBACK_REGIONS } from "../setback.js";
@@ -95,6 +96,7 @@ export default function SearchView() {
   const [domain, setDomain] = useState(null);
   const [kind, setKind] = useState(null); // 문서 종류 필터
   const [selected, setSelected] = useState(null);
+  const [chatOpen, setChatOpen] = useState(false);
   const [bm, setBm] = useState(() => {
     try { return new Set(JSON.parse(localStorage.getItem(BM_KEY) || "[]")); } catch { return new Set(); }
   });
@@ -403,6 +405,27 @@ export default function SearchView() {
       </div>
       </>
       )}
+
+      {/* ─── 플로팅 AI 채팅 버튼 ─── */}
+      <button
+        className={"chat-fab" + (chatOpen ? " open" : "")}
+        onClick={() => setChatOpen((v) => !v)}
+        title="AI 법령 질의"
+      >
+        {chatOpen ? "✕" : "💬"}
+      </button>
+
+      <ChatPanel
+        open={chatOpen}
+        onClose={() => setChatOpen(false)}
+        selectedNode={selected}
+        onOpenRef={(id) => {
+          const n = nodeById.get(id);
+          if (!n) return;
+          if (mode !== "search") setMode("search");
+          setSelected(n);
+        }}
+      />
     </div>
   );
 }
