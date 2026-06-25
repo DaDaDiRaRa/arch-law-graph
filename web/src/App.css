@@ -157,6 +157,50 @@
   margin: 2px 4px;
 }
 
+/* 종류 필터 칩 (법령/고시/조례/판례/해석례) */
+.kchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.kchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 11px;
+  border-radius: 16px;
+  border: 1px solid var(--line2);
+  background: #fff;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.kchip:hover {
+  background: var(--hover);
+}
+.kchip.on {
+  background: var(--text);
+  border-color: var(--text);
+  color: #fff;
+}
+.kchip b {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text3);
+}
+.kchip.on b {
+  color: rgba(255, 255, 255, 0.7);
+}
+.kdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+}
+
 /* 본문 그리드 */
 .sv-body {
   flex: 1;
@@ -237,6 +281,21 @@
   font-weight: 500;
   color: var(--text);
   line-height: 1.35;
+}
+.r-snip {
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.r-snip mark {
+  background: #fff3bf;
+  color: inherit;
+  padding: 0 1px;
+  border-radius: 2px;
 }
 .r-law {
   font-size: 11px;

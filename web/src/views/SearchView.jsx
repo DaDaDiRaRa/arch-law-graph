@@ -6,6 +6,7 @@ import {
   citeIn,
   lawColor,
   lawOf,
+  familyOf,
   tier,
   outRel,
   inRel,
@@ -57,6 +58,31 @@ function familyChain(law) {
 const ALL = internalLaws.flatMap((law) => articlesByLaw.get(law) || []);
 const BM_KEY = "alg.bookmarks";
 
+// 문서 종류 — 법령/고시/조례/판례/해석례 (familyOf가 특수 4종은 그대로 반환)
+const KINDS = ["법령", "고시", "조례", "판례", "해석례"];
+const KIND_COLOR = { 법령: "#4dabf7", 고시: "#7950f2", 조례: "#e64980", 판례: "#343a40", 해석례: "#0c8599" };
+const SPECIAL_KIND = new Set(["고시", "조례", "판례", "해석례"]);
+function kindOf(lawNm) {
+  const f = familyOf(lawNm);
+  return SPECIAL_KIND.has(f) ? f : "법령";
+}
+
+// 본문 매칭 스니펫 — 첫 매칭어 주변 한 줄 발췌. head(번호·제목·법령)만 걸리면 null.
+function snippetOf(content, terms, win = 100) {
+  if (!content || !terms.length) return null;
+  let idx = -1;
+  for (const t of terms) {
+    const i = content.indexOf(t);
+    if (i >= 0 && (idx < 0 || i < idx)) idx = i;
+  }
+  if (idx < 0) return null;
+  const start = Math.max(0, idx - 30);
+  let s = content.slice(start, start + win).replace(/\s+/g, " ").trim();
+  if (start > 0) s = "…" + s;
+  if (start + win < content.length) s += "…";
+  return s;
+}
+
 export default function SearchView() {
   const [mode, setMode] = useState("search"); // "search" | "zoning"
   const [region, setRegion] = useState(REGIONS[0]); // 서울·부산·인천
@@ -67,6 +93,7 @@ export default function SearchView() {
   const [land, setLand] = useState(null);
   const [q, setQ] = useState("");
   const [domain, setDomain] = useState(null);
+  const [kind, setKind] = useState(null); // 문서 종류 필터
   const [selected, setSelected] = useState(null);
   const [bm, setBm] = useState(() => {
     try { return new Set(JSON.parse(localStorage.getItem(BM_KEY) || "[]")); } catch { return new Set(); }
@@ -83,26 +110,40 @@ export default function SearchView() {
       return n;
     });
 
-  // 결과 리스트
-  const results = useMemo(() => {
+  // 결과 리스트 + 종류별 카운트(종류 필터 적용 전 기준)
+  const { results, kindCounts } = useMemo(() => {
     let pool = ALL;
     if (onlyBm) pool = pool.filter((a) => bm.has(a.id));
     if (domain) pool = pool.filter((a) => (a.domain_tags || []).includes(domain));
-    if (!pq.need.length && !pq.exc.length) {
-      return [...pool].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0)).slice(0, 60);
+
+    const empty = !pq.need.length && !pq.exc.length;
+    let matched;
+    if (empty) {
+      matched = [...pool].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0));
+    } else {
+      const scored = [];
+      for (const a of pool) {
+        const head = `${a.article_no} ${a.title} ${a.law_nm}`;
+        const hay = head + " " + (a.content || "");
+        if (pq.exc.some((e) => hay.includes(e))) continue;
+        if (!pq.need.every((t) => hay.includes(t))) continue;
+        const inHead = pq.need.every((t) => head.includes(t));
+        scored.push({ a, rank: inHead ? 0 : 1 });
+      }
+      scored.sort((x, y) => x.rank - y.rank || (citeIn.get(y.a.id) || 0) - (citeIn.get(x.a.id) || 0));
+      matched = scored.map((s) => s.a);
     }
-    const scored = [];
-    for (const a of pool) {
-      const head = `${a.article_no} ${a.title} ${a.law_nm}`;
-      const hay = head + " " + (a.content || "");
-      if (pq.exc.some((e) => hay.includes(e))) continue;
-      if (!pq.need.every((t) => hay.includes(t))) continue;
-      const inHead = pq.need.every((t) => head.includes(t));
-      scored.push({ a, rank: inHead ? 0 : 1 });
+
+    const counts = {};
+    for (const a of matched) {
+      const k = kindOf(a.law_nm);
+      counts[k] = (counts[k] || 0) + 1;
     }
-    scored.sort((x, y) => x.rank - y.rank || (citeIn.get(y.a.id) || 0) - (citeIn.get(x.a.id) || 0));
-    return scored.slice(0, 200).map((s) => s.a);
-  }, [pq, domain, onlyBm, bm]);
+
+    let list = kind ? matched.filter((a) => kindOf(a.law_nm) === kind) : matched;
+    list = list.slice(0, empty ? 60 : 200);
+    return { results: list, kindCounts: counts };
+  }, [pq, domain, onlyBm, bm, kind]);
 
   // 멀티리전 파생값
   const lsRegion = REGIONS_LS.find((r) => r.code === region.code);
@@ -291,6 +332,20 @@ export default function SearchView() {
             </button>
           ))}
         </div>
+        {/* 종류 필터 — 법령/고시/조례/판례/해석례 (결과에 존재하는 종류만) */}
+        <div className="kchips">
+          <button className={"kchip" + (!kind ? " on" : "")} onClick={() => setKind(null)}>전체</button>
+          {KINDS.filter((k) => kindCounts[k]).map((k) => (
+            <button
+              key={k}
+              className={"kchip k-" + k + (kind === k ? " on" : "")}
+              onClick={() => setKind(kind === k ? null : k)}
+            >
+              <span className="kdot" style={{ background: KIND_COLOR[k] }} />
+              {k} <b>{kindCounts[k]}</b>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="sv-body">
@@ -304,12 +359,14 @@ export default function SearchView() {
             {results.map((a) => {
               const cite = citeIn.get(a.id) || 0;
               const marked = bm.has(a.id);
+              const snip = query ? snippetOf(a.content, pq.terms) : null;
               return (
                 <li key={a.id} className={selected?.id === a.id ? "on" : ""} onClick={() => setSelected(a)}>
                   <span className="r-dot" style={{ background: lawColor(a.law_nm) }} />
                   <span className="r-main">
                     <span className="r-no">{titleOf(a)}</span>
                     <span className="r-title">{highlightTerms(a.title || "—", pq.terms)}</span>
+                    {snip && <span className="r-snip">{highlightTerms(snip, pq.terms)}</span>}
                     <span className="r-law">{shortLaw(a.law_nm)}</span>
                   </span>
                   {cite > 0 && <span className="r-cite" title="피인용(영향력)">↩{cite}</span>}
