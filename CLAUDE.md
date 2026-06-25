@@ -35,7 +35,7 @@ nginx.conf        # port 8080, gzip, /assets/ 1년 캐시, SPA fallback
 
 ## 현재 상태 (2026-06-25 기준)
 
-- **graph.json**: node≈2287, edge≈6985, 법령 19개 + 국토부 고시 17개 (Phase 2 완료)
+- **graph.json**: node≈2615, edge≈8089, 법령 19 + 국토부 고시 17 + 서울시 조례 4 (Phase 3 완료)
 - **배포**: Cloud Run (Method B — GitHub push → 자동 재배포)
 - **자동갱신**: 로컬 Windows 작업 스케줄러 "arch-law-graph 자동갱신" (매일 09:00, `scripts/refresh_local.ps1`). GitHub Actions 크론은 비활성화 — 법제처 API가 GH 러너(해외 IP)를 차단해 빈 결과 반환하기 때문.
 - **빌드 venv**: `D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe` (networkx·httpx·dotenv 설치)
@@ -53,7 +53,7 @@ nginx.conf        # port 8080, gzip, /assets/ 1년 캐시, SPA fallback
 
 1. ✅ Phase 1 — 누락 위임 부령·하위법령 보강 (target=law, 완료 2026-06-25)
 2. ✅ Phase 2 — 국토부 핵심 건축 고시 17개 (admrul, 완료 2026-06-25). `ADMRUL_GROUP` 참고. 고시 노드는 `category="고시"`. 조문형식 아닌 고시(면적·높이 기준 등)는 장(章) 단위 blob 분할, hwp 첨부만 있는 고시(건축구조기준)는 자동 스킵.
-3. ⏳ Phase 3 — 지자체 조례 (ordin, 서울시 등)
+3. ✅ Phase 3 — 서울특별시 건축 조례 4종 (ordin, 완료 2026-06-25). `ORDIN_GROUP` 참고. 조례 노드는 `category="조례"`. 조문번호 6자리(조4+가지2)는 `_ordin_article_no`로 정규화. 다른 지자체 확장 시 ORDIN_GROUP에 (지자체기관명, 자치법규명) 추가.
 4. ⏳ Phase 4 — 판례·해석례 (prec/expc, 신규 노드 타입)
 
 ---
