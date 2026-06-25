@@ -689,3 +689,16 @@
 .cc-notes { list-style: none; margin: 14px 0 0; padding: 0; }
 .cc-notes li { position: relative; font-size: 12.5px; color: var(--text2); line-height: 1.55; padding: 3px 0 3px 14px; }
 .cc-notes li::before { content: "·"; position: absolute; left: 4px; color: var(--text3); }
+
+/* ─── 도시 전환 (서울·부산·인천) ───────────────────────────────────────── */
+.region-switch { display: flex; gap: 6px; padding: 14px 18px 0; }
+.region-btn {
+  font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: 18px;
+  border: 1px solid var(--line2); background: #fff; color: var(--text2); cursor: pointer;
+}
+.region-btn:hover { background: var(--hover); }
+.region-btn.on { background: var(--text); border-color: var(--text); color: #fff; }
+
+/* 멀티리전 한계 안내(부산·인천 주차·이격 미제공) */
+.zaxis-note { font-size: 12px; color: var(--text3); padding: 8px 18px 0; line-height: 1.5; }
+.zaxis-note b { color: var(--text2); }

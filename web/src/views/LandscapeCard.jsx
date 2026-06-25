@@ -1,12 +1,14 @@
 // 조경 카드 — 연면적 규모를 고르면 대지 조경면적 기준을
-// 국가(시행령 제27조②) vs 서울(건축조례 제24조)로 표시. 서울 강화/완화 뱃지 분기.
+// 국가 baseline vs 도시 적용으로 표시. tier(def+sel)·refs·regionName 은 SearchView 주입.
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
-import { REGION, LANDSCAPE_REFS, LANDSCAPE_NOTES } from "../landscape.js";
+import { LANDSCAPE_NOTES } from "../landscape.js";
 
 function shortLaw(name = "") {
   return name
     .replace("에 관한 법률", "법")
     .replace("서울특별시 건축 조례", "서울 건축조례")
+    .replace("부산광역시 건축 조례", "부산 건축조례")
+    .replace("인천광역시 건축 조례", "인천 건축조례")
     .replace(/ /g, "");
 }
 function refLabel(id) {
@@ -16,9 +18,9 @@ function refLabel(id) {
   return `${shortLaw(n.law_nm)} ${no.startsWith("별표") ? no : "제" + no + "조"}`;
 }
 
-function collectCases() {
+function collectCases(refs) {
   const seen = new Map();
-  for (const rid of LANDSCAPE_REFS) {
+  for (const rid of refs) {
     for (const r of inRel.get(rid) || []) {
       if (r.type !== "applied" && r.type !== "interpreted") continue;
       if (!seen.has(r.id)) seen.set(r.id, { id: r.id, type: r.type });
@@ -27,13 +29,13 @@ function collectCases() {
   return [...seen.values()].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0));
 }
 
-export default function LandscapeCard({ tier, onOpen }) {
-  const cases = collectCases();
+export default function LandscapeCard({ tier, refs, regionName, onOpen }) {
+  const cases = collectCases(refs);
   const applCls = "cc-val cc-applied" + (tier.strict ? " strict" : tier.relax ? " relax" : "");
   return (
     <div className="cc">
       <div className="cc-head">
-        <span className="cc-region">{REGION.name}</span>
+        <span className="cc-region">{regionName}</span>
         <h1 className="cc-h1-sm">{tier.label}</h1>
         <span className="cc-grp">대지의 조경</span>
       </div>
@@ -47,7 +49,7 @@ export default function LandscapeCard({ tier, onOpen }) {
           </div>
           <span className="cc-arrow">→</span>
           <div className={applCls}>
-            <span className="cc-vk">{REGION.name} 적용</span>
+            <span className="cc-vk">{regionName} 적용</span>
             <span className="cc-vt">{tier.sel}</span>
             {tier.strict && <span className="cc-badge">조례 강화</span>}
             {tier.relax && <span className="cc-badge cc-badge-relax">조례 완화</span>}
@@ -55,7 +57,7 @@ export default function LandscapeCard({ tier, onOpen }) {
         </div>
         <div className="cc-refs">
           <span className="cc-reflabel">근거</span>
-          {LANDSCAPE_REFS.map((id) => (
+          {refs.map((id) => (
             <button key={id} className="cc-refchip" onClick={() => onOpen(id)} title="원문 조문 열기">
               {refLabel(id)} <span className="cc-go">↗</span>
             </button>
@@ -90,7 +92,7 @@ export default function LandscapeCard({ tier, onOpen }) {
       </div>
 
       <p className="cc-disc">
-        조경면적 산정방법(필로티·온실 등)·면제 세부는 근거 원문(조례 제24조②④)을 확인하세요.
+        조경면적 산정방법(필로티·온실 등)·면제 세부는 근거 원문을 확인하세요.
       </p>
     </div>
   );

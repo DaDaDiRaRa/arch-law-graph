@@ -1,12 +1,13 @@
 // 대지 안의 공지(이격거리) 카드 — 건물 용도를 고르면
 // 건축선·인접대지경계선 이격거리를 국가 범위(시행령 별표2) vs 서울 적용(건축조례 별표4)으로 표시.
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
-import { REGION, SETBACK_REFS } from "../setback.js";
 
 function shortLaw(name = "") {
   return name
     .replace("에 관한 법률", "법")
     .replace("서울특별시 건축 조례", "서울 건축조례")
+    .replace("부산광역시 건축 조례", "부산 건축조례")
+    .replace("인천광역시 건축 조례", "인천 건축조례")
     .replace(/ /g, "");
 }
 function refLabel(id) {
@@ -16,7 +17,7 @@ function refLabel(id) {
   return `${shortLaw(n.law_nm)} ${no.startsWith("별표") ? no : "제" + no + "조"}`;
 }
 
-function SbRow({ label, dim }) {
+function SbRow({ label, dim, regionName }) {
   return (
     <div className="cc-metric">
       <div className="cc-mlabel"><b>{label}</b><span className="cc-msub">띄어야 할 거리</span></div>
@@ -27,7 +28,7 @@ function SbRow({ label, dim }) {
         </div>
         <span className="cc-arrow">→</span>
         <div className={"cc-val cc-applied" + (dim.strict ? " strict" : "")}>
-          <span className="cc-vk">{REGION.name} 적용</span>
+          <span className="cc-vk">{regionName} 적용</span>
           <span className="cc-vt">{dim.sel}</span>
           {dim.strict && <span className="cc-badge">조례 강화</span>}
         </div>
@@ -36,9 +37,9 @@ function SbRow({ label, dim }) {
   );
 }
 
-function collectCases() {
+function collectCases(refs) {
   const seen = new Map();
-  for (const rid of SETBACK_REFS) {
+  for (const rid of refs) {
     for (const r of inRel.get(rid) || []) {
       if (r.type !== "applied" && r.type !== "interpreted") continue;
       if (!seen.has(r.id)) seen.set(r.id, { id: r.id, type: r.type });
@@ -47,23 +48,23 @@ function collectCases() {
   return [...seen.values()].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0));
 }
 
-export default function SetbackCard({ use, onOpen }) {
-  const cases = collectCases();
+export default function SetbackCard({ use, refs, regionName, onOpen }) {
+  const cases = collectCases(refs);
   return (
     <div className="cc">
       <div className="cc-head">
-        <span className="cc-region">{REGION.name}</span>
+        <span className="cc-region">{regionName}</span>
         <h1 className="cc-h1-sm">{use.label}</h1>
         <span className="cc-grp">대지 안의 공지</span>
       </div>
 
-      {use.liner && <SbRow label="건축선으로부터" dim={use.liner} />}
-      {use.boundary && <SbRow label="인접 대지경계선으로부터" dim={use.boundary} />}
+      {use.liner && <SbRow label="건축선으로부터" dim={use.liner} regionName={regionName} />}
+      {use.boundary && <SbRow label="인접 대지경계선으로부터" dim={use.boundary} regionName={regionName} />}
       {use.note && <p className="cc-note">※ {use.note}</p>}
 
       <div className="cc-refs cc-refs-block">
         <span className="cc-reflabel">근거</span>
-        {SETBACK_REFS.map((id) => (
+        {refs.map((id) => (
           <button key={id} className="cc-refchip" onClick={() => onOpen(id)} title="원문 조문 열기">
             {refLabel(id)} <span className="cc-go">↗</span>
           </button>

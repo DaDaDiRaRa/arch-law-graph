@@ -16,10 +16,10 @@ import ComplianceCard from "./ComplianceCard.jsx";
 import ParkingCard from "./ParkingCard.jsx";
 import SetbackCard from "./SetbackCard.jsx";
 import LandscapeCard from "./LandscapeCard.jsx";
-import { ZONES, ZONE_GROUPS, REGION } from "../zoning.js";
-import { USES } from "../parking.js";
-import { USES as SETBACK_USES } from "../setback.js";
-import { TIERS as LAND_TIERS } from "../landscape.js";
+import { REGIONS, ZONE_GROUPS, zonesOf } from "../zoning.js";
+import { PARKING_REGIONS } from "../parking.js";
+import { SETBACK_REGIONS } from "../setback.js";
+import { REGIONS_LS, tiersOf } from "../landscape.js";
 
 const TYPE_LABEL = { references: "참조", cross_law: "타법령", byeolpyo: "별표", delegates: "위임", applied: "판례", interpreted: "해석례" };
 
@@ -59,7 +59,8 @@ const BM_KEY = "alg.bookmarks";
 
 export default function SearchView() {
   const [mode, setMode] = useState("search"); // "search" | "zoning"
-  const [zaxis, setZaxis] = useState("zone"); // "zone" | "parking" | "setback"
+  const [region, setRegion] = useState(REGIONS[0]); // 서울·부산·인천
+  const [zaxis, setZaxis] = useState("zone"); // "zone" | "parking" | "setback" | "landscape"
   const [zone, setZone] = useState(null);
   const [use, setUse] = useState(null);
   const [sb, setSb] = useState(null);
@@ -103,6 +104,18 @@ export default function SearchView() {
     return scored.slice(0, 200).map((s) => s.a);
   }, [pq, domain, onlyBm, bm]);
 
+  // 멀티리전 파생값
+  const lsRegion = REGIONS_LS.find((r) => r.code === region.code);
+  const pkRegion = PARKING_REGIONS.find((r) => r.code === region.code);
+  const sbRegion = SETBACK_REGIONS.find((r) => r.code === region.code);
+  const zoneList = useMemo(() => zonesOf(region), [region]);
+  const tierList = useMemo(() => (lsRegion ? tiersOf(lsRegion) : []), [lsRegion]);
+  const openRef = (id) => { const n = nodeById.get(id); if (n) setSelected(n); };
+  const pickRegion = (r) => {
+    setRegion(r);
+    setZone(null); setLand(null); setUse(null); setSb(null); setSelected(null);
+  };
+
   return (
     <div className="view search-view">
       {/* 모드 전환: 검색 ↔ 기준 조회 */}
@@ -120,7 +133,16 @@ export default function SearchView() {
 
       {mode === "zoning" ? (
         <>
-        {/* 서브축 전환: 용도지역 ↔ 주차(건물용도) */}
+        {/* 도시 전환 */}
+        <div className="region-switch">
+          {REGIONS.map((r) => (
+            <button key={r.code} className={"region-btn" + (region.code === r.code ? " on" : "")} onClick={() => pickRegion(r)}>
+              {r.name}
+            </button>
+          ))}
+        </div>
+
+        {/* 서브축 전환 — 주차·이격은 서울만 데이터 보유 */}
         <div className="zaxis-switch">
           <button className={"zaxis-btn" + (zaxis === "zone" ? " on" : "")} onClick={() => { setZaxis("zone"); setSelected(null); }}>
             용도지역 기준
@@ -137,16 +159,16 @@ export default function SearchView() {
         </div>
 
         <div className="sv-body">
-          {/* 선택 패널: 용도지역 또는 건물 용도 */}
+          {/* 선택 패널 */}
           <aside className="result-col zone-col">
             {zaxis === "zone" ? (
               <>
-                <div className="rc-head">{REGION.name} · 용도지역<span>{ZONES.length}</span></div>
+                <div className="rc-head">{region.name} · 용도지역<span>{zoneList.length}</span></div>
                 <div className="zone-list">
-                  {ZONE_GROUPS.map((g) => (
+                  {ZONE_GROUPS.filter((g) => zoneList.some((z) => z.group === g)).map((g) => (
                     <div key={g} className="zone-group">
                       <div className="zg-label">{g}지역</div>
-                      {ZONES.filter((z) => z.group === g).map((z) => (
+                      {zoneList.filter((z) => z.group === g).map((z) => (
                         <button
                           key={z.key}
                           className={"zone-item" + (zone?.key === z.key ? " on" : "")}
@@ -161,14 +183,11 @@ export default function SearchView() {
               </>
             ) : zaxis === "parking" ? (
               <>
-                <div className="rc-head">{REGION.name} · 건물 용도<span>{USES.length}</span></div>
+                <div className="rc-head">{region.name} · 건물 용도<span>{pkRegion.uses.length}</span></div>
                 <div className="zone-list">
-                  {USES.map((u) => (
-                    <button
-                      key={u.key}
-                      className={"zone-item" + (use?.key === u.key ? " on" : "")}
-                      onClick={() => { setUse(u); setSelected(null); }}
-                    >
+                  {pkRegion.uses.map((u) => (
+                    <button key={u.key} className={"zone-item" + (use?.key === u.key ? " on" : "")}
+                      onClick={() => { setUse(u); setSelected(null); }}>
                       {u.label}
                     </button>
                   ))}
@@ -176,14 +195,11 @@ export default function SearchView() {
               </>
             ) : zaxis === "setback" ? (
               <>
-                <div className="rc-head">{REGION.name} · 건물 용도<span>{SETBACK_USES.length}</span></div>
+                <div className="rc-head">{region.name} · 건물 용도<span>{sbRegion.uses.length}</span></div>
                 <div className="zone-list">
-                  {SETBACK_USES.map((u) => (
-                    <button
-                      key={u.key}
-                      className={"zone-item" + (sb?.key === u.key ? " on" : "")}
-                      onClick={() => { setSb(u); setSelected(null); }}
-                    >
+                  {sbRegion.uses.map((u) => (
+                    <button key={u.key} className={"zone-item" + (sb?.key === u.key ? " on" : "")}
+                      onClick={() => { setSb(u); setSelected(null); }}>
                       {u.label}
                     </button>
                   ))}
@@ -191,14 +207,11 @@ export default function SearchView() {
               </>
             ) : (
               <>
-                <div className="rc-head">{REGION.name} · 연면적 규모<span>{LAND_TIERS.length}</span></div>
+                <div className="rc-head">{region.name} · 연면적 규모<span>{tierList.length}</span></div>
                 <div className="zone-list">
-                  {LAND_TIERS.map((t) => (
-                    <button
-                      key={t.key}
-                      className={"zone-item" + (land?.key === t.key ? " on" : "")}
-                      onClick={() => { setLand(t); setSelected(null); }}
-                    >
+                  {tierList.map((t) => (
+                    <button key={t.key} className={"zone-item" + (land?.key === t.key ? " on" : "")}
+                      onClick={() => { setLand(t); setSelected(null); }}>
                       {t.label}
                     </button>
                   ))}
@@ -223,24 +236,24 @@ export default function SearchView() {
               </div>
             ) : zaxis === "zone" ? (
               zone ? (
-                <ComplianceCard zone={zone} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
+                <ComplianceCard zone={zone} refs={region.refs} regionName={region.name} onOpen={openRef} />
               ) : (
                 <div className="empty"><div className="empty-art">📐</div>왼쪽에서 용도지역을 고르세요.</div>
               )
             ) : zaxis === "parking" ? (
               use ? (
-                <ParkingCard use={use} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
+                <ParkingCard use={use} refs={pkRegion.refs} regionName={pkRegion.name} onOpen={openRef} />
               ) : (
                 <div className="empty"><div className="empty-art">🅿️</div>왼쪽에서 건물 용도를 고르세요.</div>
               )
             ) : zaxis === "setback" ? (
               sb ? (
-                <SetbackCard use={sb} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
+                <SetbackCard use={sb} refs={sbRegion.refs} regionName={sbRegion.name} onOpen={openRef} />
               ) : (
                 <div className="empty"><div className="empty-art">📏</div>왼쪽에서 건물 용도를 고르세요.</div>
               )
             ) : land ? (
-              <LandscapeCard tier={land} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
+              <LandscapeCard tier={land} refs={lsRegion.refs} regionName={lsRegion.name} onOpen={openRef} />
             ) : (
               <div className="empty"><div className="empty-art">🌳</div>왼쪽에서 연면적 규모를 고르세요.</div>
             )}

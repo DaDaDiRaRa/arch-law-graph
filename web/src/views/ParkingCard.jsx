@@ -1,13 +1,13 @@
-// 주차 기준 카드 — 건물 용도를 고르면 부설주차장 설치기준을
-// 국가(주차장법 시행령 별표1) vs 서울(주차조례 별표2)로 나란히 보여준다.
-// 근거 칩·관련 판례·해석례는 ComplianceCard 와 동일한 graph.json 인프라 재사용.
+// 주차 기준 카드 — 건물 용도별 부설주차장 설치기준을 국가 vs 도시로 표시.
+// use(nat/sel/strict/note)·refs·regionName 은 SearchView가 선택 도시에 맞춰 주입.
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
-import { REGION, PARKING_REFS } from "../parking.js";
 
 function shortLaw(name = "") {
   return name
     .replace("에 관한 법률", "법")
     .replace("서울특별시 주차장 설치 및 관리 조례", "서울 주차조례")
+    .replace("부산광역시 주차장 설치 및 관리 조례", "부산 주차조례")
+    .replace("인천광역시 주차장 설치 및 관리 조례", "인천 주차조례")
     .replace(/ /g, "");
 }
 function refLabel(id) {
@@ -17,22 +17,9 @@ function refLabel(id) {
   return `${shortLaw(n.law_nm)} ${no.startsWith("별표") ? no : "제" + no + "조"}`;
 }
 
-function RefChips({ refs, onOpen }) {
-  return (
-    <div className="cc-refs">
-      <span className="cc-reflabel">근거</span>
-      {refs.map((id) => (
-        <button key={id} className="cc-refchip" onClick={() => onOpen(id)} title="원문 조문 열기">
-          {refLabel(id)} <span className="cc-go">↗</span>
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function collectCases() {
+function collectCases(refs) {
   const seen = new Map();
-  for (const rid of PARKING_REFS) {
+  for (const rid of refs) {
     for (const r of inRel.get(rid) || []) {
       if (r.type !== "applied" && r.type !== "interpreted") continue;
       if (!seen.has(r.id)) seen.set(r.id, { id: r.id, type: r.type });
@@ -41,12 +28,12 @@ function collectCases() {
   return [...seen.values()].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0));
 }
 
-export default function ParkingCard({ use, onOpen }) {
-  const cases = collectCases();
+export default function ParkingCard({ use, refs, regionName, onOpen }) {
+  const cases = collectCases(refs);
   return (
     <div className="cc">
       <div className="cc-head">
-        <span className="cc-region">{REGION.name}</span>
+        <span className="cc-region">{regionName}</span>
         <h1 className="cc-h1-sm">{use.label}</h1>
         <span className="cc-grp">부설주차장</span>
       </div>
@@ -60,12 +47,20 @@ export default function ParkingCard({ use, onOpen }) {
           </div>
           <span className="cc-arrow">→</span>
           <div className={"cc-val cc-applied" + (use.strict ? " strict" : "")}>
-            <span className="cc-vk">{REGION.name} 적용</span>
+            <span className="cc-vk">{regionName} 적용</span>
             <span className="cc-vt">{use.sel}</span>
+            {use.note && <em className="cc-vnote">{use.note}</em>}
             {use.strict && <span className="cc-badge">조례 강화</span>}
           </div>
         </div>
-        <RefChips refs={PARKING_REFS} onOpen={onOpen} />
+        <div className="cc-refs">
+          <span className="cc-reflabel">근거</span>
+          {refs.map((id) => (
+            <button key={id} className="cc-refchip" onClick={() => onOpen(id)} title="원문 조문 열기">
+              {refLabel(id)} <span className="cc-go">↗</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="cc-cases">

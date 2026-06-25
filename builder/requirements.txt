@@ -1,3 +1,6 @@
 httpx>=0.27
 python-dotenv>=1.0
 networkx>=3.2
+# 조례 별표(부산·인천 등) 본문이 HWP 첨부뿐일 때 표 추출용. hwp5html 콘솔 스크립트 사용.
+pyhwp>=0.1b15
+six>=1.16

@@ -1,16 +1,16 @@
 // 기준 조회 카드 — 용도지역을 고르면 건폐율·용적률·일조 기준을
-// 국가 상한 vs 서울 적용으로 나란히 보여주고, 모든 수치에 근거 조문 칩을 단다.
-// 데이터는 zoning.js(큐레이션), 관련 판례·해석례는 graph.json 의 inRel(applied/interpreted).
+// 국가 상한 vs 도시 적용으로 나란히, 모든 수치에 근거 조문 칩.
+// zone(def+sel 병합)·refs·regionName 은 SearchView가 선택 도시에 맞춰 주입.
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
-import {
-  REGION, BCR_REFS, FAR_REFS, SUN_REFS, HEIGHT_REFS, SUNLIGHT_RULE,
-} from "../zoning.js";
+import { SUNLIGHT_RULE } from "../zoning.js";
 
 function shortLaw(name = "") {
   return name
     .replace("에 관한 법률", "법")
     .replace("국토의 계획 및 이용", "국토계획")
     .replace("서울특별시 ", "서울 ")
+    .replace("부산광역시 ", "부산 ")
+    .replace("인천광역시 ", "인천 ")
     .replace(/ /g, "");
 }
 function refLabel(id) {
@@ -32,14 +32,11 @@ function RefChips({ refs, onOpen }) {
   );
 }
 
-function MetricRow({ label, sub, nat, sel, unit, note, refs, onOpen }) {
+function MetricRow({ label, sub, regionName, nat, sel, unit, note, refs, onOpen }) {
   const stricter = sel < nat;
   return (
     <div className="cc-metric">
-      <div className="cc-mlabel">
-        <b>{label}</b>
-        {sub && <span className="cc-msub">{sub}</span>}
-      </div>
+      <div className="cc-mlabel"><b>{label}</b>{sub && <span className="cc-msub">{sub}</span>}</div>
       <div className="cc-vals">
         <div className="cc-val">
           <span className="cc-vk">국가 상한</span>
@@ -47,7 +44,7 @@ function MetricRow({ label, sub, nat, sel, unit, note, refs, onOpen }) {
         </div>
         <span className="cc-arrow">→</span>
         <div className={"cc-val cc-applied" + (stricter ? " strict" : "")}>
-          <span className="cc-vk">{REGION.name} 적용</span>
+          <span className="cc-vk">{regionName} 적용</span>
           <span className="cc-vn">
             {sel}{unit}
             {note && <em className="cc-vnote">{note}</em>}
@@ -70,13 +67,8 @@ function RuleRow({ label, rule, refs, onOpen }) {
   );
 }
 
-// 근거 조문들에 연결된 판례·해석례 (피인용 = applied/interpreted)
-function collectCases(zone) {
-  const refIds = [
-    ...BCR_REFS, ...FAR_REFS,
-    ...(zone.sunlight ? SUN_REFS : []),
-    ...(zone.heightNote ? HEIGHT_REFS : []),
-  ];
+function collectCases(refs) {
+  const refIds = [...refs.bcr, ...refs.far, ...refs.sun];
   const seen = new Map();
   for (const rid of refIds) {
     for (const r of inRel.get(rid) || []) {
@@ -84,42 +76,33 @@ function collectCases(zone) {
       if (!seen.has(r.id)) seen.set(r.id, { id: r.id, type: r.type });
     }
   }
-  return [...seen.values()].sort(
-    (a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0)
-  );
+  return [...seen.values()].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0));
 }
 
-export default function ComplianceCard({ zone, onOpen }) {
-  const cases = collectCases(zone);
+export default function ComplianceCard({ zone, refs, regionName, onOpen }) {
+  const cases = collectCases(refs);
   return (
     <div className="cc">
       <div className="cc-head">
-        <span className="cc-region">{REGION.name}</span>
+        <span className="cc-region">{regionName}</span>
         <h1>{zone.label}</h1>
         <span className="cc-grp">{zone.group}지역</span>
       </div>
 
       <MetricRow
-        label="건폐율" sub="대지면적 대비 건축면적"
-        nat={zone.bcrNat} sel={zone.bcrSel} unit="%"
-        refs={BCR_REFS} onOpen={onOpen}
+        label="건폐율" sub="대지면적 대비 건축면적" regionName={regionName}
+        nat={zone.bcrNat} sel={zone.bcr} unit="%" refs={refs.bcr} onOpen={onOpen}
       />
       <MetricRow
-        label="용적률" sub="대지면적 대비 연면적"
-        nat={zone.farNat} sel={zone.farSel} unit="%" note={zone.farNote}
-        refs={FAR_REFS} onOpen={onOpen}
+        label="용적률" sub="대지면적 대비 연면적" regionName={regionName}
+        nat={zone.farNat} sel={zone.far} unit="%" note={zone.farNote} refs={refs.far} onOpen={onOpen}
       />
       {zone.sunlight && (
-        <RuleRow label="일조 높이제한" rule={SUNLIGHT_RULE} refs={SUN_REFS} onOpen={onOpen} />
-      )}
-      {zone.heightNote && (
-        <RuleRow label="가로구역 높이" rule={zone.heightNote} refs={HEIGHT_REFS} onOpen={onOpen} />
+        <RuleRow label="일조 높이제한" rule={SUNLIGHT_RULE} refs={refs.sun} onOpen={onOpen} />
       )}
 
       <div className="cc-cases">
-        <div className="cc-cases-h">
-          <b>관련 판례·해석례</b> <span>{cases.length}</span>
-        </div>
+        <div className="cc-cases-h"><b>관련 판례·해석례</b> <span>{cases.length}</span></div>
         {cases.length ? (
           <ul>
             {cases.map((c) => {
@@ -128,9 +111,7 @@ export default function ComplianceCard({ zone, onOpen }) {
               const n = nodeById.get(c.id);
               return (
                 <li key={c.id} onClick={() => onOpen(c.id)}>
-                  <span className="cc-ctype" data-t={c.type}>
-                    {c.type === "applied" ? "판례" : "해석례"}
-                  </span>
+                  <span className="cc-ctype" data-t={c.type}>{c.type === "applied" ? "판례" : "해석례"}</span>
                   <span className="cc-cname" style={{ color: lawColor(name) }}>{short}</span>
                   <span className="cc-ctitle">{n?.title}</span>
                 </li>

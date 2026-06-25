@@ -37,7 +37,10 @@ nginx.conf        # port 8080, gzip, /assets/ 1년 캐시, SPA fallback
 
 ## 현재 상태 (2026-06-25 기준)
 
-- **graph.json**: node≈2815, edge≈8761 — 법령 19 + 고시 17 + 서울시 조례 4 + 대법원 판례 40 + 법령해석례 60 (Phase 1–4 완료)
+- **graph.json**: node≈3393, edge≈10405 — 법령 19 + 고시 17 + 조례 10(서울 4·부산 3·인천 3) + 대법원 판례 40 + 법령해석례 60 (Phase 1–4 완료 + Stage 1–2b + HWP 폴백)
+- **기준 조회(결정-등급 카드)**: 검색-퍼스트 외 `📐 기준 조회` 모드. 용도지역→건폐율·용적률·일조 / 건물용도→주차·이격 / 연면적→조경을 **국가 vs 도시 적용**으로 나란히 + 근거 조문 칩(클릭→원문 Reader) + 연결 판례·해석례 자동 수집. **멀티리전(서울·부산·인천) 전 도시 4탭 모두 지원**(인천 주차는 도시지역/관리지역 2단). 모든 수치는 graph.json 원문 대조 손-큐레이션(`web/src/{zoning,parking,setback,landscape}.js`). 검증은 `/run`(playwright-core + 로컬 Chrome 헤드리스, scratchpad 설치).
+- **HWP 별표 폴백**: 부산·인천 조례 별표는 본문이 HWP 첨부뿐(별표구분='서식'으로 표기). 빌더가 `별표첨부파일명` URL → 다운로드 → `pyhwp(hwp5html)` 변환 → HTML 표를 **선문자(박스드로잉) 텍스트**로 렌더해 graph.json 별표 content 채움(서울 인라인 별표와 동일 형식 → 프런트 표 렌더러 재사용). 제목에 "기준/산정/종류" 포함된 데이터표만 변환(표지판·양식 제외). `law_go_kr_client.py` 의 `_BP_TABLE_TITLE`·`_hwp_bytes_to_box_text`·`_render_box_table`·`_fill_hwp_byeolpyo` 참고. ⚠ `-m hwp5.hwp5html`는 Windows에서 빈 출력 → 콘솔 `.exe` 직접 호출. 의존성 `pyhwp`+`six`(requirements.txt).
+- **법제처 API 접근**: 이 로컬 머신(국내 IP)에서 직접 작동 → 재빌드·조례 fetch 가능(`.venv` python + UTF-8). GH Actions만 차단됨.
 - **배포**: Cloud Run (Method B — GitHub push → 자동 재배포)
 - **자동갱신**: 로컬 Windows 작업 스케줄러 "arch-law-graph 자동갱신" (매일 09:00, `scripts/refresh_local.ps1`). GitHub Actions 크론은 비활성화 — 법제처 API가 GH 러너(해외 IP)를 차단해 빈 결과 반환하기 때문.
 - **빌드 venv**: `D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe` (networkx·httpx·dotenv 설치)
@@ -121,8 +124,8 @@ East Asian Width-aware 테이블 파서:
 
 ### 1. 조례 지자체 확장 (`target=ordin`)
 
-- 현재 서울특별시 본청 4종만 — 부산·인천 등 주요 지자체로 확장 가능.
-- `build_graph.py`의 `ORDIN_GROUP`에 (지자체기관명, 자치법규명) 추가.
+- 현재 서울 4 + 부산 3 + 인천 3종. 추가 지자체는 `build_graph.py`의 `ORDIN_GROUP`에 (지자체기관명, 자치법규명) 추가 후 재빌드.
+- 기준 조회 멀티리전 연동: 새 도시는 `web/src/{zoning,parking,setback,landscape}.js`의 `REGIONS`/`PARKING_REGIONS`/`SETBACK_REGIONS`/`REGIONS_LS`에 도시별 조례 조문 id·적용값 등재(서울·부산·인천 모두 4축 구비). 주차·이격 별표가 HWP뿐이어도 빌더 HWP 폴백이 graph.json에 표를 채우므로 근거 칩 원문도 표시됨.
 
 ### 2. 판례·해석례 범위 확대 (`prec`/`expc`)
 
@@ -197,6 +200,8 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 | 고시 본문 hwp 첨부뿐 | `_chunk_admrul_blob` 안내문 감지 → 스킵(건축구조기준) |
 | 조례 조문번호 "000100" 깨짐 | `_ordin_article_no` 6자리(조4+가지2) 정규화 |
 | 판례 본문 빈 응답 | 대법원만 본문 XML 제공 → `법원명=="대법원"` 필터 |
+| 부산·인천 조례 별표 본문 빈 값(HWP 첨부뿐, 별표구분='서식') | 빌더 HWP 폴백 — `별표첨부파일명` URL → pyhwp `hwp5html` → 표를 박스드로잉 텍스트로 채움. 제목('기준/산정/종류')으로 데이터표만 변환 |
+| `python -m hwp5.hwp5html` Windows 빈 출력 | 콘솔 `hwp5html.exe`(venv Scripts) subprocess 직접 호출 |
 
 ---
 

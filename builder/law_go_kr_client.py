@@ -13,7 +13,13 @@ import html
 import logging
 import os
 import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import unicodedata
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 import httpx
 from dotenv import load_dotenv
@@ -22,6 +28,116 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 BASE = "https://www.law.go.kr/DRF"
+
+
+# ─── HWP 별표 폴백 (부산·인천 등 조례 별표는 본문이 HWP 첨부뿐) ──────────────
+# pyhwp 의 hwp5html 로 표를 추출 → 서울 별표와 동일한 선문자(박스드로잉) 텍스트로
+# 렌더 → graph.json 에 채워 프런트 별표 렌더러가 그대로 표로 파싱.
+def _find_hwp5html() -> str | None:
+    """실행 중인 venv 의 hwp5html 콘솔 스크립트 경로. (-m 호출은 Windows 에서 빈 출력)"""
+    cand = Path(sys.executable).with_name("hwp5html.exe" if os.name == "nt" else "hwp5html")
+    if cand.exists():
+        return str(cand)
+    return shutil.which("hwp5html")
+
+
+_HWP5HTML = _find_hwp5html()
+_hwp_cache: dict[str, str] = {}  # URL → 박스드로잉 텍스트 (런 내 중복 변환 방지)
+# 데이터표 별표 제목 신호(표지판·안내표시·요금·구획 등 양식 제외, 변환 비용 한정)
+_BP_TABLE_TITLE = re.compile(r"기준|산정|종류")
+
+
+def _cw(ch: str) -> int:
+    """표시 너비 (East Asian Width). 프런트 charW 와 정합: Wide/Fullwidth=2."""
+    return 2 if unicodedata.east_asian_width(ch) in ("W", "F") else 1
+
+
+def _dw(s: str) -> int:
+    return sum(_cw(c) for c in s)
+
+
+_BP_MAXW = 50  # 열 최대 표시폭 (서울 별표 폭과 유사하게 — 초과 셀은 하드랩)
+
+
+def _wrap_cells(s: str, w: int) -> list[str]:
+    """표시폭 w 기준 하드 문자 단위 줄바꿈. (프런트가 다줄 셀 조각을 이어붙임)"""
+    s = re.sub(r"\s*\n\s*", " ", s).strip()
+    lines, cur, cw = [], "", 0
+    for ch in s:
+        d = _cw(ch)
+        if cw + d > w and cur:
+            lines.append(cur)
+            cur, cw = ch, d
+        else:
+            cur += ch
+            cw += d
+    if cur:
+        lines.append(cur)
+    return lines or [""]
+
+
+def _render_box_table(rows: list[list[str]]) -> str:
+    """셀 행렬 → 선문자 표 텍스트(프런트 parseTable 이 파싱 가능한 형식)."""
+    ncol = max(len(r) for r in rows)
+    rows = [[(c if c else "") for c in (r + [""] * (ncol - len(r)))] for r in rows]
+    widths = [
+        min(_BP_MAXW, max(2, max(_dw(re.sub(r"\s+", " ", r[i])) for r in rows)))
+        for i in range(ncol)
+    ]
+    bar = lambda l, m, r: l + m.join("─" * (w + 2) for w in widths) + r
+
+    out = [bar("┌", "┬", "┐")]
+    for ri, row in enumerate(rows):
+        wrapped = [_wrap_cells(row[i], widths[i]) for i in range(ncol)]
+        height = max(len(c) for c in wrapped)
+        for k in range(height):
+            parts = []
+            for i in range(ncol):
+                seg = wrapped[i][k] if k < len(wrapped[i]) else ""
+                parts.append(" " + seg + " " * (widths[i] - _dw(seg) + 1))
+            out.append("│" + "│".join(parts) + "│")
+        out.append(bar("├", "┼", "┤") if ri < len(rows) - 1 else bar("└", "┴", "┘"))
+    return "\n".join(out)
+
+
+def _tables_from_xhtml(xhtml: str) -> list[list[list[str]]]:
+    """hwp5html 산출 xhtml → 표 목록(각 표 = 행렬). 정규식 기반(네임스페이스 무관)."""
+    tables = []
+    for tbl in re.findall(r"<table\b.*?</table>", xhtml, re.S):
+        rows = []
+        for tr in re.findall(r"<tr\b.*?</tr>", tbl, re.S):
+            cells = []
+            for td in re.findall(r"<t[dh]\b.*?</t[dh]>", tr, re.S):
+                txt = re.sub(r"<[^>]+>", "", td)
+                txt = html.unescape(txt).replace("\r", "").replace("　", " ")
+                cells.append(re.sub(r"[ \t]+", " ", txt).strip())
+            if any(c for c in cells):
+                rows.append(cells)
+        if len(rows) >= 2:
+            tables.append(rows)
+    return tables
+
+
+def _hwp_bytes_to_box_text(data: bytes) -> str:
+    """HWP 바이트 → hwp5html 변환 → 표를 선문자 텍스트로. 실패 시 빈 문자열."""
+    if not _HWP5HTML:
+        return ""
+    with tempfile.TemporaryDirectory() as td:
+        hwp_path = os.path.join(td, "bp.hwp")
+        out_dir = os.path.join(td, "html")
+        with open(hwp_path, "wb") as f:
+            f.write(data)
+        try:
+            subprocess.run(
+                [_HWP5HTML, "--output", out_dir, hwp_path],
+                check=True, capture_output=True, timeout=60,
+            )
+            xhtml = Path(out_dir, "index.xhtml").read_text(encoding="utf-8")
+        except Exception as e:
+            logger.warning("hwp5html 변환 실패: %s", e)
+            return ""
+    tables = _tables_from_xhtml(xhtml)
+    return "\n\n".join(_render_box_table(t) for t in tables)
 
 
 class LawGoKrClient:
@@ -122,7 +238,34 @@ class LawGoKrClient:
             logger.error("법령 본문 조회 오류 (MST=%s): %s", law_id, e)
             return []
 
-        return _parse_law_xml(xml_text)
+        articles = _parse_law_xml(xml_text)
+        await self._fill_hwp_byeolpyo(articles)
+        # HWP 변환이 빈 결과(양식·도형 별표)면 노드 미생성
+        return [a for a in articles if not a.pop("_hwp_empty", False)]
+
+    async def _fill_hwp_byeolpyo(self, articles: list[dict]) -> None:
+        """본문이 비고 HWP 첨부뿐인 별표(_hwp_url)를 다운로드·변환해 content 채움."""
+        if not _HWP5HTML:
+            return
+        for art in articles:
+            url = art.pop("_hwp_url", None)
+            if not url:
+                continue
+            if url in _hwp_cache:
+                art["content"] = _hwp_cache[url]
+                continue
+            try:
+                resp = await self._http.get(url, follow_redirects=True, timeout=30)
+                box = _hwp_bytes_to_box_text(resp.content) if resp.status_code == 200 else ""
+            except Exception as e:
+                logger.warning("별표 HWP 다운로드 실패 (%s): %s", art.get("title"), e)
+                box = ""
+            _hwp_cache[url] = box
+            art["content"] = box
+            if box:
+                logger.info("별표 HWP 변환: %s (%d자)", art.get("article_no"), len(box))
+            else:
+                art["_hwp_empty"] = True  # 표 없음(양식·도형) → 노드 미생성
 
     # ─── 행정규칙(고시·지침·예규) ─────────────────────────────────────────
 
@@ -524,9 +667,8 @@ def _parse_byeolpyo_units(root) -> list[dict]:
     out: list[dict] = []
     for byp in root.iter("별표단위"):
         bp_title = html.unescape((byp.findtext("별표제목") or "").strip())
-        bp_content = html.unescape((byp.findtext("별표내용") or "").strip())
-        if not bp_title or bp_title.startswith("삭제") or len(bp_content) < 30:
-            continue  # 폐지된 빈 서식 등 본문 없는 항목 스킵
+        if not bp_title or bp_title.startswith("삭제"):
+            continue
 
         no_raw = (byp.findtext("별표번호") or "").strip()
         br_raw = (byp.findtext("별표가지번호") or "").strip()
@@ -538,12 +680,22 @@ def _parse_byeolpyo_units(root) -> list[dict]:
             branch = int(br_raw)
         except ValueError:
             branch = 0
-        gubun = (byp.findtext("별표구분") or "별표").strip()
-        if gubun != "별표":
-            continue  # 서식(신청서 양식)은 표가 아니라 제외
-
         article_no = f"별표{no}" + (f"의{branch}" if branch else "")
-        out.append({"article_no": article_no, "title": bp_title, "content": bp_content})
+
+        bp_content = html.unescape((byp.findtext("별표내용") or "").strip())
+        gubun = (byp.findtext("별표구분") or "별표").strip()
+        if len(bp_content) >= 30:
+            # 인라인 본문 있음(서울·법령) — 서식(신청서 양식)은 표 아니라 제외
+            if gubun == "별표":
+                out.append({"article_no": article_no, "title": bp_title, "content": bp_content})
+            continue
+
+        # 본문 없음 — HWP 첨부 데이터표(설치기준·공지기준 등)만 변환 후보로 보존.
+        # ※ 부산·인천은 데이터표도 별표구분='서식'으로 표기 → 구분 대신 제목으로 판별.
+        fg = (byp.findtext("별표첨부파일구분") or "").strip().lower()
+        url = html.unescape((byp.findtext("별표첨부파일명") or "").strip())
+        if fg == "hwp" and url.startswith("http") and _BP_TABLE_TITLE.search(bp_title):
+            out.append({"article_no": article_no, "title": bp_title, "content": "", "_hwp_url": url})
     return out
 
 
