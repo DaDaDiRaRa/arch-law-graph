@@ -16,7 +16,15 @@ const internalSet = new Set(internalLaws);
 // ─── 법령군(family) → 색상 ───────────────────────────────────────────────
 // 절제된 팔레트: 군별 1 hue. 시행령/규칙은 같은 hue 명도 차.
 const FAMILY = [
-  { test: (n) => n.startsWith("건축법"), hue: "#4dabf7", name: "건축법" },
+  // 건축법 패밀리 — 본법·시행령·규칙 + 위임 부령(피난방화·설비·구조·대장)
+  {
+    test: (n) =>
+      n.startsWith("건축법") ||
+      /^건축물의 (피난|설비|구조)/.test(n) ||
+      n.startsWith("건축물대장"),
+    hue: "#4dabf7",
+    name: "건축법",
+  },
   { test: (n) => n.startsWith("국토의 계획"), hue: "#51cf66", name: "국토계획법" },
   { test: (n) => n.startsWith("주차장법"), hue: "#ffa94d", name: "주차장법" },
   { test: (n) => n.startsWith("건축물의 분양"), hue: "#cc5de8", name: "분양법" },
@@ -36,6 +44,7 @@ export function lawColor(name) {
   if (!fam) return "#868e96"; // 외부/기타
   if (name.endsWith("시행규칙")) return shade(fam.hue, 0.6);
   if (name.endsWith("시행령")) return shade(fam.hue, 0.8);
+  if (name.endsWith("규칙")) return shade(fam.hue, 0.6); // 위임 부령(…에 관한 규칙)
   return fam.hue;
 }
 
@@ -68,7 +77,7 @@ export const articlesByLaw = (() => {
 export const nodeById = new Map(nodes.map((n) => [n.id, n]));
 
 // ─── 법령 ↔ 법령 인용 매트릭스 (Chord 뷰용) ──────────────────────────────
-// cross_law 엣지(article→law)를 출발 법령 기준으로 집계. 군 내부 11개만.
+// cross_law 엣지(article→law)를 출발 법령 기준으로 집계. 군 내부 법령만.
 export function citationMatrix() {
   const idx = new Map(internalLaws.map((l, i) => [l, i]));
   const n = internalLaws.length;
@@ -107,6 +116,7 @@ export function delegateFlows() {
 export function tier(name) {
   if (name.endsWith("시행규칙")) return 2;
   if (name.endsWith("시행령")) return 1;
+  if (name.endsWith("규칙")) return 2; // 위임 부령은 규칙(부령) 위계
   return 0;
 }
 
