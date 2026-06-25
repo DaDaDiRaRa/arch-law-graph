@@ -251,6 +251,18 @@ async def build(targets: list[str]) -> None:
         fetched[law_nm] = articles
         add_law_nodes(G, law_nm, articles, source_url)
 
+    # fetch 결과 검증 — 빈/부분 결과로 기존 정상 graph.json 을 덮어쓰지 않도록.
+    # (법제처 API 장애·키 문제·IP 제한 시 전부 실패하면 exit 1 → 파일 미작성)
+    if not fetched:
+        sys.exit(
+            f"✗ 빌드 중단: {len(targets)}개 법령 fetch 전부 실패 "
+            "(법제처 API 오류 / LAW_API_KEY / IP 제한 의심). "
+            "기존 graph.json 을 보존하기 위해 파일을 쓰지 않습니다."
+        )
+    if len(fetched) < len(targets):
+        missing = [t for t in targets if t not in fetched]
+        print(f"  ⚠ 경고: {len(missing)}개 법령 fetch 실패 — {missing}")
+
     # 2단계: 엣지 추출 (노드 모두 등록된 뒤)
     print(f"\n[2] 엣지 추출")
     for law_nm, articles in fetched.items():
