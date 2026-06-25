@@ -35,6 +35,16 @@ jobs:
           LAW_API_KEY: ${{ secrets.LAW_API_KEY }}
         run: python builder/build_graph.py
 
+      - name: 빌드 결과 검증 (빈 그래프 커밋 방지)
+        run: |
+          python - <<'PY'
+          import json, sys
+          m = json.load(open("data/graph.json", encoding="utf-8"))["meta"]
+          print("law_count=%(law_count)s node_count=%(node_count)s edge_count=%(edge_count)s" % m)
+          if m["node_count"] == 0 or m["law_count"] == 0:
+              sys.exit("빌드 결과가 비어 있음 (법령/노드 0개) — API 키 또는 법제처 API 오류 의심. 커밋 중단.")
+          PY
+
       - name: 갱신 후 해시
         id: after
         run: echo "hash=$(python .github/scripts/graph_hash.py)" >> "$GITHUB_OUTPUT"
