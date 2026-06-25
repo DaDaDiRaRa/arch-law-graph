@@ -1,7 +1,7 @@
 # arch-law-graph — Claude 컨텍스트
 
 건축 법령 관계 그래프 탐색기. 법제처 DRF API → `data/graph.json` → React/Vite SPA.
-실무자(건축설계 소장·중간관리자)가 **11개 건축 법령을 주제별·피인용 순으로 빠르게 탐색**하는 게 핵심 목적.
+실무자(건축설계 소장·중간관리자)가 **건축 법령군(19개)을 주제별·피인용 순으로 빠르게 탐색**하는 게 핵심 목적.
 
 ---
 
@@ -33,12 +33,28 @@ nginx.conf        # port 8080, gzip, /assets/ 1년 캐시, SPA fallback
 
 ---
 
-## 현재 상태 (2026-06-24 기준)
+## 현재 상태 (2026-06-25 기준)
 
-- **graph.json**: node≈1557, edge≈5015, 법령 11개
+- **graph.json**: node≈1900, edge≈5938, 법령 19개 (11→19 확장, 핵심 위임 부령 포함)
 - **배포**: Cloud Run (Method B — GitHub push → 자동 재배포)
-- **자동갱신**: GitHub Actions `0 22 * * *` (07:00 KST), 내용 변경 시만 커밋
+- **자동갱신**: 로컬 Windows 작업 스케줄러 "arch-law-graph 자동갱신" (매일 09:00, `scripts/refresh_local.ps1`). GitHub Actions 크론은 비활성화 — 법제처 API가 GH 러너(해외 IP)를 차단해 빈 결과 반환하기 때문.
+- **빌드 venv**: `D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe` (networkx·httpx·dotenv 설치)
 - **GitHub**: `https://github.com/DaDaDiRaRa/arch-law-graph`
+
+### 법령군 (19개) — `builder/build_graph.py` LAW_GROUP
+
+- 건축법 패밀리: 건축법/시행령/시행규칙 + 피난ㆍ방화구조 규칙·설비기준 규칙·구조기준 규칙·건축물대장 규칙
+- 국토계획: 국토계획법/시행령/시행규칙
+- 주차장법/시행령/시행규칙
+- 건축물의 분양법/시행령/시행규칙
+- 녹색건축물 조성 지원법/시행령/시행규칙
+
+### 확장 로드맵 (실무 가치 순)
+
+1. ✅ Phase 1 — 누락 위임 부령·하위법령 보강 (target=law, 완료 2026-06-25)
+2. ⏳ Phase 2 — 국토부 핵심 건축 고시 ~15개 (admrul, 문서노드+cross_law). 고시는 `조문형식여부=N` 단일 `<조문내용>` blob, 상세조회는 `MST`가 아니라 `ID=` 파라미터.
+3. ⏳ Phase 3 — 지자체 조례 (ordin, 서울시 등)
+4. ⏳ Phase 4 — 판례·해석례 (prec/expc, 신규 노드 타입)
 
 ---
 
@@ -53,7 +69,7 @@ nginx.conf        # port 8080, gzip, /assets/ 1년 캐시, SPA fallback
 런타임 API 없음. 키 불필요. 순수 정적 SPA.
 
 ### UI — 검색-퍼스트 탐색기
-케이스노트·빅케이스 벤치마크 기반. 차별점은 **11개 법령 횡단 + 주제(domain) 필터**.
+케이스노트·빅케이스 벤치마크 기반. 차별점은 **19개 법령 횡단 + 주제(domain) 필터**.
 
 - 검색창 중심 (조문 번호/제목/본문 풀텍스트)
 - 검색 문법: `"정확한 구절"`, `-제외어`, AND(스페이스)
