@@ -1,10 +1,12 @@
 name: 법령 데이터 자동 갱신
 
 on:
-  schedule:
-    # 매일 07:00 KST = 22:00 UTC (전날). GitHub 크론은 UTC 기준.
-    - cron: "0 22 * * *"
-  workflow_dispatch: {} # 수동 실행 버튼
+  # 크론 비활성화: 법제처 DRF API가 GitHub Actions 러너(해외 데이터센터 IP)를
+  # 차단해 빈 결과를 반환함. 자동갱신은 정상 동작하는 로컬 IP에서
+  # Windows 작업 스케줄러 + scripts/refresh_local.ps1 로 수행한다.
+  # schedule:
+  #   - cron: "0 22 * * *"  # 매일 07:00 KST
+  workflow_dispatch: {} # 수동 실행 버튼 (참고용 — GH IP에선 실패할 수 있음)
 
 permissions:
   contents: write

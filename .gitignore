@@ -14,3 +14,6 @@ web/.vite/
 # 빌드 산출물 (필요 시 주석 해제하여 graph.json 도 추적 가능)
 # data/graph.json
 data/*.db
+
+# 로컬 자동갱신 로그
+scripts/refresh_local.log
