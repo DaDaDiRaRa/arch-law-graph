@@ -7,10 +7,10 @@
 
 ## 프로젝트 구조
 
-```
+```text
 builder/          # Python — 법제처 fetch → graph.json 빌드
-  build_graph.py  # 11개 법령 전체 빌드. --only 건축법 으로 단일 법령만 가능
-  law_go_kr_client.py  # 법제처 DRF API 클라이언트 (별표 포함)
+  build_graph.py  # 법령 19 + 고시 + 조례 + 판례 + 해석례 전체 빌드. --only 건축법 으로 단일 법령만 가능
+  law_go_kr_client.py  # 법제처 DRF 클라이언트 (law/admrul/ordin/prec/expc, 별표 포함)
   fetch_test.py   # 빠른 fetch 검증
   requirements.txt
 
@@ -23,9 +23,11 @@ web/src/
                        # familyOf(), tier(), DOMAINS, domainCount, etc.
   App.css              # 노션/토스풍 화이트 테마. --accent: #3182f6
 
+scripts/
+  refresh_local.ps1   # 로컬 자동갱신 (작업 스케줄러용): 빌드 → 변경 시 commit·push
 data/graph.json   # 빌드 산출물. git에 추적됨 (배포 시 번들)
 .github/
-  workflows/refresh.yml         # 매일 07:00 KST 자동 갱신 크론
+  workflows/refresh.yml         # GH Actions 크론 — 비활성화됨(법제처 IP 차단). 수동 dispatch만.
   scripts/graph_hash.py         # built_at 제외 MD5 해시 — 변경 감지용
 Dockerfile        # multistage: node:20-alpine 빌드 → nginx:alpine 서빙
 nginx.conf        # port 8080, gzip, /assets/ 1년 캐시, SPA fallback
@@ -65,15 +67,18 @@ nginx.conf        # port 8080, gzip, /assets/ 1년 캐시, SPA fallback
 ## 핵심 아키텍처 결정
 
 ### 데이터 흐름
-```
+
+```text
 법제처 DRF API → build_graph.py → data/graph.json
                                         ↓ (vite build 시 번들)
                                    nginx 정적 서빙 (Cloud Run)
 ```
+
 런타임 API 없음. 키 불필요. 순수 정적 SPA.
 
 ### UI — 검색-퍼스트 탐색기
-케이스노트·빅케이스 벤치마크 기반. 차별점은 **19개 법령 횡단 + 주제(domain) 필터**.
+
+케이스노트·빅케이스 벤치마크 기반. 차별점은 **법령군 횡단(법률→고시→조례→판례·해석례) + 주제(domain) 필터**.
 
 - 검색창 중심 (조문 번호/제목/본문 풀텍스트)
 - 검색 문법: `"정확한 구절"`, `-제외어`, AND(스페이스)
@@ -84,8 +89,10 @@ nginx.conf        # port 8080, gzip, /assets/ 1년 캐시, SPA fallback
 - 도메인 칩 (건폐율·용적률·높이 등 8카테고리) 2차 필터
 
 ### 별표 파싱
+
 법제처 `<별표내용>` XML 태그에 전체 텍스트 있음 (최대 26,561자).
 hwp 파일 불필요 — `rhwp-python (GitHub: DaDaMeon)` 은 필요 시 폴백.
+법령·고시·조례 공통으로 `_parse_byeolpyo_units()` 헬퍼가 처리.
 
 East Asian Width-aware 테이블 파서:
 - `charW(ch)`: CJK=2, ASCII=1 디스플레이 너비
@@ -97,40 +104,45 @@ East Asian Width-aware 테이블 파서:
 
 ## 현재 사용 중인 API
 
-### 법제처 DRF Open API (핵심)
-- Endpoint: `https://www.law.go.kr/DRF/`
-- `lawSearch.do?target=law&query={법령명}` — 법령 검색
-- `lawService.do?target=law&MST={법령일련번호}` — 법령 조문 + 별표 XML
-- 키: `.env`의 `LAW_API_KEY`, GitHub Secret `LAW_API_KEY`
+### 법제처 DRF Open API — 단일 `LAW_API_KEY`로 5개 target 사용
+
+- Endpoint: `https://www.law.go.kr/DRF/` (`lawSearch.do` 검색 + `lawService.do` 본문)
+- `target=law` — 법령. 본문은 `MST=` 파라미터.
+- `target=admrul` — 행정규칙/고시. 본문은 **`ID=` 파라미터(MST 아님)**. 조문형식 아닌 고시는 장 blob, hwp 첨부뿐이면 본문 없음.
+- `target=ordin` — 자치법규/조례. 조문번호 6자리(조4+가지2) 정규화 필요(`_ordin_article_no`).
+- `target=prec` — 판례. **대법원만 본문 XML 제공**(비대법원은 빈 응답). 구조화 `참조조문` 필드.
+- `target=expc` — 법령해석례. 구조화 필드(안건명/질의요지/회답/이유).
+- 키: `.env`의 `LAW_API_KEY`. (런타임 호출 없음 — 빌드 시에만 사용.)
+- ⚠ 법제처가 **GitHub Actions 등 해외 데이터센터 IP를 차단** → 빌드는 국내 IP(로컬)에서 수행.
 
 ---
 
 ## 추가할 수 있는 API (우선순위 순)
 
-### 1. 지자체 조례 (법제처 DRF, `target=ordin`) ← 가장 높은 가치
-- **파서가 이미 지원함** (`law_go_kr_client.py`에 `ordin` 분기 존재)
-- 건축 조례는 건폐율·용적률·높이 완화 규정이 자치구마다 다름
-- 실무자 페인포인트: 어느 조례가 어느 법을 위임받아 완화하는지 한눈에 보이지 않음
-- 추가 방법: `build_graph.py`의 `LAW_GROUP`에 조례 법령명 추가 + `target=ordin`으로 fetch
-- 주의: 조례는 수천 개 → 서울·부산 등 주요 지자체 건축 조례만 선별 필요
+### 1. 조례 지자체 확장 (`target=ordin`)
 
-### 2. 판례·해석 연결 (대법원 종합법률정보 API)
-- `https://glaw.scourt.go.kr/wsjo/lawjnl/sjo150.do` 계열
-- 조문 클릭 시 "이 조문이 적용된 판례 N건" 링크 가능
-- 단, 건축 분야 판례는 상대적으로 적고 API 안정성 검토 필요
+- 현재 서울특별시 본청 4종만 — 부산·인천 등 주요 지자체로 확장 가능.
+- `build_graph.py`의 `ORDIN_GROUP`에 (지자체기관명, 자치법규명) 추가.
+
+### 2. 판례·해석례 범위 확대 (`prec`/`expc`)
+
+- 현재 상한 PREC_CAP=40, EXPC_CAP=60. 키워드/상한 조정으로 확대 가능.
 
 ### 3. 국가공간정보포털 / 건축물 통계 (선택)
-- 조문과 직접 연결하기 어려워 우선순위 낮음
+
+- 조문과 직접 연결하기 어려워 우선순위 낮음. 별도 키(data.go.kr) 필요.
 
 ---
 
 ## 빌드 / 실행
 
 ```bash
-# Python (자매 앱 venv 재사용 또는 별도)
-pip install -r builder/requirements.txt
-python builder/build_graph.py           # 전체 11개 법령
-python builder/build_graph.py --only 건축법  # 단일 법령 테스트
+# Python — 자매앱 venv 사용 (networkx·httpx·dotenv 설치됨).
+#   D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe
+# (Windows Store stub 'python'/'py'에는 의존성 없음 — 위 venv 직접 호출)
+pip install -r builder/requirements.txt   # 새 venv 구성 시
+python builder/build_graph.py           # 전체 빌드(법령+고시+조례+판례+해석례)
+python builder/build_graph.py --only 건축법  # 단일 법령 테스트(고시·조례·판례 생략)
 
 # Web (개발)
 cd web
@@ -152,19 +164,21 @@ docker run -p 8080:8080 arch-law-graph
 
 ## 환경 변수
 
+```text
+LAW_API_KEY=...   # 법제처 DRF API 키 (필수, 빌드 시에만 사용)
 ```
-LAW_API_KEY=...   # 법제처 DRF API 키 (필수)
-```
-GitHub Actions Secret: `LAW_API_KEY` (Settings → Secrets and variables → Actions).
 
 ---
 
-## 자동 갱신 워크플로 (.github/workflows/refresh.yml)
+## 자동 갱신 (로컬 작업 스케줄러)
 
-- 스케줄: `0 22 * * *` UTC = 07:00 KST
-- 단계: checkout → pip install → 해시 전 → `build_graph.py` → 해시 후 → 변경 시만 커밋·푸시
-- `graph_hash.py`: `built_at` 제외 MD5 비교 (타임스탬프만 바뀐 경우 커밋 안 함)
-- Node.js 20 deprecation 경고는 비중단(non-breaking) — GitHub 인프라 전환 안내일 뿐
+GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 IP)를 차단해 빈 결과를 반환하기 때문. 정상 동작하는 로컬 IP에서 수행한다.
+
+- **작업**: Windows 작업 스케줄러 "arch-law-graph 자동갱신", 매일 09:00 (`StartWhenAvailable` — 그 시각 PC 꺼져 있었으면 다음 부팅·로그인 직후 실행).
+- **스크립트**: `scripts/refresh_local.ps1` — 해시 전 → `build_graph.py` → 해시 후 → 변경 시만 commit·push(→ Cloud Run 재배포). 변경 없으면 graph.json 원복(트리 청결).
+- **안전장치**: 빌드가 빈 결과(법령 fetch 전부 실패)면 `build_graph.py`가 exit 1 → 파일 미작성·커밋 안 함. refresh.yml에도 node_count==0 가드 잔존.
+- `graph_hash.py`: `built_at` 제외 MD5 비교 (타임스탬프만 바뀐 경우 커밋 안 함).
+- 로그: `scripts/refresh_local.log` (gitignore됨).
 
 ---
 
@@ -178,12 +192,17 @@ GitHub Actions Secret: `LAW_API_KEY` (Settings → Secrets and variables → Act
 | 빈 줄로 테이블 블록 분리 | 테이블 내부 빈 줄 스킵 로직 추가 |
 | delegates 자기참조 루프 | `target_law != law_nm` 가드 추가 |
 | Vite fs.allow 오류 | `server: { fs: { allow: ['..'] } }` 추가 |
+| 자동갱신이 빈 graph.json 커밋 → 배포 0건 | 정상본 복구 + `build_graph.py` exit 1(빈 결과 시) + workflow node_count 가드 |
+| 법제처 API가 GH Actions IP 차단 | 자동갱신을 로컬 작업 스케줄러로 이전 |
+| 고시 본문 hwp 첨부뿐 | `_chunk_admrul_blob` 안내문 감지 → 스킵(건축구조기준) |
+| 조례 조문번호 "000100" 깨짐 | `_ordin_article_no` 6자리(조4+가지2) 정규화 |
+| 판례 본문 빈 응답 | 대법원만 본문 XML 제공 → `법원명=="대법원"` 필터 |
 
 ---
 
 ## 다음 작업 후보
 
-1. **조례 확장** — `target=ordin`, 서울시 건축 조례부터
-2. **검색 고도화** — 초성 검색, 동의어 (예: "건폐율"↔"건축면적의 비율")
-3. **인용 관계 시각화** — 특정 조문 선택 시 인용/피인용 미니 그래프 패널
-4. **Node.js 24 경고 제거** — `actions/checkout@v5`, `actions/setup-python@v6` 업데이트
+1. **조례 지자체 확장** — `ORDIN_GROUP`에 부산·인천 등 추가
+2. **판례·해석례 확대** — PREC_CAP/EXPC_CAP 상향, 키워드 추가
+3. **검색 고도화** — 초성 검색, 동의어 (예: "건폐율"↔"건축면적의 비율")
+4. **인용 관계 시각화** — 특정 조문 선택 시 인용/피인용 미니 그래프 패널
