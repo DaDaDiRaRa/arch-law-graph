@@ -1,7 +1,7 @@
 # arch-law-graph — Claude 컨텍스트
 
 건축 법령 관계 그래프 탐색기. 법제처 DRF API → `data/graph.json` → React/Vite SPA.
-실무자(건축설계 소장·중간관리자)가 **건축 법령군(19개)을 주제별·피인용 순으로 빠르게 탐색**하는 게 핵심 목적.
+실무자(건축설계 소장·중간관리자)가 **건축 법령군(19개)을 주제별·피인용 순으로 빠르게 탐색**하고, **기준 조회**(용도지역·용도·규모별 건폐율·용적률·일조·주차·이격·조경을 국가 vs 도시로 즉답, 모두 근거 조문에 추적 가능)로 결정-등급 답을 얻는 게 핵심 목적.
 
 ---
 
@@ -10,13 +10,18 @@
 ```text
 builder/          # Python — 법제처 fetch → graph.json 빌드
   build_graph.py  # 법령 19 + 고시 + 조례 + 판례 + 해석례 전체 빌드. --only 건축법 으로 단일 법령만 가능
-  law_go_kr_client.py  # 법제처 DRF 클라이언트 (law/admrul/ordin/prec/expc, 별표 포함)
+  law_go_kr_client.py  # 법제처 DRF 클라이언트 (law/admrul/ordin/prec/expc, 별표 + HWP 폴백)
   fetch_test.py   # 빠른 fetch 검증
   requirements.txt
 
 web/src/
   App.jsx            # 최상위 shell — SearchView 하나 감싸는 구조
-  views/SearchView.jsx  # 검색-퍼스트 메인 뷰 (케이스노트/빅케이스 벤치마크)
+  views/SearchView.jsx  # 메인 뷰 — 검색 모드 + 기준 조회 모드(멀티리전 카드) 토글
+  views/ComplianceCard.jsx  # 용도지역 카드 (건폐율·용적률·일조)
+  views/ParkingCard.jsx     # 주차 카드 (건물 용도별)
+  views/SetbackCard.jsx     # 대지 공지(이격) 카드
+  views/LandscapeCard.jsx   # 조경 카드 (연면적 규모별)
+  zoning.js parking.js setback.js landscape.js  # 도시별(서울·부산·인천) 큐레이션 기준 데이터(국가 vs 도시)
   lib/lawContent.jsx    # 별표 테이블 파서·렌더러, LawBody 컴포넌트
   data.js              # 공유 데이터: internalLaws, articlesByLaw, nodeById,
                        # citeIn, maxCite, outRel, inRel, lawOf(), lawColor(),
@@ -60,6 +65,9 @@ nginx.conf        # port 8080, gzip, /assets/ 1년 캐시, SPA fallback
 2. ✅ Phase 2 — 국토부 핵심 건축 고시 17개 (admrul, 완료 2026-06-25). `ADMRUL_GROUP` 참고. 고시 노드는 `category="고시"`. 조문형식 아닌 고시(면적·높이 기준 등)는 장(章) 단위 blob 분할, hwp 첨부만 있는 고시(건축구조기준)는 자동 스킵.
 3. ✅ Phase 3 — 서울특별시 건축 조례 4종 (ordin, 완료 2026-06-25). `ORDIN_GROUP` 참고. 조례 노드는 `category="조례"`. 조문번호 6자리(조4+가지2)는 `_ordin_article_no`로 정규화. 다른 지자체 확장 시 ORDIN_GROUP에 (지자체기관명, 자치법규명) 추가.
 4. ✅ Phase 4 — 대법원 판례 40 + 법령해석례 60 (prec/expc, 완료 2026-06-25). 각 문서를 law+단일 article('전문') 노드(category="판례"/"해석례")로 모델링. 참조조문·안건명·이유에서 (법령명, 제N조) 추출(`extract_article_refs`) → 실재 조문 노드로 `applied`/`interpreted` 엣지. 판례는 대법원만(비대법원은 본문 XML 미제공). PREC_KEYWORDS/EXPC_KEYWORDS·PREC_CAP/EXPC_CAP로 범위 조절.
+5. ✅ Stage 1 — 기준 조회(결정-등급 카드) 도입 (완료 2026-06-25). 검색-퍼스트 외 `📐 기준 조회` 모드 + 서울 용도지역 건폐율·용적률·일조 카드. galaxy(보여주기)·mcp(AI 합성) 대비 차별점 = **1차 법령에 추적 가능한 답**.
+6. ✅ Stage 2a — 서울 주차·이격·조경 카드 추가 (완료 2026-06-25). 건물 용도/연면적 축. 인허가 체크 뼈대 완성.
+7. ✅ Stage 2b — 멀티리전(부산·인천) 확장 (완료 2026-06-25). 조례 6종(부산·인천 도시계획·건축·주차) fetch + 6주제 전 도시 카드. 부산·인천 주차·이격 별표는 HWP 폴백으로 수록. 도시마다 용도지역 수 다름(서울 16·부산 17·인천 21).
 
 ### 노드 category 체계
 
@@ -93,9 +101,9 @@ nginx.conf        # port 8080, gzip, /assets/ 1년 캐시, SPA fallback
 
 ### 별표 파싱
 
-법제처 `<별표내용>` XML 태그에 전체 텍스트 있음 (최대 26,561자).
-hwp 파일 불필요 — `rhwp-python (GitHub: DaDaMeon)` 은 필요 시 폴백.
-법령·고시·조례 공통으로 `_parse_byeolpyo_units()` 헬퍼가 처리.
+법령·서울 조례·고시: 법제처 `<별표내용>` XML 태그에 전체 텍스트 인라인(최대 26,561자).
+부산·인천 조례: `<별표내용>` 빈 값(HWP 첨부뿐) → **빌더 HWP 폴백**(`pyhwp` 의 `hwp5html`)으로 표 추출 → 박스드로잉 텍스트 변환(위 "HWP 별표 폴백" 참고). ※ `rhwp-python`은 미사용 — `.hwp` 바이너리 표 추출엔 pyhwp가 더 적합.
+공통으로 `_parse_byeolpyo_units()` 가 파싱, HWP 폴백은 `_fill_hwp_byeolpyo()`.
 
 East Asian Width-aware 테이블 파서:
 - `charW(ch)`: CJK=2, ASCII=1 디스플레이 너비
@@ -207,7 +215,7 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 
 ## 다음 작업 후보
 
-1. **조례 지자체 확장** — `ORDIN_GROUP`에 부산·인천 등 추가
+1. **조례 지자체 확장** — `ORDIN_GROUP`에 경기·대구 등 추가(서울·부산·인천 완료). 4개 도시별 `*_REGIONS`에 적용값 등재 — 별표가 HWP여도 폴백이 채움.
 2. **판례·해석례 확대** — PREC_CAP/EXPC_CAP 상향, 키워드 추가
 3. **검색 고도화** — 초성 검색, 동의어 (예: "건폐율"↔"건축면적의 비율")
 4. **인용 관계 시각화** — 특정 조문 선택 시 인용/피인용 미니 그래프 패널
