@@ -80,6 +80,15 @@ ADMRUL_GROUP = [
     "건축구조기준",                                  # hwp 첨부 — 스킵될 수 있음
 ]
 
+# ─── 대상 자치법규(조례) ───────────────────────────────────────────────────
+# (지자체기관명, 자치법규명) 정확 매칭. 서울특별시 본청부터 (자치구 아님).
+ORDIN_GROUP = [
+    ("서울특별시", "서울특별시 도시계획 조례"),        # 용도지역별 건폐율·용적률·높이
+    ("서울특별시", "서울특별시 건축 조례"),            # 대지안의 공지·일조 높이 등
+    ("서울특별시", "서울특별시 주차장 설치 및 관리 조례"),  # 부설주차 설치기준
+    ("서울특별시", "서울특별시 도시계획 조례 시행규칙"),
+]
+
 # ─── domain_tags 분류 (자매 앱 진단 8카테고리) ──────────────────────────────
 
 DOMAIN_KEYWORDS: dict[str, list[str]] = {
@@ -299,6 +308,23 @@ async def fetch_admrul(
     return articles, source_url, info
 
 
+async def fetch_ordin(
+    client: LawGoKrClient, org: str, name: str
+) -> tuple[list[dict], str] | None:
+    """자치법규명+지자체 정확 일치 검색 → 조문 목록. (articles, source_url) 또는 None."""
+    info = await client.search_ordin(name, org)
+    if not info:
+        print(f"  ✗ 조례 검색 결과 없음: {org} | {name}")
+        return None
+    articles = await client.get_law_articles(info["ordin_id"], "CST")
+    if not articles:
+        print(f"  ⚠ 본문 없음 — 스킵: {name}")
+        return None
+    source_url = f"https://www.law.go.kr/자치법규/{name}"
+    print(f"  ✓ {name} (MST={info['ordin_id']}) — 조문 {len(articles)}개")
+    return articles, source_url
+
+
 async def build(targets: list[str], include_admrul: bool = True) -> None:
     client = LawGoKrClient()
     G = nx.DiGraph()
@@ -340,9 +366,22 @@ async def build(targets: list[str], include_admrul: bool = True) -> None:
             known_laws.add(name)
             add_law_nodes(G, name, articles, source_url, category="고시")
 
-    # 2단계: 엣지 추출 (노드 모두 등록된 뒤) — 법령 + 행정규칙
+    # 1.6단계: 자치법규(조례) fetch + 노드 생성
+    fetched_ordin: dict[str, list[dict]] = {}
+    if include_admrul:
+        print(f"\n[1.6] 자치법규(조례) fetch ({len(ORDIN_GROUP)}개)")
+        for org, name in ORDIN_GROUP:
+            res = await fetch_ordin(client, org, name)
+            if res is None:
+                continue
+            articles, source_url = res
+            fetched_ordin[name] = articles
+            known_laws.add(name)
+            add_law_nodes(G, name, articles, source_url, category="조례")
+
+    # 2단계: 엣지 추출 (노드 모두 등록된 뒤) — 법령 + 행정규칙 + 조례
     print(f"\n[2] 엣지 추출")
-    for law_nm, articles in {**fetched, **fetched_admrul}.items():
+    for law_nm, articles in {**fetched, **fetched_admrul, **fetched_ordin}.items():
         extract_edges(G, law_nm, articles, known_laws)
 
     await client.close()
@@ -357,6 +396,7 @@ async def build(targets: list[str], include_admrul: bool = True) -> None:
         "built_at": datetime.now().isoformat(timespec="seconds"),
         "law_count": len(fetched),
         "admrul_count": len(fetched_admrul),
+        "ordin_count": len(fetched_ordin),
         "node_count": G.number_of_nodes(),
         "edge_count": G.number_of_edges(),
         "edge_types": edge_types,
@@ -367,7 +407,7 @@ async def build(targets: list[str], include_admrul: bool = True) -> None:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     print(f"\n[3] 저장 완료 → {OUT_PATH}")
-    print(f"  law={len(fetched)}  고시={len(fetched_admrul)}  "
+    print(f"  law={len(fetched)}  고시={len(fetched_admrul)}  조례={len(fetched_ordin)}  "
           f"node={G.number_of_nodes()}  edge={G.number_of_edges()}")
     print(f"  edge_types={edge_types}")
 

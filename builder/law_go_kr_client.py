@@ -182,6 +182,45 @@ class LawGoKrClient:
             return []
         return _parse_admrul_xml(xml_text)
 
+    # ─── 자치법규(조례) 정확 매칭 ─────────────────────────────────────────
+
+    async def search_ordin(self, name: str, org: str) -> dict | None:
+        """자치법규명 + 지자체기관명 정확 일치 검색. {ordin_id, name, org} | None.
+
+        ordin_id 는 lawService.do 의 MST 파라미터로 쓰이는 자치법규일련번호.
+        """
+        if not self._key:
+            return None
+        for page in (1, 2, 3, 4):
+            params = {
+                "OC": self._key, "target": "ordin", "type": "JSON",
+                "query": name, "display": 100, "page": page,
+            }
+            try:
+                r = await self._http.get(f"{BASE}/lawSearch.do", params=params)
+                r.raise_for_status()
+                body = r.json()
+            except Exception as e:
+                logger.error("조례 검색 오류 (%s): %s", name, e)
+                return None
+            items = body.get("OrdinSearch", {}).get("law", []) or []
+            if isinstance(items, dict):
+                items = [items]
+            if not items:
+                break
+            for it in items:
+                if (it.get("자치법규명") or "").strip() != name:
+                    continue
+                if (it.get("지자체기관명") or "").strip() != org:
+                    continue
+                ordin_id = (it.get("자치법규일련번호") or "").strip()
+                if not ordin_id:
+                    m = re.search(r"MST=(\d+)", it.get("자치법규상세링크", ""))
+                    ordin_id = m.group(1) if m else ""
+                if ordin_id:
+                    return {"ordin_id": ordin_id, "name": name, "org": org}
+        return None
+
     # ─── org 필터 검색 (시도 직제 조례 우선) ────────────────────────────
 
     async def _search_with_org_filter(
@@ -323,8 +362,23 @@ def _parse_law_units(units: list) -> list[dict]:
     return articles
 
 
+def _ordin_article_no(no_raw: str) -> str:
+    """조례 조문번호 6자리(조4+가지2) → '1', '10의2' 등으로 변환.
+
+    예: '000100' → '1', '001002' → '10의2'. 비표준이면 원본 유지.
+    """
+    no_raw = no_raw.strip()
+    if no_raw.isdigit() and len(no_raw) == 6:
+        jo, ga = int(no_raw[:4]), int(no_raw[4:])
+        return f"{jo}의{ga}" if ga else str(jo)
+    return no_raw
+
+
 def _parse_ordin_jo(root) -> list[dict]:
-    """자치법규(target=ordin) <조> 목록 파싱. 조문여부 Y 만."""
+    """자치법규(target=ordin) <조> 목록 파싱. 조문여부 Y 만.
+
+    조문번호는 6자리(조4+가지2) 포맷이라 _ordin_article_no 로 정규화.
+    """
     articles: list[dict] = []
     for jo in root.iter("조"):
         if (jo.findtext("조문여부") or "").strip() != "Y":
@@ -332,7 +386,7 @@ def _parse_ordin_jo(root) -> list[dict]:
         content_text = (jo.findtext("조내용") or "").strip()
         if content_text:
             articles.append({
-                "article_no": (jo.findtext("조문번호") or "").strip(),
+                "article_no": _ordin_article_no(jo.findtext("조문번호") or ""),
                 "title": (jo.findtext("조제목") or "").strip(),
                 "content": content_text,
             })
