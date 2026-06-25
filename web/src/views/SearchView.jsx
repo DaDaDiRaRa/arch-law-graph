@@ -12,6 +12,8 @@ import {
   DOMAINS,
 } from "../data.js";
 import { LawBody, highlightTerms } from "../lib/lawContent.jsx";
+import ComplianceCard from "./ComplianceCard.jsx";
+import { ZONES, ZONE_GROUPS, REGION } from "../zoning.js";
 
 const TYPE_LABEL = { references: "참조", cross_law: "타법령", byeolpyo: "별표", delegates: "위임", applied: "판례", interpreted: "해석례" };
 
@@ -50,6 +52,8 @@ const ALL = internalLaws.flatMap((law) => articlesByLaw.get(law) || []);
 const BM_KEY = "alg.bookmarks";
 
 export default function SearchView() {
+  const [mode, setMode] = useState("search"); // "search" | "zoning"
+  const [zone, setZone] = useState(null);
   const [q, setQ] = useState("");
   const [domain, setDomain] = useState(null);
   const [selected, setSelected] = useState(null);
@@ -91,6 +95,65 @@ export default function SearchView() {
 
   return (
     <div className="view search-view">
+      {/* 모드 전환: 검색 ↔ 기준 조회 */}
+      <div className="mode-switch">
+        <button className={"mode-btn" + (mode === "search" ? " on" : "")} onClick={() => setMode("search")}>
+          🔍 검색
+        </button>
+        <button
+          className={"mode-btn" + (mode === "zoning" ? " on" : "")}
+          onClick={() => { setMode("zoning"); setSelected(null); }}
+        >
+          📐 기준 조회
+        </button>
+      </div>
+
+      {mode === "zoning" ? (
+        <div className="sv-body">
+          {/* 용도지역 선택 */}
+          <aside className="result-col zone-col">
+            <div className="rc-head">{REGION.name} · 용도지역<span>{ZONES.length}</span></div>
+            <div className="zone-list">
+              {ZONE_GROUPS.map((g) => (
+                <div key={g} className="zone-group">
+                  <div className="zg-label">{g}지역</div>
+                  {ZONES.filter((z) => z.group === g).map((z) => (
+                    <button
+                      key={z.key}
+                      className={"zone-item" + (zone?.key === z.key ? " on" : "")}
+                      onClick={() => { setZone(z); setSelected(null); }}
+                    >
+                      {z.label}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </aside>
+
+          {/* 기준 카드 또는 근거 조문 본문 */}
+          <main className="read-col">
+            {selected ? (
+              <div className="reader2">
+                <button className="cc-back" onClick={() => setSelected(null)}>← 기준 카드로</button>
+                <Reader
+                  node={selected}
+                  terms={[]}
+                  marked={bm.has(selected.id)}
+                  onStar={() => toggleBm(selected.id)}
+                  onPick={(id) => { const n = nodeById.get(id); if (n?.type === "article") setSelected(n); }}
+                  onLaw={() => {}}
+                />
+              </div>
+            ) : zone ? (
+              <ComplianceCard zone={zone} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
+            ) : (
+              <div className="empty"><div className="empty-art">📐</div>왼쪽에서 용도지역을 고르세요.</div>
+            )}
+          </main>
+        </div>
+      ) : (
+      <>
       {/* 검색-우선 진입 */}
       <div className="search-bar">
         <div className="search-wrap">
@@ -173,6 +236,8 @@ export default function SearchView() {
           )}
         </main>
       </div>
+      </>
+      )}
     </div>
   );
 }

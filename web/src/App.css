@@ -554,3 +554,104 @@
   background: #fff;
   border-top: 1px solid var(--line);
 }
+
+/* ─── 모드 전환 (검색 ↔ 기준 조회) ───────────────────────────────────────── */
+.mode-switch {
+  display: flex;
+  gap: 6px;
+  padding: 14px 18px 0;
+}
+.mode-btn {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line2);
+  background: #fff;
+  color: var(--text2);
+  cursor: pointer;
+}
+.mode-btn:hover { background: var(--hover); }
+.mode-btn.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ─── 용도지역 선택 패널 ─────────────────────────────────────────────────── */
+.zone-list { overflow-y: auto; padding: 6px 0 20px; }
+.zone-group { padding: 6px 0; }
+.zg-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text3);
+  padding: 8px 18px 4px;
+  letter-spacing: 0.02em;
+}
+.zone-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-size: 13.5px;
+  color: var(--text);
+  padding: 8px 18px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+.zone-item:hover { background: var(--hover); }
+.zone-item.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+/* ─── 기준 조회 카드 ─────────────────────────────────────────────────────── */
+.cc { max-width: 720px; margin: 0 auto; padding: 28px 40px 70px; }
+.cc-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; }
+.cc-head h1 { font-size: 24px; font-weight: 700; margin: 0; }
+.cc-region { font-size: 12.5px; font-weight: 600; color: var(--accent); background: var(--accent-soft); padding: 3px 10px; border-radius: 12px; }
+.cc-grp { font-size: 12px; color: var(--text3); }
+
+.cc-metric { border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; margin-bottom: 14px; }
+.cc-mlabel { display: flex; align-items: baseline; gap: 8px; margin-bottom: 12px; }
+.cc-mlabel b { font-size: 15px; }
+.cc-msub { font-size: 12px; color: var(--text3); }
+
+.cc-vals { display: flex; align-items: stretch; gap: 14px; }
+.cc-val { display: flex; flex-direction: column; gap: 4px; flex: 1; padding: 12px 14px; border-radius: 10px; background: #fbfcfd; }
+.cc-val.cc-applied { background: var(--accent-soft); }
+.cc-val.cc-applied.strict { background: #fff4e6; }
+.cc-vk { font-size: 11.5px; font-weight: 600; color: var(--text3); }
+.cc-vn { font-size: 22px; font-weight: 700; color: var(--text); }
+.cc-applied .cc-vn { color: var(--accent); }
+.cc-applied.strict .cc-vn { color: var(--amber); }
+.cc-vnote { display: block; font-size: 11.5px; font-weight: 500; font-style: normal; color: var(--text3); margin-top: 2px; }
+.cc-badge { font-size: 11px; font-weight: 600; color: var(--amber); margin-top: 4px; }
+.cc-arrow { align-self: center; color: var(--text3); font-size: 18px; }
+
+.cc-rule { font-size: 13.5px; line-height: 1.6; color: var(--text); background: #fbfcfd; border-radius: 10px; padding: 12px 14px; }
+
+.cc-refs { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.cc-reflabel { font-size: 11.5px; font-weight: 600; color: var(--text3); margin-right: 2px; }
+.cc-refchip { font-size: 12px; font-weight: 500; color: var(--text2); padding: 4px 10px; border-radius: 13px; border: 1px solid var(--line2); background: #fff; cursor: pointer; }
+.cc-refchip:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.cc-go { color: var(--text3); }
+.cc-refchip:hover .cc-go { color: var(--accent); }
+
+.cc-cases { margin-top: 24px; }
+.cc-cases-h { font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.cc-cases-h span { color: var(--text3); margin-left: 4px; }
+.cc-cases ul { list-style: none; margin: 0; padding: 0; }
+.cc-cases li { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-size: 13px; }
+.cc-cases li:hover { background: var(--hover); }
+.cc-ctype { font-size: 11px; font-weight: 700; color: #fff; padding: 2px 7px; border-radius: 9px; flex-shrink: 0; }
+.cc-ctype[data-t="applied"] { background: #343a40; }
+.cc-ctype[data-t="interpreted"] { background: #0c8599; }
+.cc-cname { font-weight: 600; flex-shrink: 0; }
+.cc-ctitle { color: var(--text2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.cc-disc { font-size: 11.5px; color: var(--text3); margin-top: 24px; line-height: 1.5; }
+.cc-back { font-size: 13px; font-weight: 600; color: var(--text2); background: none; border: none; cursor: pointer; padding: 0 0 16px; }
+.cc-back:hover { color: var(--accent); }
