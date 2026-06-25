@@ -14,8 +14,12 @@ import {
 import { LawBody, highlightTerms } from "../lib/lawContent.jsx";
 import ComplianceCard from "./ComplianceCard.jsx";
 import ParkingCard from "./ParkingCard.jsx";
+import SetbackCard from "./SetbackCard.jsx";
+import LandscapeCard from "./LandscapeCard.jsx";
 import { ZONES, ZONE_GROUPS, REGION } from "../zoning.js";
 import { USES } from "../parking.js";
+import { USES as SETBACK_USES } from "../setback.js";
+import { TIERS as LAND_TIERS } from "../landscape.js";
 
 const TYPE_LABEL = { references: "참조", cross_law: "타법령", byeolpyo: "별표", delegates: "위임", applied: "판례", interpreted: "해석례" };
 
@@ -55,9 +59,11 @@ const BM_KEY = "alg.bookmarks";
 
 export default function SearchView() {
   const [mode, setMode] = useState("search"); // "search" | "zoning"
-  const [zaxis, setZaxis] = useState("zone"); // "zone" | "parking"
+  const [zaxis, setZaxis] = useState("zone"); // "zone" | "parking" | "setback"
   const [zone, setZone] = useState(null);
   const [use, setUse] = useState(null);
+  const [sb, setSb] = useState(null);
+  const [land, setLand] = useState(null);
   const [q, setQ] = useState("");
   const [domain, setDomain] = useState(null);
   const [selected, setSelected] = useState(null);
@@ -122,6 +128,12 @@ export default function SearchView() {
           <button className={"zaxis-btn" + (zaxis === "parking" ? " on" : "")} onClick={() => { setZaxis("parking"); setSelected(null); }}>
             주차 기준 (건물 용도)
           </button>
+          <button className={"zaxis-btn" + (zaxis === "setback" ? " on" : "")} onClick={() => { setZaxis("setback"); setSelected(null); }}>
+            대지 공지 (이격)
+          </button>
+          <button className={"zaxis-btn" + (zaxis === "landscape" ? " on" : "")} onClick={() => { setZaxis("landscape"); setSelected(null); }}>
+            조경
+          </button>
         </div>
 
         <div className="sv-body">
@@ -147,7 +159,7 @@ export default function SearchView() {
                   ))}
                 </div>
               </>
-            ) : (
+            ) : zaxis === "parking" ? (
               <>
                 <div className="rc-head">{REGION.name} · 건물 용도<span>{USES.length}</span></div>
                 <div className="zone-list">
@@ -158,6 +170,36 @@ export default function SearchView() {
                       onClick={() => { setUse(u); setSelected(null); }}
                     >
                       {u.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : zaxis === "setback" ? (
+              <>
+                <div className="rc-head">{REGION.name} · 건물 용도<span>{SETBACK_USES.length}</span></div>
+                <div className="zone-list">
+                  {SETBACK_USES.map((u) => (
+                    <button
+                      key={u.key}
+                      className={"zone-item" + (sb?.key === u.key ? " on" : "")}
+                      onClick={() => { setSb(u); setSelected(null); }}
+                    >
+                      {u.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="rc-head">{REGION.name} · 연면적 규모<span>{LAND_TIERS.length}</span></div>
+                <div className="zone-list">
+                  {LAND_TIERS.map((t) => (
+                    <button
+                      key={t.key}
+                      className={"zone-item" + (land?.key === t.key ? " on" : "")}
+                      onClick={() => { setLand(t); setSelected(null); }}
+                    >
+                      {t.label}
                     </button>
                   ))}
                 </div>
@@ -185,10 +227,22 @@ export default function SearchView() {
               ) : (
                 <div className="empty"><div className="empty-art">📐</div>왼쪽에서 용도지역을 고르세요.</div>
               )
-            ) : use ? (
-              <ParkingCard use={use} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
+            ) : zaxis === "parking" ? (
+              use ? (
+                <ParkingCard use={use} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
+              ) : (
+                <div className="empty"><div className="empty-art">🅿️</div>왼쪽에서 건물 용도를 고르세요.</div>
+              )
+            ) : zaxis === "setback" ? (
+              sb ? (
+                <SetbackCard use={sb} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
+              ) : (
+                <div className="empty"><div className="empty-art">📏</div>왼쪽에서 건물 용도를 고르세요.</div>
+              )
+            ) : land ? (
+              <LandscapeCard tier={land} onOpen={(id) => { const n = nodeById.get(id); if (n) setSelected(n); }} />
             ) : (
-              <div className="empty"><div className="empty-art">🅿️</div>왼쪽에서 건물 용도를 고르세요.</div>
+              <div className="empty"><div className="empty-art">🌳</div>왼쪽에서 연면적 규모를 고르세요.</div>
             )}
           </main>
         </div>

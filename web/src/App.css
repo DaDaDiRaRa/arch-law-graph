@@ -677,3 +677,15 @@
 .cc-applied .cc-vt { color: var(--accent); }
 .cc-applied.strict .cc-vt { color: var(--amber); }
 .cc-h1-sm { font-size: 19px !important; line-height: 1.35; }
+
+/* 대지 공지(이격) 카드 보조 */
+.cc-note { font-size: 12.5px; color: var(--text2); line-height: 1.55; margin: 2px 0 8px; padding: 10px 12px; background: #fbfcfd; border-radius: 8px; }
+.cc-refs-block { margin-top: 4px; padding-top: 4px; }
+
+/* 조경 카드 — 완화 뱃지 + 공통 안내 리스트 */
+.cc-val.cc-applied.relax { background: var(--accent-soft); }
+.cc-applied.relax .cc-vt { color: var(--accent); }
+.cc-badge-relax { color: var(--accent); }
+.cc-notes { list-style: none; margin: 14px 0 0; padding: 0; }
+.cc-notes li { position: relative; font-size: 12.5px; color: var(--text2); line-height: 1.55; padding: 3px 0 3px 14px; }
+.cc-notes li::before { content: "·"; position: absolute; left: 4px; color: var(--text3); }
