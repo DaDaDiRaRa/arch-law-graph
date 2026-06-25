@@ -36,7 +36,9 @@ function artOrder(no = "") {
   return (no.startsWith("별표") ? 1e6 : 0) + (m ? parseInt(m[1], 10) : 9999) * 100 + (m && m[2] ? +m[2] : 0);
 }
 function titleOf(a) {
-  return a.article_no?.startsWith("별표") ? a.article_no : `제${a.article_no}조`;
+  const no = a.article_no || "";
+  // 숫자(제N조/제N조의M)만 '제..조'로. 별표·제N장·전문 등은 그대로.
+  return /^\d+(?:의\d+)?$/.test(no) ? `제${no}조` : no;
 }
 // 같은 법령군 위계 체인 (법률→시행령→시행규칙)
 function familyChain(law) {

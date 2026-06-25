@@ -56,6 +56,30 @@ LAW_GROUP = [
     "녹색건축물 조성 지원법 시행규칙",
 ]
 
+# ─── 대상 행정규칙(고시·지침·예규) ─────────────────────────────────────────
+# 국토부 소관 설계 실무 직결 고시. 정확명 일치 + 현행만 fetch.
+# 본문이 hwp 첨부뿐인 고시(예: 건축구조기준)는 텍스트가 없어 자동 스킵됨.
+ADMRUL_GROUP = [
+    "건축물 면적, 높이 등 세부 산정기준",          # 건폐율·용적률·높이 산정
+    "건축물의 에너지절약설계기준",                  # 단열·열관류율(별표)
+    "건축물 안전영향평가 세부기준",
+    "건축물의 화재안전성능보강 방법 등에 관한 기준",
+    "건축자재등 품질인정 및 관리기준",              # 방화문·마감재 난연성능 통합
+    "건축물 해체계획서의 작성 및 감리업무 등에 관한 기준",
+    "건축물관리계획 작성기준",
+    "건축물의 설계도서 작성기준",
+    "공동주택 결로 방지를 위한 설계기준",
+    "범죄예방 건축기준 고시",                        # CPTED
+    "실내건축의 구조·시공방법 등에 관한 기준",
+    "녹색건축 인증 기준",
+    "제로에너지건축물 인증 기준",
+    "지능형건축물 인증기준",
+    "특수구조 건축물 대상기준",
+    "에너지절약형 친환경주택의 건설기준",
+    "기존 건축물의 에너지성능 개선기준",
+    "건축구조기준",                                  # hwp 첨부 — 스킵될 수 있음
+]
+
 # ─── domain_tags 분류 (자매 앱 진단 8카테고리) ──────────────────────────────
 
 DOMAIN_KEYWORDS: dict[str, list[str]] = {
@@ -108,15 +132,22 @@ def _evidence(text: str, start: int, end: int, span: int = 25) -> str:
 
 
 def article_id(law_nm: str, article_no: str) -> str:
-    """조문 노드 ID. 별표는 그대로, 일반 조문은 '제N조'."""
-    if article_no.startswith("별표"):
-        return f"{law_nm}/{article_no}"
-    return f"{law_nm}/제{article_no}조"
+    """조문 노드 ID. 숫자(제N조/제N조의M)만 '제..조'로 감싸고,
+    별표·제N장·전문 등 비숫자 번호는 그대로 사용."""
+    if re.fullmatch(r"\d+(?:의\d+)?", article_no):
+        return f"{law_nm}/제{article_no}조"
+    return f"{law_nm}/{article_no}"
 
 
-def add_law_nodes(G: nx.DiGraph, law_nm: str, articles: list[dict], source_url: str) -> None:
-    """law 노드 1개 + 소속 article 노드 + contains 엣지."""
-    G.add_node(law_nm, type="law", law_nm=law_nm)
+def add_law_nodes(
+    G: nx.DiGraph, law_nm: str, articles: list[dict], source_url: str,
+    category: str | None = None,
+) -> None:
+    """law 노드 1개 + 소속 article 노드 + contains 엣지.
+
+    category: '고시' 등 — 법령(None)과 행정규칙 구분용(UI 색상·라벨).
+    """
+    G.add_node(law_nm, type="law", law_nm=law_nm, **({"category": category} if category else {}))
     for art in articles:
         art_no = art.get("article_no", "")
         if not art_no:
@@ -248,7 +279,27 @@ async def fetch_law(client: LawGoKrClient, law_nm: str) -> tuple[list[dict], str
     return articles, source_url
 
 
-async def build(targets: list[str]) -> None:
+async def fetch_admrul(
+    client: LawGoKrClient, name: str
+) -> tuple[list[dict], str, dict] | None:
+    """행정규칙명 정확 일치(현행) 검색 → 조문 목록. (articles, source_url, info) 또는 None.
+
+    본문이 hwp 첨부뿐이라 조문 텍스트가 0건이면 None(스킵).
+    """
+    info = await client.search_admrul(name)
+    if not info:
+        print(f"  ✗ 행정규칙 검색 결과 없음: {name}")
+        return None
+    articles = await client.get_admrul_articles(info["adm_id"])
+    if not articles:
+        print(f"  ⚠ 본문 텍스트 없음(hwp 첨부 추정) — 스킵: {name}")
+        return None
+    source_url = f"https://www.law.go.kr/행정규칙/{name}"
+    print(f"  ✓ [{info['kind']}] {name} (ID={info['adm_id']}) — 조문 {len(articles)}개")
+    return articles, source_url, info
+
+
+async def build(targets: list[str], include_admrul: bool = True) -> None:
     client = LawGoKrClient()
     G = nx.DiGraph()
     known_laws: set[str] = set(targets)
@@ -276,9 +327,22 @@ async def build(targets: list[str]) -> None:
         missing = [t for t in targets if t not in fetched]
         print(f"  ⚠ 경고: {len(missing)}개 법령 fetch 실패 — {missing}")
 
-    # 2단계: 엣지 추출 (노드 모두 등록된 뒤)
+    # 1.5단계: 행정규칙(고시) fetch + 노드 생성 (엣지 전, 법령 노드 뒤)
+    fetched_admrul: dict[str, list[dict]] = {}
+    if include_admrul:
+        print(f"\n[1.5] 행정규칙(고시) fetch ({len(ADMRUL_GROUP)}개)")
+        for name in ADMRUL_GROUP:
+            res = await fetch_admrul(client, name)
+            if res is None:
+                continue
+            articles, source_url, _info = res
+            fetched_admrul[name] = articles
+            known_laws.add(name)
+            add_law_nodes(G, name, articles, source_url, category="고시")
+
+    # 2단계: 엣지 추출 (노드 모두 등록된 뒤) — 법령 + 행정규칙
     print(f"\n[2] 엣지 추출")
-    for law_nm, articles in fetched.items():
+    for law_nm, articles in {**fetched, **fetched_admrul}.items():
         extract_edges(G, law_nm, articles, known_laws)
 
     await client.close()
@@ -292,6 +356,7 @@ async def build(targets: list[str]) -> None:
     data["meta"] = {
         "built_at": datetime.now().isoformat(timespec="seconds"),
         "law_count": len(fetched),
+        "admrul_count": len(fetched_admrul),
         "node_count": G.number_of_nodes(),
         "edge_count": G.number_of_edges(),
         "edge_types": edge_types,
@@ -302,7 +367,8 @@ async def build(targets: list[str]) -> None:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     print(f"\n[3] 저장 완료 → {OUT_PATH}")
-    print(f"  law={len(fetched)}  node={G.number_of_nodes()}  edge={G.number_of_edges()}")
+    print(f"  law={len(fetched)}  고시={len(fetched_admrul)}  "
+          f"node={G.number_of_nodes()}  edge={G.number_of_edges()}")
     print(f"  edge_types={edge_types}")
 
 
@@ -312,7 +378,8 @@ def main() -> None:
     args = ap.parse_args()
 
     targets = [args.only] if args.only else LAW_GROUP
-    asyncio.run(build(targets))
+    # --only(단일 법령 품질확인)일 땐 고시 fetch 생략
+    asyncio.run(build(targets, include_admrul=not args.only))
 
 
 if __name__ == "__main__":

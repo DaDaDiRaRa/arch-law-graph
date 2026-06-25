@@ -124,6 +124,64 @@ class LawGoKrClient:
 
         return _parse_law_xml(xml_text)
 
+    # ─── 행정규칙(고시·지침·예규) ─────────────────────────────────────────
+
+    async def search_admrul(self, name: str) -> dict | None:
+        """행정규칙명 정확 일치 + 현행 항목 검색. Returns {adm_id, name, kind, org} | None.
+
+        adm_id 는 lawService.do 의 ID= 파라미터로 쓰이는 행정규칙일련번호.
+        """
+        if not self._key:
+            return None
+        for page in (1, 2):
+            params = {
+                "OC": self._key, "target": "admrul", "type": "JSON",
+                "query": name, "display": 50, "page": page,
+            }
+            try:
+                r = await self._http.get(f"{BASE}/lawSearch.do", params=params)
+                r.raise_for_status()
+                body = r.json()
+            except Exception as e:
+                logger.error("행정규칙 검색 오류 (%s): %s", name, e)
+                return None
+            items = body.get("AdmRulSearch", {}).get("admrul", []) or []
+            if isinstance(items, dict):
+                items = [items]
+            if not items:
+                break
+            for it in items:
+                if (it.get("행정규칙명") or "").strip() != name:
+                    continue
+                if (it.get("현행연혁구분") or "").strip() not in ("", "현행"):
+                    continue
+                adm_id = (it.get("행정규칙일련번호") or "").strip()
+                if not adm_id:
+                    m = re.search(r"ID=(\d+)", it.get("행정규칙상세링크", ""))
+                    adm_id = m.group(1) if m else ""
+                if adm_id:
+                    return {
+                        "adm_id": adm_id,
+                        "name": name,
+                        "kind": (it.get("행정규칙종류") or "").strip(),
+                        "org": (it.get("소관부처명") or "").strip(),
+                    }
+        return None
+
+    async def get_admrul_articles(self, adm_id: str) -> list[dict]:
+        """행정규칙 일련번호(ID)로 조문(<조문내용>) + 별표 목록 반환."""
+        if not self._key or not adm_id:
+            return []
+        params = {"OC": self._key, "target": "admrul", "ID": adm_id, "type": "XML"}
+        try:
+            r = await self._http.get(f"{BASE}/lawService.do", params=params)
+            r.raise_for_status()
+            xml_text = r.text
+        except Exception as e:
+            logger.error("행정규칙 본문 조회 오류 (ID=%s): %s", adm_id, e)
+            return []
+        return _parse_admrul_xml(xml_text)
+
     # ─── org 필터 검색 (시도 직제 조례 우선) ────────────────────────────
 
     async def _search_with_org_filter(
@@ -281,6 +339,105 @@ def _parse_ordin_jo(root) -> list[dict]:
     return articles
 
 
+def _parse_byeolpyo_units(root) -> list[dict]:
+    """<별표단위> 목록 파싱 (법령·행정규칙 공용).
+
+    별표 본문 텍스트는 <별표내용> 에 인라인 제공(표는 선문자). 삭제/빈 서식 제외.
+    """
+    out: list[dict] = []
+    for byp in root.iter("별표단위"):
+        bp_title = html.unescape((byp.findtext("별표제목") or "").strip())
+        bp_content = html.unescape((byp.findtext("별표내용") or "").strip())
+        if not bp_title or bp_title.startswith("삭제") or len(bp_content) < 30:
+            continue  # 폐지된 빈 서식 등 본문 없는 항목 스킵
+
+        no_raw = (byp.findtext("별표번호") or "").strip()
+        br_raw = (byp.findtext("별표가지번호") or "").strip()
+        try:
+            no = str(int(no_raw))  # "0001" → "1"
+        except ValueError:
+            no = no_raw
+        try:
+            branch = int(br_raw)
+        except ValueError:
+            branch = 0
+        gubun = (byp.findtext("별표구분") or "별표").strip()
+        if gubun != "별표":
+            continue  # 서식(신청서 양식)은 표가 아니라 제외
+
+        article_no = f"별표{no}" + (f"의{branch}" if branch else "")
+        out.append({"article_no": article_no, "title": bp_title, "content": bp_content})
+    return out
+
+
+# 행정규칙 <조문내용> 머리: "제1조(목적) …", "제3조의2(…) …"
+RE_ADMRUL_JO = re.compile(r"^제\s*(\d+)\s*조(?:의\s*(\d+))?\s*(?:\(([^)]*)\))?")
+# 조문형식이 아닌 고시의 장 헤더: "제1장 총칙", "제2장 건축물의 면적 산정기준"
+RE_ADMRUL_JANG = re.compile(r"(?m)^\s*(제\s*\d+\s*장[^\n]*)$")
+
+
+def _chunk_admrul_blob(blob: str) -> list[dict]:
+    """조문(제N조) 형식이 아닌 고시 본문(blob)을 장(章) 단위로 분할.
+
+    "건축물 면적, 높이 등 세부 산정기준"처럼 제N장 / 2.1.1 번호 체계인 경우.
+    본문이 hwp 첨부 안내문뿐이면(짧거나 "버튼을 이용") 빈 목록 → 호출부에서 스킵.
+    """
+    blob = re.sub(r"<img\b[^>]*>", " ", blob).replace("</img>", " ")
+    stripped = blob.strip()
+    if len(stripped) < 80 or "버튼을 이용" in stripped:
+        return []  # 본문 없음(첨부 안내문)
+
+    matches = list(RE_ADMRUL_JANG.finditer(blob))
+    if not matches:
+        return [{"article_no": "전문", "title": "전문", "content": stripped}]
+
+    arts: list[dict] = []
+    for i, mt in enumerate(matches):
+        end = matches[i + 1].start() if i + 1 < len(matches) else len(blob)
+        header = mt.group(1).strip()
+        jno = re.search(r"제\s*(\d+)\s*장", header).group(1)
+        content = blob[mt.start():end].strip()
+        if len(content) > 20:
+            arts.append({"article_no": f"제{jno}장", "title": header, "content": content})
+    return arts
+
+
+def _parse_admrul_xml(xml_text: str) -> list[dict]:
+    """행정규칙(target=admrul) XML 파싱 — 확인됨 2026-06-25.
+
+    구조: root=<AdmRulService>. 본문은 <조문단위>가 아니라 root 직속
+    <조문내용> 요소가 조마다 1개씩("제N조(제목) …"). 별표는 법령과 동일한 <별표단위>.
+    조문(제N조) 형식이 아닌 고시(제N장/2.1.1 번호)는 _chunk_admrul_blob 로 장 분할.
+    본문이 hwp 첨부뿐인 고시는 빈 목록 반환 → 호출부에서 스킵.
+    """
+    try:
+        root = ET.fromstring(xml_text)
+    except ET.ParseError as e:
+        logger.error("행정규칙 XML 파싱 오류: %s", e)
+        return []
+
+    articles: list[dict] = []
+    blob_parts: list[str] = []
+    for jo in root.findall("조문내용"):
+        text = html.unescape((jo.text or "").strip())
+        if not text:
+            continue
+        m = RE_ADMRUL_JO.match(text)
+        if m:
+            no, branch, title = m.group(1), m.group(2), (m.group(3) or "").strip()
+            article_no = f"{no}의{branch}" if branch else no
+            articles.append({"article_no": article_no, "title": title, "content": text})
+        else:
+            blob_parts.append(text)  # 장 헤더·비조문 형식 본문
+
+    # 제N조 형식이 하나도 없으면 blob(제N장/항목 번호) 체계로 보고 장 분할
+    if not articles and blob_parts:
+        articles = _chunk_admrul_blob("\n".join(blob_parts))
+
+    articles.extend(_parse_byeolpyo_units(root))
+    return articles
+
+
 def _parse_law_xml(xml_text: str) -> list[dict]:
     """DRF 법령/자치법규 XML 조문 파싱 (두 스키마 자동 분기).
 
@@ -304,35 +461,7 @@ def _parse_law_xml(xml_text: str) -> list[dict]:
     else:
         articles = _parse_ordin_jo(root)
 
-    # 별표/서식 — 본문 텍스트는 <별표내용> 에 인라인으로 제공됨(표는 선문자).
-    # (hwp/pdf/이미지 첨부도 있으나 텍스트는 별표내용으로 충분.)
-    # 삭제(폐지)된 빈 서식은 제외.
-    for byp in root.iter("별표단위"):
-        bp_title = html.unescape((byp.findtext("별표제목") or "").strip())
-        bp_content = html.unescape((byp.findtext("별표내용") or "").strip())
-        if not bp_title or bp_title.startswith("삭제") or len(bp_content) < 30:
-            continue  # 폐지된 빈 서식 등 본문 없는 항목 스킵
-
-        no_raw = (byp.findtext("별표번호") or "").strip()
-        br_raw = (byp.findtext("별표가지번호") or "").strip()
-        try:
-            no = str(int(no_raw))  # "0001" → "1"
-        except ValueError:
-            no = no_raw
-        try:
-            branch = int(br_raw)
-        except ValueError:
-            branch = 0
-        gubun = (byp.findtext("별표구분") or "별표").strip()
-        if gubun != "별표":
-            continue  # 서식(신청서 양식)은 표가 아니라 제외
-
-        article_no = f"별표{no}" + (f"의{branch}" if branch else "")
-        articles.append({
-            "article_no": article_no,
-            "title": bp_title,
-            "content": bp_content,
-        })
+    articles.extend(_parse_byeolpyo_units(root))
 
     # 폴백 — 파싱 0건일 때 전체 XML 통째 (예전 스키마 또는 응답 이상 대응)
     if not articles and xml_text.strip():

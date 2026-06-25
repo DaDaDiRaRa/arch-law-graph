@@ -13,6 +13,13 @@ export const internalLaws = nodes
   .map((n) => n.id);
 const internalSet = new Set(internalLaws);
 
+// 행정규칙(고시) 노드 집합 — 색상·라벨에서 법령과 구분
+const admrulSet = new Set(
+  nodes.filter((n) => n.type === "law" && n.category === "고시").map((n) => n.id)
+);
+export const isAdmrul = (name) => admrulSet.has(name);
+const ADMRUL_HUE = "#7950f2"; // 고시 = 보라
+
 // ─── 법령군(family) → 색상 ───────────────────────────────────────────────
 // 절제된 팔레트: 군별 1 hue. 시행령/규칙은 같은 hue 명도 차.
 const FAMILY = [
@@ -40,6 +47,7 @@ function shade(hex, factor) {
 }
 
 export function lawColor(name) {
+  if (admrulSet.has(name)) return ADMRUL_HUE; // 고시
   const fam = FAMILY.find((f) => f.test(name));
   if (!fam) return "#868e96"; // 외부/기타
   if (name.endsWith("시행규칙")) return shade(fam.hue, 0.6);
@@ -49,6 +57,7 @@ export function lawColor(name) {
 }
 
 export function familyOf(name) {
+  if (admrulSet.has(name)) return "고시";
   return FAMILY.find((f) => f.test(name))?.name || "기타";
 }
 
