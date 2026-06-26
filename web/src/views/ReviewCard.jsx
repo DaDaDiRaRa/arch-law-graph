@@ -78,9 +78,27 @@ export default function ReviewCard({ region, onOpen }) {
             </li>
           ))}
         </ul>
-        <div className="cc-mlabel" style={{ marginTop: 12 }}><b>별도 법령 검토</b><span className="cc-msub">graph 외 법령 — 참고</span></div>
+        <div className="cc-mlabel" style={{ marginTop: 12 }}><b>별도 법령 검토</b><span className="cc-msub">규모·입지에 따라 해당 법령 확인 필수</span></div>
         <ul className="rv-list rv-cross">
-          {REVIEW_CROSSLAW.map((t, i) => <li key={i}>{t}</li>)}
+          {REVIEW_CROSSLAW.map((c, i) => {
+            const liveRefs = (c.refs || []).filter((r) => nodeById.has(r));
+            return (
+              <li key={i}>
+                <b>{c.label}</b>
+                <span className="rv-cross-basis"> ({c.basis})</span>
+                <div className="rv-cross-threshold">{c.threshold}</div>
+                {liveRefs.length > 0 && (
+                  <span className="rv-cross-chips">
+                    {liveRefs.map((r) => (
+                      <button key={r} className="cc-refchip rv-chip-sm" onClick={() => onOpen(r)} title="원문 조문 열기">
+                        {refLabel(r)} <span className="cc-go">↗</span>
+                      </button>
+                    ))}
+                  </span>
+                )}
+              </li>
+            );
+          })}
         </ul>
       </div>
 
