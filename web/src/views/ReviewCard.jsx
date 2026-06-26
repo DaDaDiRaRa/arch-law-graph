@@ -1,7 +1,7 @@
 // 건축위원회 심의 대상 체크리스트 카드 — 법정 심의(전국) + 도시 조례 심의(지정·공고 지역).
 // region(name·ref·local)·onOpen 은 SearchView 주입. 근거 칩 클릭 → 원문 Reader.
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
-import { REVIEW_NATIONAL, REVIEW_NOTES } from "../review.js";
+import { REVIEW_NATIONAL, REVIEW_OTHER, REVIEW_CROSSLAW, REVIEW_NOTES } from "../review.js";
 
 function shortLaw(name = "") {
   return name
@@ -49,6 +49,21 @@ export default function ReviewCard({ region, onOpen }) {
         <div className="cc-mlabel"><b>{region.name} 조례 심의</b><span className="cc-msub">지정·공고 지역 (제5조의5①8호 위임)</span></div>
         <ul className="rv-list rv-local">
           {region.local.map((t, i) => <li key={i}>{t}</li>)}
+        </ul>
+      </div>
+
+      <div className="cc-metric">
+        <div className="cc-mlabel"><b>기타 심의·평가·의무</b><span className="cc-msub">설계 착수 시 함께 검토 (전국 기준)</span></div>
+        <ul className="rv-list rv-other">
+          {REVIEW_OTHER.map((o, i) => (
+            <li key={i} className={o.ref ? "rv-click" : undefined} onClick={o.ref ? () => onOpen(o.ref) : undefined}>
+              <b>{o.label}</b> — {o.threshold} {o.ref && <span className="cc-go">↗</span>}
+            </li>
+          ))}
+        </ul>
+        <div className="cc-mlabel" style={{ marginTop: 12 }}><b>별도 법령 검토</b><span className="cc-msub">graph 외 법령 — 참고</span></div>
+        <ul className="rv-list rv-cross">
+          {REVIEW_CROSSLAW.map((t, i) => <li key={i}>{t}</li>)}
         </ul>
       </div>
 
