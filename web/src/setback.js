@@ -1,5 +1,5 @@
-// 대지 안의 공지(이격거리) — 멀티리전(10개 지자체) 건물 용도별 큐레이션.
-//   ※ 서울·부산·인천 + 대구·울산·세종·수원·용인·고양·창원. 대전·광주·제주는 별표 데이터 미정비로 보류.
+// 대지 안의 공지(이격거리) — 멀티리전(13개 지자체 전체) 건물 용도별 큐레이션.
+//   ※ 광주·제주 별표는 HWPX(zip), 대전 별표는 결합 HWP → 빌더가 HWPX·일반제목 별표 변환 지원.
 // 두 축: ① 건축선(liner) ② 인접 대지경계선(boundary). nat=시행령 별표2(범위), sel=도시 조례 별표.
 //   ※ 부산·인천 별표는 HWP 첨부 → 빌더 HWP 폴백으로 graph.json 수록.
 //   strict = 도시가 국가 범위 하한을 구체화/강화.
@@ -224,6 +224,66 @@ export const SETBACK_REGIONS = [
       { key: "etc", label: "다중이용(운수·종합병원·격리·장례·정신병원) / 위험물·자동차·축사 / 그 밖",
         liner: { nat: NAT.etc_l, sel: "다중이용 3m↑ / 위험물·자동차·축사 2m↑ / 그 밖 1m↑", strict: true },
         boundary: { nat: NAT.etc_b, sel: "다중이용 2m↑ / 500㎡미만 공장·위험물·자동차 1m↑ / 그 밖 0.5m↑", strict: true } },
+    ],
+  },
+  {
+    code: "30", name: "대전광역시",
+    refs: refs("대전광역시 건축 조례/제40조", "대전광역시 건축 조례/별표1"),
+    uses: [
+      { key: "gongdong", label: "공동주택", note: "상업지역+자동식소화설비 공동주택은 인접경계 제외",
+        liner: { nat: NAT.gongdong_l, sel: "아파트 3m↑ / 연립 2m↑ / 다세대 1m↑", strict: true },
+        boundary: { nat: NAT.gongdong_b, sel: "아파트 3m↑ / 연립 1.5m↑ / 다세대 1m↑", strict: true } },
+      { key: "jeonju", label: "전용주거지역 건축물(공동주택 제외)",
+        boundary: { nat: NAT.jeonju_b, sel: "1m↑", strict: false } },
+      { key: "panmae", label: "판매·숙박·문화집회·종교시설 (1,000㎡↑)", note: "일반숙박·전시장·동식물원 제외",
+        liner: { nat: NAT.panmae_l, sel: "3m↑", strict: true },
+        boundary: { nat: NAT.panmae_b, sel: "1.5m↑ (상업지역 제외)", strict: true } },
+      { key: "gongjang", label: "공장·창고 (바닥면적 500㎡↑)", note: "전용·일반공업·산업단지 제외",
+        liner: { nat: NAT.gongjang_l, sel: "준공업 1.5m↑ / 그 외 3m↑", strict: true },
+        boundary: { nat: NAT.gongjang_b, sel: "공장 준공업 1m↑ / 그 외 1.5m↑", strict: true } },
+      { key: "etc", label: "운수·종합병원·장례식장 / 자동차·위험물(500㎡↑)·자원순환 / 다가구(5가구↑)",
+        liner: { nat: NAT.etc_l, sel: "운수·종합병원·장례식장 3m↑ / 자동차·위험물 준공업 1.5m·그 외 2m↑ / 자원순환 6m↑", strict: true },
+        boundary: { nat: NAT.etc_b, sel: "운수·종합병원 1.5m↑ / 다가구(5가구↑)·자동차·위험물 1m↑ / 자원순환 6m↑", strict: true } },
+    ],
+  },
+  {
+    code: "29", name: "광주광역시",
+    refs: refs("광주광역시 건축 조례/제32조", "광주광역시 건축 조례/별표4"),
+    uses: [
+      { key: "gongdong", label: "공동주택", note: "상업지역+자동식소화설비 공동주택은 인접경계 제외",
+        liner: { nat: NAT.gongdong_l, sel: "아파트 4m↑ (부대·복리시설 2m) / 연립 2m↑ / 다세대 1m↑", strict: true },
+        boundary: { nat: NAT.gongdong_b, sel: "아파트 4m↑ (부대·복리시설 2m) / 연립 1.5m↑ / 다세대 1m↑", strict: true } },
+      { key: "jeonju", label: "전용주거지역 건축물(공동주택 제외)",
+        boundary: { nat: NAT.jeonju_b, sel: "1m↑", strict: false } },
+      { key: "panmae", label: "판매·숙박·문화집회·종교시설 (1,000㎡↑)", note: "일반숙박·전시장·동식물원 제외",
+        liner: { nat: NAT.panmae_l, sel: "3m↑", strict: true },
+        boundary: { nat: NAT.panmae_b, sel: "1.5m↑ (상업지역 제외)", strict: true } },
+      { key: "gongjang", label: "공장·창고 (바닥면적 500㎡↑)", note: "전용·일반공업·산업단지 제외",
+        liner: { nat: NAT.gongjang_l, sel: "준공업 1.5m↑ / 그 외 3m↑", strict: true },
+        boundary: { nat: NAT.gongjang_b, sel: "공장 준공업 1m↑ / 그 외 1.5m↑", strict: true } },
+      { key: "etc", label: "운수·종합병원(5,000㎡↑) (1,000㎡↑) / 다중·다가구(5가구↑)·독서실·기숙사·고시원",
+        liner: { nat: NAT.etc_l, sel: "운수·종합병원 1,000㎡↑ 3m↑", strict: true },
+        boundary: { nat: NAT.etc_b, sel: "운수·종합병원 1.5m↑ / 다중·다가구·기숙사·고시원 1m↑", strict: true } },
+    ],
+  },
+  {
+    code: "50", name: "제주특별자치도",
+    refs: refs("제주특별자치도 건축 조례/제27조", "제주특별자치도 건축 조례/별표6"),
+    uses: [
+      { key: "gongdong", label: "공동주택·오피스텔", note: "상업지역+자동식소화설비 공동주택은 인접경계 제외. 처마선은 별도(완화)",
+        liner: { nat: NAT.gongdong_l, sel: "아파트·오피스텔 3m↑ (처마 2.5m) / 연립 2m↑ (처마 1.5m) / 다세대 1m↑ (처마 0.5m, 3세대↑)", strict: true },
+        boundary: { nat: NAT.gongdong_b, sel: "아파트 3m↑ (처마 2.5m) / 연립·오피스텔 2m↑ (처마 1.5m) / 다세대 1m↑ (처마 0.5m)", strict: true } },
+      { key: "jeonju", label: "전용주거지역 건축물(공동주택 제외)",
+        boundary: { nat: NAT.jeonju_b, sel: "1m↑", strict: false } },
+      { key: "panmae", label: "판매·숙박·문화집회·종교시설 (1,000㎡↑)", note: "전시장·동식물원 제외",
+        liner: { nat: NAT.panmae_l, sel: "3m↑", strict: true },
+        boundary: { nat: NAT.panmae_b, sel: "1.5m↑ (상업지역 스프링클러 제외)", strict: true } },
+      { key: "gongjang", label: "공장·창고 (바닥면적 500㎡↑)", note: "전용·일반공업·산업단지 제외",
+        liner: { nat: NAT.gongjang_l, sel: "준공업 1.5m↑ / 그 외 3m↑", strict: true },
+        boundary: { nat: NAT.gongjang_b, sel: "공장 준공업 1m↑ / 그 외 1.5m↑", strict: true } },
+      { key: "etc", label: "운수·자동차·의료(종합·격리)·운동·교육연구·장례식장(1,000㎡↑) / 다중·다가구·기숙사",
+        liner: { nat: NAT.etc_l, sel: "다중이용시설 1,000㎡↑ 3m↑ / 다중·다가구·기숙사 1m↑ (처마 0.5m, 3가구↑)", strict: true },
+        boundary: { nat: NAT.etc_b, sel: "다중이용시설 1.5m↑ / 다중·다가구·기숙사 1m↑", strict: true } },
     ],
   },
 ];

@@ -10,6 +10,7 @@ API 문서: https://open.law.go.kr/LSO/openApi/openApiInfo.do
 from __future__ import annotations
 
 import html
+import io
 import logging
 import os
 import re
@@ -18,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import unicodedata
+import zipfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -135,11 +137,45 @@ def _text_from_xhtml(xhtml: str) -> str:
     return "\n".join(lines).strip()
 
 
-def _hwp_bytes_to_box_text(data: bytes) -> str:
-    """HWP 바이트 → hwp5html 변환 → 표를 선문자 텍스트로. 표 없으면 문단 텍스트 폴백.
+def _tables_from_hwpx(data: bytes) -> list[list[list[str]]]:
+    """HWPX(zip) 바이트 → 표 목록. Contents/section*.xml 의 hp:tbl/hp:tr/hp:tc/hp:t 파싱.
 
-    실패(변환 오류·내용 없음) 시 빈 문자열.
+    HWPX 는 OWPML(XML) zip 컨테이너 — pyhwp(HWP5 전용)로는 못 읽어 직접 파싱한다.
     """
+    try:
+        z = zipfile.ZipFile(io.BytesIO(data))
+    except Exception:
+        return []
+    secs = sorted(n for n in z.namelist() if re.search(r"Contents/section\d+\.xml$", n))
+    tables: list[list[list[str]]] = []
+    for sec in secs:
+        try:
+            xml = z.read(sec).decode("utf-8", "replace")
+        except Exception:
+            continue
+        for tbl in re.findall(r"<hp:tbl\b.*?</hp:tbl>", xml, re.S):
+            rows = []
+            for tr in re.findall(r"<hp:tr\b.*?</hp:tr>", tbl, re.S):
+                cells = []
+                for tc in re.findall(r"<hp:tc\b.*?</hp:tc>", tr, re.S):
+                    txt = "".join(re.findall(r"<hp:t>(.*?)</hp:t>", tc, re.S))
+                    txt = re.sub(r"<[^>]+>", "", txt)
+                    cells.append(html.unescape(txt).replace("　", " ").strip())
+                if any(cells):
+                    rows.append(cells)
+            if len(rows) >= 2:
+                tables.append(rows)
+    return tables
+
+
+def _hwp_bytes_to_box_text(data: bytes) -> str:
+    """HWP/HWPX 바이트 → 표를 선문자 텍스트로. 표 없으면 문단 텍스트 폴백.
+
+    HWP5(OLE, D0CF11E0)는 hwp5html, HWPX(zip, PK)는 직접 XML 파싱. 실패 시 빈 문자열.
+    """
+    if data[:2] == b"PK":  # HWPX(zip 컨테이너) — pyhwp 불가, 직접 파싱
+        tables = _tables_from_hwpx(data)
+        return "\n\n".join(_render_box_table(t) for t in tables)
     if not _HWP5HTML:
         return ""
     with tempfile.TemporaryDirectory() as td:
@@ -713,11 +749,17 @@ def _parse_byeolpyo_units(root) -> list[dict]:
                 out.append({"article_no": article_no, "title": bp_title, "content": bp_content})
             continue
 
-        # 본문 없음 — HWP 첨부 데이터표(설치기준·공지기준 등)만 변환 후보로 보존.
+        # 본문 없음 — HWP/HWPX 첨부 데이터표(설치기준·공지기준 등)만 변환 후보로 보존.
         # ※ 부산·인천은 데이터표도 별표구분='서식'으로 표기 → 구분 대신 제목으로 판별.
+        # ※ 대전·광주 등은 데이터표 별표 제목이 "별표"로만 표기(일반 제목)되어
+        #   신호어가 없음 → 일반 제목("별표"/"별표 N")도 데이터표 후보로 본다(별지=표지판 제외).
         fg = (byp.findtext("별표첨부파일구분") or "").strip().lower()
         url = html.unescape((byp.findtext("별표첨부파일명") or "").strip())
-        if fg == "hwp" and url.startswith("http") and _BP_TABLE_TITLE.search(bp_title):
+        is_hwp = fg in ("hwp", "hwpx") or url.lower().split("?")[0].endswith((".hwp", ".hwpx"))
+        is_data = bool(_BP_TABLE_TITLE.search(bp_title)) or bool(
+            re.fullmatch(r"\[?\s*별표\s*\d*\s*\]?", bp_title)
+        )
+        if is_hwp and url.startswith("http") and is_data:
             out.append({"article_no": article_no, "title": bp_title, "content": "", "_hwp_url": url})
     return out
 

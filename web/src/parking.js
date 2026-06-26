@@ -1,5 +1,5 @@
-// 부설주차장 설치기준 — 멀티리전(10개 지자체) 건물 용도별 큐레이션.
-//   ※ 서울·부산·인천 + 대구·울산·세종·용인·고양·창원·제주. 대전·광주는 별표 데이터 미정비로 보류.
+// 부설주차장 설치기준 — 멀티리전(12개 지자체) 건물 용도별 큐레이션.
+//   ※ 13개 중 수원만 보류(일반 주차장 설치 조례가 법제처 ordin DB에 없음 — 보훈시설 조례만 존재).
 // nat = 국가(주차장법 시행령 별표1), sel = 도시 조례(별표). 모두 graph.json 원문 대조.
 //   ※ 부산·인천 별표는 HWP 첨부 → 빌더 HWP 폴백으로 graph.json 에 표 본문 수록.
 //   ※ 인천은 도시지역/지구단위 vs 관리지역 2단 기준 → sel=도시지역, note=관리지역.
@@ -179,6 +179,38 @@ export const PARKING_REGIONS = [
       { key: "gongdong", label: "다가구·다세대·공동주택·오피스텔", nat: NAT.gongdong, sel: "공동주택 85㎡당 1대 또는 세대당 1대 중 큰 값 / 원룸 전용 40㎡당 1대 또는 세대당 0.9(30㎡미만 0.7) / 오피스텔 1실당 1대", strict: true },
       { key: "golf", label: "골프장·골프연습장·옥외수영장·관람장", nat: NAT.golf, sel: "골프장 1홀 10대 / 골프연습장 1타석 1.5대 / 옥외수영장 15명·관람장 100명당 1대", strict: true },
       { key: "etc", label: "그 밖의 건축물(수련·공장·창고 포함)", nat: NAT.etc, sel: "시설면적 200㎡당 1대", strict: true },
+    ],
+  },
+  {
+    code: "29", name: "광주광역시",
+    refs: refs("광주광역시 주차장 조례/제11조", "광주광역시 주차장 조례/별표1"),
+    uses: [
+      { key: "wirak", label: "위락시설", nat: NAT.wirak, sel: "시설면적 67㎡당 1대", strict: true },
+      { key: "munhwa", label: "문화·집회·종교·판매·운수·의료·운동·업무·방송국·장례식장", nat: NAT.munhwa, sel: "시설면적 100㎡당 1대", strict: true },
+      { key: "geunsaeng", label: "제1·2종 근린생활시설, 숙박시설", nat: NAT.geunsaeng, sel: "시설면적 134㎡당 1대", strict: true },
+      { key: "dandok", label: "단독주택(다가구 제외)", nat: NAT.dandok, sel: "국가 기준과 동일", strict: false },
+      { key: "gongdong", label: "다가구·공동주택·오피스텔", nat: NAT.gongdong, sel: "주택건설기준 산정 + 세대(오피스텔 호실)당 1대(다가구 전용 30㎡↓ 0.5대) / 도시형 원룸 주택건설기준 제27조", strict: true },
+      { key: "golf", label: "골프장·골프연습장·옥외수영장·관람장", nat: NAT.golf, sel: "국가 기준과 동일", strict: false },
+      { key: "suryeon", label: "수련시설·공장(아파트형 제외)·발전시설", nat: NAT.suryeon, sel: "시설면적 350㎡당 1대", strict: false },
+      { key: "changgo", label: "창고시설", nat: NAT.changgo, sel: "시설면적 400㎡당 1대", strict: false },
+      { key: "gisuksa", label: "학생용 기숙사", nat: "—", sel: "시설면적 400㎡당 1대", strict: false },
+      { key: "etc", label: "그 밖의 건축물", nat: NAT.etc, sel: "시설면적 200㎡당 1대", strict: true },
+    ],
+  },
+  {
+    code: "30", name: "대전광역시",
+    refs: refs("대전광역시 주차장 조례/제16조", "대전광역시 주차장 조례/별표1"),
+    uses: [
+      { key: "wirak", label: "위락시설", nat: NAT.wirak, sel: "시설면적 67㎡당 1대", strict: true },
+      { key: "munhwa", label: "문화·집회·종교·판매·운수·의료·운동·업무·방송국·장례식장", nat: NAT.munhwa, sel: "시설면적 100㎡당 1대", strict: true },
+      { key: "geunsaeng", label: "제1·2종 근린생활시설, 숙박시설", nat: NAT.geunsaeng, sel: "시설면적 134㎡당 1대", strict: true },
+      { key: "dandok", label: "단독·다중주택(다가구 제외)", nat: NAT.dandok, sel: "단독주택 국가와 동일 / 다중주택 150㎡ 초과분 50㎡당 1대", note: "다중주택은 가산면적이 국가(100㎡)보다 강화(50㎡)", strict: false },
+      { key: "gongdong", label: "다가구·공동주택·오피스텔", nat: NAT.gongdong, sel: "주택건설기준 산정 + 세대(호실)당 1대(다가구 전용 30㎡↓ 0.5대) / 원룸형 주택건설기준 제27조", strict: true },
+      { key: "golf", label: "골프장·골프연습장·옥외수영장·관람장", nat: NAT.golf, sel: "골프장 1홀 15대 / 골프연습장 1타석 1.5대 / 옥외수영장 15인·관람장 100인당 1대", strict: true },
+      { key: "suryeon", label: "수련시설·공장(아파트형 제외)·발전시설", nat: NAT.suryeon, sel: "시설면적 200㎡당 1대 (산업단지 공장 450㎡)", strict: true },
+      { key: "changgo", label: "창고시설", nat: NAT.changgo, sel: "시설면적 400㎡당 1대", strict: false },
+      { key: "gisuksa", label: "학생용 기숙사", nat: "—", sel: "시설면적 400㎡당 1대", strict: false },
+      { key: "etc", label: "그 밖의 건축물", nat: NAT.etc, sel: "시설면적 200㎡당 1대", strict: true },
     ],
   },
 ];
