@@ -763,6 +763,8 @@
 .rv-cross li { font-size: 12.5px; color: var(--text2); }
 .rv-click { cursor: pointer; }
 .rv-click:hover { background: var(--hover); }
+.rv-gu li::before { content: "☑"; color: #868e96; }
+.rv-gu li { font-weight: 400; }
 
 /* ─── 도시 전환 (서울·부산·인천) ───────────────────────────────────────── */
 .region-switch { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 18px 0; }

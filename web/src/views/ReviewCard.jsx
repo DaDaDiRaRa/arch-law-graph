@@ -45,12 +45,29 @@ export default function ReviewCard({ region, onOpen }) {
         </ul>
       </div>
 
-      <div className="cc-metric">
-        <div className="cc-mlabel"><b>{region.name} 조례 심의</b><span className="cc-msub">지정·공고 지역 (제5조의5①8호 위임)</span></div>
-        <ul className="rv-list rv-local">
-          {region.local.map((t, i) => <li key={i}>{t}</li>)}
-        </ul>
-      </div>
+      {region.si ? (
+        <>
+          <div className="cc-metric">
+            <div className="cc-mlabel"><b>시·도 건축위원회</b><span className="cc-msub">대규모 — {region.name} 본청 심의</span></div>
+            <ul className="rv-list rv-local">
+              {region.si.map((t, i) => <li key={i}>{t}</li>)}
+            </ul>
+          </div>
+          <div className="cc-metric">
+            <div className="cc-mlabel"><b>자치구(구·군) 건축위원회</b><span className="cc-msub">그 외 — 허가권자 구청장·군수</span></div>
+            <ul className="rv-list rv-local rv-gu">
+              {region.gu.map((t, i) => <li key={i}>{t}</li>)}
+            </ul>
+          </div>
+        </>
+      ) : (
+        <div className="cc-metric">
+          <div className="cc-mlabel"><b>{region.name} 조례 심의</b><span className="cc-msub">단일 위원회 (제5조의5①8호 위임)</span></div>
+          <ul className="rv-list rv-local">
+            {region.local.map((t, i) => <li key={i}>{t}</li>)}
+          </ul>
+        </div>
+      )}
 
       <div className="cc-metric">
         <div className="cc-mlabel"><b>기타 심의·평가·의무</b><span className="cc-msub">설계 착수 시 함께 검토 (전국 기준)</span></div>
