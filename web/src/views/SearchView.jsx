@@ -18,12 +18,14 @@ import ParkingCard from "./ParkingCard.jsx";
 import SetbackCard from "./SetbackCard.jsx";
 import LandscapeCard from "./LandscapeCard.jsx";
 import IncentiveCard from "./IncentiveCard.jsx";
+import ReviewCard from "./ReviewCard.jsx";
 import ChatPanel from "./ChatPanel.jsx";
 import { REGIONS, ZONE_GROUPS, zonesOf } from "../zoning.js";
 import { PARKING_REGIONS } from "../parking.js";
 import { SETBACK_REGIONS } from "../setback.js";
 import { REGIONS_LS, tiersOf } from "../landscape.js";
 import { BENEFIT_REGIONS } from "../incentive.js";
+import { REVIEW_REGIONS, REVIEW_NATIONAL } from "../review.js";
 
 const TYPE_LABEL = { references: "참조", cross_law: "타법령", byeolpyo: "별표", delegates: "위임", applied: "판례", interpreted: "해석례" };
 
@@ -155,6 +157,7 @@ export default function SearchView() {
   const pkRegion = PARKING_REGIONS.find((r) => r.code === region.code);
   const sbRegion = SETBACK_REGIONS.find((r) => r.code === region.code);
   const bnRegion = BENEFIT_REGIONS.find((r) => r.code === region.code);
+  const rvRegion = REVIEW_REGIONS.find((r) => r.code === region.code);
   const zoneList = useMemo(() => zonesOf(region), [region]);
   const tierList = useMemo(() => (lsRegion ? tiersOf(lsRegion) : []), [lsRegion]);
   const openRef = (id) => { const n = nodeById.get(id); if (n) setSelected(n); };
@@ -189,7 +192,7 @@ export default function SearchView() {
           ))}
         </div>
 
-        {/* 서브축 전환 — 용도지역·조경·완화혜택 13개 지자체, 주차 12개·이격 13개 데이터 보유 */}
+        {/* 서브축 전환 — 용도지역·조경·완화혜택·심의 13개 지자체, 주차 12개·이격 13개 데이터 보유 */}
         <div className="zaxis-switch">
           <button className={"zaxis-btn" + (zaxis === "zone" ? " on" : "")} onClick={() => { setZaxis("zone"); setSelected(null); }}>
             용도지역 기준
@@ -205,6 +208,9 @@ export default function SearchView() {
           </button>
           <button className={"zaxis-btn" + (zaxis === "benefit" ? " on" : "")} onClick={() => { setZaxis("benefit"); setSelected(null); }}>
             완화·혜택
+          </button>
+          <button className={"zaxis-btn" + (zaxis === "review" ? " on" : "")} onClick={() => { setZaxis("review"); setSelected(null); }}>
+            심의 대상
           </button>
         </div>
 
@@ -267,7 +273,7 @@ export default function SearchView() {
                   ))}
                 </div>
               </>
-            ) : (
+            ) : zaxis === "benefit" ? (
               <>
                 <div className="rc-head">{region.name} · 완화·혜택<span>{bnRegion ? bnRegion.items.length : 0}</span></div>
                 <div className="zone-list">
@@ -278,6 +284,13 @@ export default function SearchView() {
                     </button>
                   )) : <div className="zone-na">데이터 준비 중</div>}
                 </div>
+              </>
+            ) : (
+              <>
+                <div className="rc-head">법정 심의<span>전국 공통</span></div>
+                <ul className="rv-list" style={{ padding: "8px 14px 20px" }}>
+                  {REVIEW_NATIONAL.map((t, i) => <li key={i}>{t}</li>)}
+                </ul>
               </>
             )}
           </aside>
@@ -324,12 +337,18 @@ export default function SearchView() {
               ) : (
                 <div className="empty"><div className="empty-art">🌳</div>왼쪽에서 연면적 규모를 고르세요.</div>
               )
-            ) : !bnRegion ? (
-              <div className="empty"><div className="empty-art">🎁</div>{region.name} 완화·혜택은 데이터 준비 중입니다.</div>
-            ) : benefit ? (
-              <IncentiveCard item={benefit} regionName={bnRegion.name} onOpen={openRef} />
+            ) : zaxis === "benefit" ? (
+              !bnRegion ? (
+                <div className="empty"><div className="empty-art">🎁</div>{region.name} 완화·혜택은 데이터 준비 중입니다.</div>
+              ) : benefit ? (
+                <IncentiveCard item={benefit} regionName={bnRegion.name} onOpen={openRef} />
+              ) : (
+                <div className="empty"><div className="empty-art">🎁</div>왼쪽에서 항목(공개공지·주차 면제)을 고르세요.</div>
+              )
+            ) : !rvRegion ? (
+              <div className="empty"><div className="empty-art">📋</div>{region.name} 심의 대상은 데이터 준비 중입니다.</div>
             ) : (
-              <div className="empty"><div className="empty-art">🎁</div>왼쪽에서 항목(공개공지·주차 면제)을 고르세요.</div>
+              <ReviewCard region={rvRegion} onOpen={openRef} />
             )}
           </main>
         </div>

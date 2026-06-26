@@ -750,6 +750,15 @@
 .cc-notes li { position: relative; font-size: 12.5px; color: var(--text2); line-height: 1.55; padding: 3px 0 3px 14px; }
 .cc-notes li::before { content: "·"; position: absolute; left: 4px; color: var(--text3); }
 
+/* 심의 대상 체크리스트 */
+.rv-list { list-style: none; margin: 8px 0 0; padding: 0; }
+.rv-list li { position: relative; font-size: 13px; color: var(--text); line-height: 1.5; padding: 5px 0 5px 20px; border-bottom: 1px solid var(--line); }
+.rv-list li:last-child { border-bottom: 0; }
+.rv-list li::before { content: "☐"; position: absolute; left: 2px; color: var(--text3); }
+.rv-local li::before { content: "☑"; color: var(--accent); }
+.rv-local li { font-weight: 500; }
+.rv-na { padding: 18px 14px; color: #8b95a1; font-size: 13px; }
+
 /* ─── 도시 전환 (서울·부산·인천) ───────────────────────────────────────── */
 .region-switch { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 18px 0; }
 .region-btn {
