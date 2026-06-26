@@ -192,7 +192,7 @@ export default function SearchView() {
           ))}
         </div>
 
-        {/* 서브축 전환 — 용도지역·조경·완화혜택·심의 13개 지자체, 주차 12개·이격 13개 데이터 보유 */}
+        {/* 서브축 전환 — 용도지역·조경·완화혜택·심의·이격 17개 지자체, 주차 16개(수원만 보류) */}
         <div className="zaxis-switch">
           <button className={"zaxis-btn" + (zaxis === "zone" ? " on" : "")} onClick={() => { setZaxis("zone"); setSelected(null); }}>
             용도지역 기준

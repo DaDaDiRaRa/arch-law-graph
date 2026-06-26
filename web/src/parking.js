@@ -1,4 +1,4 @@
-// 부설주차장 설치기준 — 멀티리전(12개 지자체) 건물 용도별 큐레이션.
+// 부설주차장 설치기준 — 멀티리전(16개 지자체) 건물 용도별 큐레이션.
 //   ※ 13개 중 수원만 보류(일반 주차장 설치 조례가 법제처 ordin DB에 없음 — 보훈시설 조례만 존재).
 // nat = 국가(주차장법 시행령 별표1), sel = 도시 조례(별표). 모두 graph.json 원문 대조.
 //   ※ 부산·인천 별표는 HWP 첨부 → 빌더 HWP 폴백으로 graph.json 에 표 본문 수록.
@@ -211,6 +211,62 @@ export const PARKING_REGIONS = [
       { key: "changgo", label: "창고시설", nat: NAT.changgo, sel: "시설면적 400㎡당 1대", strict: false },
       { key: "gisuksa", label: "학생용 기숙사", nat: "—", sel: "시설면적 400㎡당 1대", strict: false },
       { key: "etc", label: "그 밖의 건축물", nat: NAT.etc, sel: "시설면적 200㎡당 1대", strict: true },
+    ],
+  },
+  {
+    code: "41130", name: "성남시",
+    refs: refs("성남시 주차장 설치 및 관리 운영에 관한 조례/제20조", "성남시 주차장 설치 및 관리 운영에 관한 조례/별표3"),
+    uses: [
+      { key: "wirak", label: "위락시설", nat: NAT.wirak, sel: "일반지역 100㎡당 1대 / 지구단위계획구역 70㎡당 1대", strict: false },
+      { key: "munhwa", label: "문화·집회·종교·판매시설", nat: NAT.munhwa, sel: "시설면적 100㎡당 1대", strict: true },
+      { key: "geunsaeng", label: "제1·2종 근린생활시설, 숙박시설", nat: NAT.geunsaeng, sel: "시설면적 135㎡당 1대", strict: true },
+      { key: "gongdong", label: "다가구·공동주택·오피스텔", nat: NAT.gongdong, sel: "주택건설기준 규정 제27조 산정", strict: false },
+      { key: "golf", label: "골프장·골프연습장·옥외수영장·관람장", nat: NAT.golf, sel: "국가 기준과 동일", strict: false },
+      { key: "suryeon", label: "수련시설·공장(아파트형 제외)·발전시설", nat: NAT.suryeon, sel: "시설면적 350㎡당 1대", strict: false },
+      { key: "changgo", label: "창고시설", nat: NAT.changgo, sel: "시설면적 400㎡당 1대", strict: false },
+      { key: "etc", label: "그 밖의 건축물", nat: NAT.etc, sel: "시설면적 300㎡당 1대", strict: false },
+    ],
+  },
+  {
+    code: "43110", name: "청주시",
+    refs: refs("청주시 주차장 조례/제15조", "청주시 주차장 조례/별표7"),
+    uses: [
+      { key: "wirak", label: "위락시설", nat: NAT.wirak, sel: "시설면적 67㎡당 1대", strict: true },
+      { key: "munhwa", label: "문화·집회·판매·운수·의료·운동·방송국·장례식장", nat: NAT.munhwa, sel: "시설면적 100㎡당 1대 (예식장·집회장 80㎡당 1대)", strict: true },
+      { key: "geunsaeng", label: "제1·2종 근린생활시설, 숙박시설", nat: NAT.geunsaeng, sel: "시설면적 150㎡당 1대", strict: true },
+      { key: "gongdong", label: "다가구·공동주택·오피스텔", nat: NAT.gongdong, sel: "주택건설기준 규정 제27조 산정", strict: false },
+      { key: "golf", label: "골프장·골프연습장·옥외수영장·관람장", nat: NAT.golf, sel: "국가 기준과 동일", strict: false },
+      { key: "suryeon", label: "수련시설·공장(아파트형 제외)·발전시설", nat: NAT.suryeon, sel: "시설면적 350㎡당 1대", strict: false },
+      { key: "changgo", label: "창고시설", nat: NAT.changgo, sel: "시설면적 400㎡당 1대", strict: false },
+      { key: "etc", label: "그 밖의 건축물", nat: NAT.etc, sel: "시설면적 300㎡당 1대", strict: false },
+    ],
+  },
+  {
+    code: "45110", name: "전주시",
+    refs: refs("전주시 주차장 조례/제13조", "전주시 주차장 조례/별표7"),
+    uses: [
+      { key: "wirak", label: "위락시설", nat: NAT.wirak, sel: "시설면적 80㎡당 1대", strict: true },
+      { key: "munhwa", label: "문화·집회·종교·판매·운수·의료·운동·장례식장", nat: NAT.munhwa, sel: "시설면적 120㎡당 1대 (예식장·장례식장 80㎡당 1대)", strict: true },
+      { key: "geunsaeng", label: "제1·2종 근린생활시설, 숙박시설", nat: NAT.geunsaeng, sel: "시설면적 150㎡당 1대 (생활숙박시설 100㎡당 1대 또는 호실당 0.7대)", strict: true },
+      { key: "gongdong", label: "다가구·공동주택·오피스텔", nat: NAT.gongdong, sel: "주택건설기준 산정 / 오피스텔 전용 60㎡↓ 호실당 0.7대", strict: false },
+      { key: "golf", label: "골프장·골프연습장·옥외수영장·관람장", nat: NAT.golf, sel: "국가 기준과 동일", strict: false },
+      { key: "suryeon", label: "수련시설·공장(아파트형 제외)·발전시설", nat: NAT.suryeon, sel: "시설면적 350㎡당 1대", strict: false },
+      { key: "changgo", label: "창고시설", nat: NAT.changgo, sel: "시설면적 400㎡당 1대", strict: false },
+      { key: "etc", label: "그 밖의 건축물", nat: NAT.etc, sel: "시설면적 300㎡당 1대", strict: false },
+    ],
+  },
+  {
+    code: "44130", name: "천안시",
+    refs: refs("천안시 주차장 조례/제11조", "천안시 주차장 조례/별표2"),
+    uses: [
+      { key: "wirak", label: "위락시설", nat: NAT.wirak, sel: "시설면적 70㎡당 1대", strict: true },
+      { key: "munhwa", label: "문화·집회·종교·판매·운수·의료·운동·장례식장", nat: NAT.munhwa, sel: "시설면적 100㎡당 1대", strict: true },
+      { key: "geunsaeng", label: "제1·2종 근린생활시설, 숙박시설", nat: NAT.geunsaeng, sel: "시설면적 135㎡당 1대", strict: true },
+      { key: "gongdong", label: "다가구·공동주택·오피스텔", nat: NAT.gongdong, sel: "주택건설기준 규정 제27조 산정", strict: false },
+      { key: "golf", label: "골프장·골프연습장·옥외수영장·관람장", nat: NAT.golf, sel: "국가 기준과 동일", strict: false },
+      { key: "suryeon", label: "수련시설·공장(아파트형 제외)·발전시설", nat: NAT.suryeon, sel: "시설면적 350㎡당 1대", strict: false },
+      { key: "changgo", label: "창고시설", nat: NAT.changgo, sel: "시설면적 400㎡당 1대", strict: false },
+      { key: "etc", label: "그 밖의 건축물", nat: NAT.etc, sel: "시설면적 300㎡당 1대", strict: false },
     ],
   },
 ];

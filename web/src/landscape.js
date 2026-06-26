@@ -128,6 +128,38 @@ export const REGIONS_LS = [
       tu1000: { sel: "대지면적의 5% 이상" },
     },
   },
+  {
+    code: "41130", name: "성남시", refs: lsRefs("성남시 건축 조례/제19조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
+    },
+  },
+  {
+    code: "43110", name: "청주시", refs: lsRefs("청주시 건축 조례/제28조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
+    },
+  },
+  {
+    code: "45110", name: "전주시", refs: lsRefs("전주시 건축 조례/제32조"),
+    tiers: {
+      t2000: { sel: "5천㎡↑ 18% / 4천~5천㎡ 17% / 3천~4천㎡ 16% / 2천~3천㎡ 15%", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
+    },
+  },
+  {
+    code: "44130", name: "천안시", refs: lsRefs("천안시 건축 조례/제28조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
+    },
+  },
 ];
 
 export const LANDSCAPE_NOTES = [
