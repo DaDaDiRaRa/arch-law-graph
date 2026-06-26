@@ -639,6 +639,7 @@
 
 /* ─── 용도지역 선택 패널 ─────────────────────────────────────────────────── */
 .zone-list { overflow-y: auto; padding: 6px 0 20px; }
+.zone-na { padding: 18px 14px; color: #8b95a1; font-size: 13px; }
 .zone-group { padding: 6px 0; }
 .zg-label {
   font-size: 11.5px;

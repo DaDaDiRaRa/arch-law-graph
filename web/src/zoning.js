@@ -1,4 +1,4 @@
-// 용도지역별 규제 기준 — 멀티리전(서울·부산·인천) 큐레이션 조회 테이블.
+// 용도지역별 규제 기준 — 멀티리전(7개 광역시) 큐레이션 조회 테이블.
 // 모든 수치는 graph.json 의 실재 조문에서 대조. 각 수치는 열어볼 수 있는 근거 조문 id를 가리킴.
 //   nat = 국가 상한(시행령 제84·85조, 전국 공통), sel = 도시별 조례 적용값.
 //   ※ 도시마다 존재하는 용도지역이 다름(서울 16·부산 17·인천 21).
@@ -88,6 +88,66 @@ export const REGIONS = [
       "geunsang": { bcr: 70, far: 700 }, "yutong": { bcr: 70, far: 800 },
       "jeongong": { bcr: 70, far: 300 }, "ilgong": { bcr: 70, far: 350 }, "jungong": { bcr: 70, far: 400 },
       "bojnok": { bcr: 20, far: 50 }, "saengnok": { bcr: 20, far: 80 }, "janok": { bcr: 20, far: 80 },
+      "bojgwan": { bcr: 20, far: 80 }, "saenggwan": { bcr: 20, far: 80 }, "gyehoek": { bcr: 40, far: 100 },
+      "nongrim": { bcr: 20, far: 80 }, "jayeon": { bcr: 20, far: 80 },
+    },
+  },
+  {
+    code: "27", name: "대구광역시",
+    refs: refs("대구광역시 도시계획 조례/제75조", "대구광역시 도시계획 조례/제80조", "대구광역시 건축 조례/제40조"),
+    zones: {
+      "1jeon": { bcr: 50, far: 100 }, "2jeon": { bcr: 40, far: 120 },
+      "1il": { bcr: 60, far: 200 }, "2il": { bcr: 60, far: 220 }, "3il": { bcr: 50, far: 250 },
+      "junju": { bcr: 60, far: 400, farNote: "공동주택 250%·주거복합 300%" },
+      "jungsang": { bcr: 80, far: 1300 }, "ilsang": { bcr: 70, far: 1000 },
+      "geunsang": { bcr: 70, far: 800 }, "yutong": { bcr: 70, far: 900 },
+      "jeongong": { bcr: 70, far: 300 }, "ilgong": { bcr: 70, far: 350 }, "jungong": { bcr: 70, far: 400 },
+      "bojnok": { bcr: 20, far: 60 }, "saengnok": { bcr: 20, far: 100 }, "janok": { bcr: 20, far: 100 },
+      "bojgwan": { bcr: 20, far: 80 }, "saenggwan": { bcr: 20, far: 80 }, "gyehoek": { bcr: 40, far: 100 },
+      "nongrim": { bcr: 20, far: 80 }, "jayeon": { bcr: 20, far: 80 },
+    },
+  },
+  {
+    code: "29", name: "광주광역시",
+    refs: refs("광주광역시 도시계획 조례/제67조", "광주광역시 도시계획 조례/제72조", "광주광역시 건축 조례/제35조"),
+    zones: {
+      "1jeon": { bcr: 40, far: 80 }, "2jeon": { bcr: 40, far: 120 },
+      "1il": { bcr: 60, far: 150 }, "2il": { bcr: 60, far: 220, farNote: "택지·도시개발·산단 200%" }, "3il": { bcr: 50, far: 250 },
+      "junju": { bcr: 60, far: 400 },
+      "jungsang": { bcr: 70, far: 1300 }, "ilsang": { bcr: 60, far: 1000 },
+      "geunsang": { bcr: 60, far: 700 }, "yutong": { bcr: 60, far: 800 },
+      "jeongong": { bcr: 70, far: 300 }, "ilgong": { bcr: 70, far: 350 }, "jungong": { bcr: 70, far: 400 },
+      "bojnok": { bcr: 20, far: 60 }, "saengnok": { bcr: 20, far: 60 }, "janok": { bcr: 20, far: 60 },
+      "bojgwan": { bcr: 20, far: 80 }, "saenggwan": { bcr: 20, far: 80 }, "gyehoek": { bcr: 40, far: 90 },
+      "nongrim": { bcr: 20, far: 60 }, "jayeon": { bcr: 20, far: 60 },
+    },
+  },
+  {
+    code: "30", name: "대전광역시",
+    refs: refs("대전광역시 도시계획 조례/제45조", "대전광역시 도시계획 조례/제50조", "대전광역시 건축 조례/제43조"),
+    zones: {
+      "1jeon": { bcr: 50, far: 100 }, "2jeon": { bcr: 40, far: 120 },
+      "1il": { bcr: 60, far: 150 }, "2il": { bcr: 60, far: 200 }, "3il": { bcr: 50, far: 250 },
+      "junju": { bcr: 60, far: 400 },
+      "jungsang": { bcr: 80, far: 1300 }, "ilsang": { bcr: 70, far: 1100 },
+      "geunsang": { bcr: 60, far: 700 }, "yutong": { bcr: 70, far: 900 },
+      "jeongong": { bcr: 70, far: 300 }, "ilgong": { bcr: 70, far: 350 }, "jungong": { bcr: 70, far: 400 },
+      "bojnok": { bcr: 20, far: 60 }, "saengnok": { bcr: 20, far: 70 }, "janok": { bcr: 20, far: 80 },
+      "bojgwan": { bcr: 20, far: 60 }, "saenggwan": { bcr: 20, far: 70 }, "gyehoek": { bcr: 40, far: 80 },
+      "nongrim": { bcr: 20, far: 70 }, "jayeon": { bcr: 20, far: 60 },
+    },
+  },
+  {
+    code: "31", name: "울산광역시",
+    refs: refs("울산광역시 도시계획 조례/별표24", "울산광역시 도시계획 조례/별표24", "울산광역시 건축 조례/제55조"),
+    zones: {
+      "1jeon": { bcr: 50, far: 100 }, "2jeon": { bcr: 50, far: 150 },
+      "1il": { bcr: 60, far: 150 }, "2il": { bcr: 60, far: 200 }, "3il": { bcr: 50, far: 300 },
+      "junju": { bcr: 70, far: 500 },
+      "jungsang": { bcr: 80, far: 1300 }, "ilsang": { bcr: 70, far: 1200 },
+      "geunsang": { bcr: 60, far: 700 }, "yutong": { bcr: 70, far: 900 },
+      "jeongong": { bcr: 70, far: 300 }, "ilgong": { bcr: 70, far: 350 }, "jungong": { bcr: 70, far: 400 },
+      "bojnok": { bcr: 20, far: 80 }, "saengnok": { bcr: 20, far: 100 }, "janok": { bcr: 20, far: 100 },
       "bojgwan": { bcr: 20, far: 80 }, "saenggwan": { bcr: 20, far: 80 }, "gyehoek": { bcr: 40, far: 100 },
       "nongrim": { bcr: 20, far: 80 }, "jayeon": { bcr: 20, far: 80 },
     },

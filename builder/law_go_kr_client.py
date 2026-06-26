@@ -44,7 +44,8 @@ def _find_hwp5html() -> str | None:
 _HWP5HTML = _find_hwp5html()
 _hwp_cache: dict[str, str] = {}  # URL → 박스드로잉 텍스트 (런 내 중복 변환 방지)
 # 데이터표 별표 제목 신호(표지판·안내표시·요금·구획 등 양식 제외, 변환 비용 한정)
-_BP_TABLE_TITLE = re.compile(r"기준|산정|종류")
+# 건폐율·용적률: 울산 등 일부 도시계획 조례는 건폐율/용적률 표를 HWP 별표로 첨부.
+_BP_TABLE_TITLE = re.compile(r"기준|산정|종류|건폐율|용적률")
 
 
 def _cw(ch: str) -> int:

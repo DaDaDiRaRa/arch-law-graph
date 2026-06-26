@@ -185,7 +185,7 @@ export default function SearchView() {
           ))}
         </div>
 
-        {/* 서브축 전환 — 주차·이격은 서울만 데이터 보유 */}
+        {/* 서브축 전환 — 용도지역·조경은 7개 광역시, 주차·이격은 서울·부산·인천 데이터 보유 */}
         <div className="zaxis-switch">
           <button className={"zaxis-btn" + (zaxis === "zone" ? " on" : "")} onClick={() => { setZaxis("zone"); setSelected(null); }}>
             용도지역 기준
@@ -226,26 +226,26 @@ export default function SearchView() {
               </>
             ) : zaxis === "parking" ? (
               <>
-                <div className="rc-head">{region.name} · 건물 용도<span>{pkRegion.uses.length}</span></div>
+                <div className="rc-head">{region.name} · 건물 용도<span>{pkRegion ? pkRegion.uses.length : 0}</span></div>
                 <div className="zone-list">
-                  {pkRegion.uses.map((u) => (
+                  {pkRegion ? pkRegion.uses.map((u) => (
                     <button key={u.key} className={"zone-item" + (use?.key === u.key ? " on" : "")}
                       onClick={() => { setUse(u); setSelected(null); }}>
                       {u.label}
                     </button>
-                  ))}
+                  )) : <div className="zone-na">데이터 준비 중</div>}
                 </div>
               </>
             ) : zaxis === "setback" ? (
               <>
-                <div className="rc-head">{region.name} · 건물 용도<span>{sbRegion.uses.length}</span></div>
+                <div className="rc-head">{region.name} · 건물 용도<span>{sbRegion ? sbRegion.uses.length : 0}</span></div>
                 <div className="zone-list">
-                  {sbRegion.uses.map((u) => (
+                  {sbRegion ? sbRegion.uses.map((u) => (
                     <button key={u.key} className={"zone-item" + (sb?.key === u.key ? " on" : "")}
                       onClick={() => { setSb(u); setSelected(null); }}>
                       {u.label}
                     </button>
-                  ))}
+                  )) : <div className="zone-na">데이터 준비 중</div>}
                 </div>
               </>
             ) : (
@@ -284,13 +284,17 @@ export default function SearchView() {
                 <div className="empty"><div className="empty-art">📐</div>왼쪽에서 용도지역을 고르세요.</div>
               )
             ) : zaxis === "parking" ? (
-              use ? (
+              !pkRegion ? (
+                <div className="empty"><div className="empty-art">🅿️</div>{region.name} 주차 기준은 데이터 준비 중입니다.</div>
+              ) : use ? (
                 <ParkingCard use={use} refs={pkRegion.refs} regionName={pkRegion.name} onOpen={openRef} />
               ) : (
                 <div className="empty"><div className="empty-art">🅿️</div>왼쪽에서 건물 용도를 고르세요.</div>
               )
             ) : zaxis === "setback" ? (
-              sb ? (
+              !sbRegion ? (
+                <div className="empty"><div className="empty-art">📏</div>{region.name} 대지 공지(이격) 기준은 데이터 준비 중입니다.</div>
+              ) : sb ? (
                 <SetbackCard use={sb} refs={sbRegion.refs} regionName={sbRegion.name} onOpen={openRef} />
               ) : (
                 <div className="empty"><div className="empty-art">📏</div>왼쪽에서 건물 용도를 고르세요.</div>

@@ -1,4 +1,4 @@
-// 대지의 조경 — 멀티리전(서울·부산·인천) 연면적 규모별 큐레이션.
+// 대지의 조경 — 멀티리전(7개 광역시) 연면적 규모별 큐레이션.
 // 조경 기준은 법(건축법 제42조①)이 조례에 위임 → 도시별 건축조례가 실제 비율을 정함.
 // nat = 시행령 제27조② baseline(공장·물류·소규모 등), sel = 도시 조례 적용값.
 //   strict = 서울/부산/인천이 baseline보다 강화, relax = 완화(소규모 대지).
@@ -42,6 +42,42 @@ export const REGIONS_LS = [
       t2000: { sel: "대지면적의 15% 이상", strict: true },
       t1000: { sel: "대지면적의 10% 이상", strict: true },
       tu1000: { sel: "대지면적의 5% 이상" },
+    },
+  },
+  {
+    code: "27", name: "대구광역시", refs: lsRefs("대구광역시 건축 조례/제30조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
+      tsmall: { sel: "대지면적의 5% 이상", relax: true },
+    },
+  },
+  {
+    code: "29", name: "광주광역시", refs: lsRefs("광주광역시 건축 조례/제27조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 13% 이상", strict: true },
+      tu1000: { sel: "대지면적의 7% 이상", strict: true },
+      tsmall: { sel: "대지면적의 7% 이상", relax: true },
+    },
+  },
+  {
+    code: "30", name: "대전광역시", refs: lsRefs("대전광역시 건축 조례/제32조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
+      tsmall: { sel: "대지면적의 5% 이상", relax: true },
+    },
+  },
+  {
+    code: "31", name: "울산광역시", refs: lsRefs("울산광역시 건축 조례/제21조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
+      tsmall: { sel: "대지면적의 5% 이상", relax: true },
     },
   },
 ];
