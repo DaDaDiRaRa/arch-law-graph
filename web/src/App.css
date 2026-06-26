@@ -751,7 +751,7 @@
 .cc-notes li::before { content: "·"; position: absolute; left: 4px; color: var(--text3); }
 
 /* ─── 도시 전환 (서울·부산·인천) ───────────────────────────────────────── */
-.region-switch { display: flex; gap: 6px; padding: 14px 18px 0; }
+.region-switch { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 18px 0; }
 .region-btn {
   font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: 18px;
   border: 1px solid var(--line2); background: #fff; color: var(--text2); cursor: pointer;

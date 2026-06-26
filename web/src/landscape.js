@@ -1,4 +1,4 @@
-// 대지의 조경 — 멀티리전(7개 광역시) 연면적 규모별 큐레이션.
+// 대지의 조경 — 멀티리전(13개 지자체) 연면적 규모별 큐레이션.
 // 조경 기준은 법(건축법 제42조①)이 조례에 위임 → 도시별 건축조례가 실제 비율을 정함.
 // nat = 시행령 제27조② baseline(공장·물류·소규모 등), sel = 도시 조례 적용값.
 //   strict = 서울/부산/인천이 baseline보다 강화, relax = 완화(소규모 대지).
@@ -78,6 +78,54 @@ export const REGIONS_LS = [
       t1000: { sel: "대지면적의 10% 이상", strict: true },
       tu1000: { sel: "대지면적의 5% 이상" },
       tsmall: { sel: "대지면적의 5% 이상", relax: true },
+    },
+  },
+  {
+    code: "36", name: "세종특별자치시", refs: lsRefs("세종특별자치시 건축 조례/제29조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
+    },
+  },
+  {
+    code: "41110", name: "수원시", refs: lsRefs("수원시 건축 조례/제31조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상 (5,000㎡ 이상 18%·중심상업 5%)", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
+    },
+  },
+  {
+    code: "41280", name: "고양시", refs: lsRefs("고양시 건축 조례/제33조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
+    },
+  },
+  {
+    code: "41460", name: "용인시", refs: lsRefs("용인시 건축 조례/제28조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상 (상업지역 5%)" },
+    },
+  },
+  {
+    code: "48120", name: "창원시", refs: lsRefs("창원시 건축 조례/제26조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
+    },
+  },
+  {
+    code: "50", name: "제주특별자치도", refs: lsRefs("제주특별자치도 건축 조례/제23조"),
+    tiers: {
+      t2000: { sel: "대지면적의 15% 이상", strict: true },
+      t1000: { sel: "대지면적의 10% 이상", strict: true },
+      tu1000: { sel: "대지면적의 5% 이상" },
     },
   },
 ];

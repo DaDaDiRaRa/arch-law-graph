@@ -119,8 +119,27 @@ def _tables_from_xhtml(xhtml: str) -> list[list[list[str]]]:
     return tables
 
 
+def _text_from_xhtml(xhtml: str) -> str:
+    """hwp5html xhtml → 문단 텍스트. 표가 없는 데이터 별표(창원 건폐율 등) 폴백용."""
+    body = re.sub(r"<style\b.*?</style>", " ", xhtml, flags=re.S)
+    body = re.sub(r"<script\b.*?</script>", " ", body, flags=re.S)
+    # 블록 경계 → 줄바꿈
+    body = re.sub(r"(?i)</(p|div|li|tr|h\d)>|<br\s*/?>", "\n", body)
+    body = re.sub(r"<[^>]+>", " ", body)
+    body = html.unescape(body).replace("　", " ")
+    lines = []
+    for ln in body.split("\n"):
+        ln = re.sub(r"[ \t]+", " ", ln).strip()
+        if ln and not ln.startswith((".", "{", "}")) and ":" not in ln[:14]:
+            lines.append(ln)
+    return "\n".join(lines).strip()
+
+
 def _hwp_bytes_to_box_text(data: bytes) -> str:
-    """HWP 바이트 → hwp5html 변환 → 표를 선문자 텍스트로. 실패 시 빈 문자열."""
+    """HWP 바이트 → hwp5html 변환 → 표를 선문자 텍스트로. 표 없으면 문단 텍스트 폴백.
+
+    실패(변환 오류·내용 없음) 시 빈 문자열.
+    """
     if not _HWP5HTML:
         return ""
     with tempfile.TemporaryDirectory() as td:
@@ -138,7 +157,10 @@ def _hwp_bytes_to_box_text(data: bytes) -> str:
             logger.warning("hwp5html 변환 실패: %s", e)
             return ""
     tables = _tables_from_xhtml(xhtml)
-    return "\n\n".join(_render_box_table(t) for t in tables)
+    if tables:
+        return "\n\n".join(_render_box_table(t) for t in tables)
+    # 표 없는 데이터 별표(문단형 건폐율/용적률 목록 등) → 문단 텍스트 폴백
+    return _text_from_xhtml(xhtml)
 
 
 class LawGoKrClient:
