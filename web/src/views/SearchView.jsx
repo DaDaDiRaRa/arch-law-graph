@@ -17,11 +17,13 @@ import ComplianceCard from "./ComplianceCard.jsx";
 import ParkingCard from "./ParkingCard.jsx";
 import SetbackCard from "./SetbackCard.jsx";
 import LandscapeCard from "./LandscapeCard.jsx";
+import IncentiveCard from "./IncentiveCard.jsx";
 import ChatPanel from "./ChatPanel.jsx";
 import { REGIONS, ZONE_GROUPS, zonesOf } from "../zoning.js";
 import { PARKING_REGIONS } from "../parking.js";
 import { SETBACK_REGIONS } from "../setback.js";
 import { REGIONS_LS, tiersOf } from "../landscape.js";
+import { BENEFIT_REGIONS } from "../incentive.js";
 
 const TYPE_LABEL = { references: "참조", cross_law: "타법령", byeolpyo: "별표", delegates: "위임", applied: "판례", interpreted: "해석례" };
 
@@ -87,11 +89,12 @@ function snippetOf(content, terms, win = 100) {
 export default function SearchView() {
   const [mode, setMode] = useState("search"); // "search" | "zoning"
   const [region, setRegion] = useState(REGIONS[0]); // 서울·부산·인천
-  const [zaxis, setZaxis] = useState("zone"); // "zone" | "parking" | "setback" | "landscape"
+  const [zaxis, setZaxis] = useState("zone"); // "zone" | "parking" | "setback" | "landscape" | "benefit"
   const [zone, setZone] = useState(null);
   const [use, setUse] = useState(null);
   const [sb, setSb] = useState(null);
   const [land, setLand] = useState(null);
+  const [benefit, setBenefit] = useState(null);
   const [q, setQ] = useState("");
   const [domain, setDomain] = useState(null);
   const [kind, setKind] = useState(null); // 문서 종류 필터
@@ -151,12 +154,13 @@ export default function SearchView() {
   const lsRegion = REGIONS_LS.find((r) => r.code === region.code);
   const pkRegion = PARKING_REGIONS.find((r) => r.code === region.code);
   const sbRegion = SETBACK_REGIONS.find((r) => r.code === region.code);
+  const bnRegion = BENEFIT_REGIONS.find((r) => r.code === region.code);
   const zoneList = useMemo(() => zonesOf(region), [region]);
   const tierList = useMemo(() => (lsRegion ? tiersOf(lsRegion) : []), [lsRegion]);
   const openRef = (id) => { const n = nodeById.get(id); if (n) setSelected(n); };
   const pickRegion = (r) => {
     setRegion(r);
-    setZone(null); setLand(null); setUse(null); setSb(null); setSelected(null);
+    setZone(null); setLand(null); setUse(null); setSb(null); setBenefit(null); setSelected(null);
   };
 
   return (
@@ -185,7 +189,7 @@ export default function SearchView() {
           ))}
         </div>
 
-        {/* 서브축 전환 — 용도지역·조경은 7개 광역시, 주차·이격은 서울·부산·인천 데이터 보유 */}
+        {/* 서브축 전환 — 용도지역·조경·완화혜택 13개 지자체, 주차 12개·이격 13개 데이터 보유 */}
         <div className="zaxis-switch">
           <button className={"zaxis-btn" + (zaxis === "zone" ? " on" : "")} onClick={() => { setZaxis("zone"); setSelected(null); }}>
             용도지역 기준
@@ -198,6 +202,9 @@ export default function SearchView() {
           </button>
           <button className={"zaxis-btn" + (zaxis === "landscape" ? " on" : "")} onClick={() => { setZaxis("landscape"); setSelected(null); }}>
             조경
+          </button>
+          <button className={"zaxis-btn" + (zaxis === "benefit" ? " on" : "")} onClick={() => { setZaxis("benefit"); setSelected(null); }}>
+            완화·혜택
           </button>
         </div>
 
@@ -248,7 +255,7 @@ export default function SearchView() {
                   )) : <div className="zone-na">데이터 준비 중</div>}
                 </div>
               </>
-            ) : (
+            ) : zaxis === "landscape" ? (
               <>
                 <div className="rc-head">{region.name} · 연면적 규모<span>{tierList.length}</span></div>
                 <div className="zone-list">
@@ -258,6 +265,18 @@ export default function SearchView() {
                       {t.label}
                     </button>
                   ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="rc-head">{region.name} · 완화·혜택<span>{bnRegion ? bnRegion.items.length : 0}</span></div>
+                <div className="zone-list">
+                  {bnRegion ? bnRegion.items.map((it) => (
+                    <button key={it.key} className={"zone-item" + (benefit?.key === it.key ? " on" : "")}
+                      onClick={() => { setBenefit(it); setSelected(null); }}>
+                      {it.label}
+                    </button>
+                  )) : <div className="zone-na">데이터 준비 중</div>}
                 </div>
               </>
             )}
@@ -299,10 +318,18 @@ export default function SearchView() {
               ) : (
                 <div className="empty"><div className="empty-art">📏</div>왼쪽에서 건물 용도를 고르세요.</div>
               )
-            ) : land ? (
-              <LandscapeCard tier={land} refs={lsRegion.refs} regionName={lsRegion.name} onOpen={openRef} />
+            ) : zaxis === "landscape" ? (
+              land ? (
+                <LandscapeCard tier={land} refs={lsRegion.refs} regionName={lsRegion.name} onOpen={openRef} />
+              ) : (
+                <div className="empty"><div className="empty-art">🌳</div>왼쪽에서 연면적 규모를 고르세요.</div>
+              )
+            ) : !bnRegion ? (
+              <div className="empty"><div className="empty-art">🎁</div>{region.name} 완화·혜택은 데이터 준비 중입니다.</div>
+            ) : benefit ? (
+              <IncentiveCard item={benefit} regionName={bnRegion.name} onOpen={openRef} />
             ) : (
-              <div className="empty"><div className="empty-art">🌳</div>왼쪽에서 연면적 규모를 고르세요.</div>
+              <div className="empty"><div className="empty-art">🎁</div>왼쪽에서 항목(공개공지·주차 면제)을 고르세요.</div>
             )}
           </main>
         </div>
