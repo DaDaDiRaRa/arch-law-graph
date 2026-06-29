@@ -271,5 +271,5 @@ export const PARKING_REGIONS = [
       { key: "etc", label: "그 밖의 건축물", nat: NAT.etc, sel: "시설면적 300㎡당 1대", strict: false },
     ],
   },
-  ...PARKING_AUTO,   // 신규 도시(LLM 보조 생성)
-];
+  ...PARKING_AUTO.map((r) => ({ ...r, src: "llm" })),   // 신규 도시(LLM 보조)
+].map((r) => ({ src: "manual", ...r }));   // 손큐=manual, AUTO는 자체 src 유지

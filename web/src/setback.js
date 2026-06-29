@@ -373,5 +373,5 @@ export const SETBACK_REGIONS = [
         boundary: { nat: NAT.gongjang_b, sel: "준공업 1m↑ / 그 외 1.5m↑", strict: true } },
     ],
   },
-  ...SETBACK_AUTO,   // 신규 도시(LLM 보조 생성)
-];
+  ...SETBACK_AUTO.map((r) => ({ ...r, src: "llm" })),   // 신규 도시(LLM 보조)
+].map((r) => ({ src: "manual", ...r }));   // 손큐=manual, AUTO는 자체 src 유지

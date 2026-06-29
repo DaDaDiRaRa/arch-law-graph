@@ -1,6 +1,7 @@
 // 주차 기준 카드 — 건물 용도별 부설주차장 설치기준을 국가 vs 도시로 표시.
 // use(nat/sel/strict/note)·refs·regionName 은 SearchView가 선택 도시에 맞춰 주입.
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
+import SourceBadge from "./SourceBadge.jsx";
 
 function shortLaw(name = "") {
   return name
@@ -28,12 +29,13 @@ function collectCases(refs) {
   return [...seen.values()].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0));
 }
 
-export default function ParkingCard({ use, refs, regionName, onOpen }) {
+export default function ParkingCard({ use, refs, regionName, src, onOpen }) {
   const cases = collectCases(refs);
   return (
     <div className="cc">
       <div className="cc-head">
         <span className="cc-region">{regionName}</span>
+        <SourceBadge src={src} />
         <h1 className="cc-h1-sm">{use.label}</h1>
         <span className="cc-grp">부설주차장</span>
       </div>

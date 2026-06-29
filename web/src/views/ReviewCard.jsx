@@ -2,6 +2,7 @@
 // region(name·ref·local)·onOpen 은 SearchView 주입. 근거 칩 클릭 → 원문 Reader.
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
 import { REVIEW_NATIONAL, REVIEW_OTHER, REVIEW_CROSSLAW, REVIEW_NOTES } from "../review.js";
+import SourceBadge from "./SourceBadge.jsx";
 
 function shortLaw(name = "") {
   return name
@@ -34,6 +35,7 @@ export default function ReviewCard({ region, onOpen }) {
     <div className="cc">
       <div className="cc-head">
         <span className="cc-region">{region.name}</span>
+        <SourceBadge src={region.src} />
         <h1 className="cc-h1-sm">건축위원회 심의 대상</h1>
         <span className="cc-grp">설계 착수 체크</span>
       </div>

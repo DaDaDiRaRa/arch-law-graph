@@ -127,8 +127,8 @@ export const REVIEW_REGIONS = [
     "다중이용건축물·특수구조건축물 구조안전",
     "영 제5조의5①8호에 따라 시장이 심의가 필요하다고 인정하는 건축물",
   ] },
-  ...REVIEW_AUTO,   // 신규 일반시(LLM 보조 생성)
-];
+  ...REVIEW_AUTO.map((r) => ({ ...r, src: "llm" })),   // 신규 일반시(LLM 보조)
+].map((r) => ({ src: "manual", ...r }));   // 손큐=manual, AUTO는 자체 src 유지
 
 // 기타 심의·평가·의무 (전국 기준, graph에 근거 조문 있음) — 설계 착수 시 함께 검토.
 export const REVIEW_OTHER = [

@@ -2,6 +2,7 @@
 // 국가 baseline vs 도시 적용으로 표시. tier(def+sel)·refs·regionName 은 SearchView 주입.
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
 import { LANDSCAPE_NOTES } from "../landscape.js";
+import SourceBadge from "./SourceBadge.jsx";
 
 function shortLaw(name = "") {
   return name
@@ -29,13 +30,14 @@ function collectCases(refs) {
   return [...seen.values()].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0));
 }
 
-export default function LandscapeCard({ tier, refs, regionName, onOpen }) {
+export default function LandscapeCard({ tier, refs, regionName, src, onOpen }) {
   const cases = collectCases(refs);
   const applCls = "cc-val cc-applied" + (tier.strict ? " strict" : tier.relax ? " relax" : "");
   return (
     <div className="cc">
       <div className="cc-head">
         <span className="cc-region">{regionName}</span>
+        <SourceBadge src={src} />
         <h1 className="cc-h1-sm">{tier.label}</h1>
         <span className="cc-grp">대지의 조경</span>
       </div>

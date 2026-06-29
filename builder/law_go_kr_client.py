@@ -595,7 +595,10 @@ class LawGoKrClient:
             if not items:
                 break
             for it in items:
-                if (it.get("자치법규명") or "").strip() != name:
+                # 자치법규명 끝 개정 꼬리표("[제명개정 ...]") 무시하고 비교 — ordin_group 도 정규화 저장.
+                api_nm = re.sub(r"\s*\[[^\]]*\]\s*$", "", (it.get("자치법규명") or "").strip())
+                want_nm = re.sub(r"\s*\[[^\]]*\]\s*$", "", name.strip())
+                if api_nm != want_nm:
                     continue
                 if (it.get("지자체기관명") or "").strip() != org:
                     continue

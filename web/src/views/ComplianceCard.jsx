@@ -3,6 +3,7 @@
 // zone(def+sel 병합)·refs·regionName 은 SearchView가 선택 도시에 맞춰 주입.
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
 import { SUNLIGHT_RULE } from "../zoning.js";
+import SourceBadge from "./SourceBadge.jsx";
 
 function shortLaw(name = "") {
   return name
@@ -79,12 +80,13 @@ function collectCases(refs) {
   return [...seen.values()].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0));
 }
 
-export default function ComplianceCard({ zone, refs, regionName, onOpen }) {
+export default function ComplianceCard({ zone, refs, regionName, src, onOpen }) {
   const cases = collectCases(refs);
   return (
     <div className="cc">
       <div className="cc-head">
         <span className="cc-region">{regionName}</span>
+        <SourceBadge src={src} />
         <h1>{zone.label}</h1>
         <span className="cc-grp">{zone.group}지역</span>
       </div>

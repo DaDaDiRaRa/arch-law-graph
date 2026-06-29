@@ -1066,3 +1066,20 @@
 .answer-ref:hover { background: var(--accent-soft); border-radius: 3px; }
 
 .zaxis-note b { color: var(--text2); }
+
+/* ── 값별 출처·신뢰도 배지 (C-2) ── */
+.src-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.5;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  vertical-align: middle;
+  cursor: help;
+  white-space: nowrap;
+}
+.src-manual { color: #1b7a3d; background: #e9f9ef; border-color: #b6e8c8; }   /* 손큐레이션 — 최고 신뢰 */
+.src-machine { color: var(--accent); background: var(--accent-soft); border-color: #c5d9ff; } /* 기계추출 */
+.src-llm { color: var(--amber); background: var(--amber-soft); border-color: #ffd8a8; }      /* LLM보조 */

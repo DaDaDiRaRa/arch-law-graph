@@ -11,8 +11,8 @@
 ```text
 builder/          # Python — 법제처 fetch → graph.json 빌드
   build_graph.py  # 법령 + 고시 + 조례(ordin_group) + 판례 + 해석례 전체 빌드. --only 건축법 가능
-  ordin_group.py  # 전국 84개 시 조례 목록(ORDIN_GROUP). inventory_ordin.py 자동생성, build_graph가 import
-  inventory_ordin.py  # 전국 시 × 4조례를 법제처 API로 자동 검색·매칭 → ordin_group.py 생성(병목① 해소)
+  ordin_group.py  # 전국 84시 + 82군 조례 목록(ORDIN_GROUP). inventory_ordin.py 자동생성, build_graph가 import
+  inventory_ordin.py  # 전국 시·군 × 4조례를 법제처 API로 자동 검색·매칭 → ordin_group.py 생성(병목① 해소). CITIES+COUNTIES, 군 용도지역은 COUNTY_PLAN_CANON
   extract_zoning.py / extract_landscape.py  # graph 본문 정규식 추출(건폐율·용적률 / 조경). 손큐레이션 대조 검증
   gen_card_data.py  # 위 추출기 → zoning_auto.js·landscape_auto.js 생성(신규 도시, 기계적·무해석)
   gen_parking_llm.py / gen_setback_llm.py / gen_review_llm.py / gen_incentive_llm.py
@@ -64,9 +64,10 @@ nginx.conf        # port 8080, gzip, /api/ → uvicorn 프록시(SSE buffering o
 
 ## 현재 상태 (2026-06-29 기준)
 
-- **graph.json**: node≈25235, edge≈71804 — 법령 29 + 고시 16 + 조례 **309** + 대법원 판례 100 + 법령해석례 150 (Phase 1–4 + Stage 1–12 완료)
+- **graph.json**: node≈42405, edge≈118851 — 법령 29 + 고시 17 + 조례 **554** + 대법원 판례 100 + 법령해석례 150 (Phase 1–4 + Stage 1–13 완료)
   - 법령 29 = 건축 관련 법령 19 + **심의 별도 법령 5종(도시교통정비촉진법·환경영향평가법·경관법·지하안전관리에 관한 특별법·자연재해대책법) + 시행령 5종**(Stage 11).
-  - 조례 309 = **전국 84개 시 × 도시계획·건축·주차·녹색건축 4종**(Stage 12) + 경기도 도단위 2. `builder/ordin_group.py`(자동생성)가 목록 보유, `build_graph.py`가 import.
+  - 조례 554 = **전국 84개 시 + 82개 군 × 도시계획(군=군계획)·건축·주차·녹색건축 4종** + 경기도 도단위 2. 시 309 + 군 246(Stage 13). `builder/ordin_group.py`(자동생성)가 목록 보유, `build_graph.py`가 import.
+    - **군(郡)은 검색·RAG·원문 corpus 전용** — 카드는 미생성(`gen_card_data.py`가 CITY_CODE=시만 처리). 군의 용도지역 조례명은 다양("○○군 도시계획/군계획/계획 조례") → `inventory_ordin.py`의 `COUNTY_PLAN_CANON` 접미사로 흡수. 광역시 산하 군(달성·군위·강화·옹진)은 자체 군계획 조례 없음(광역시 도시계획조례 적용). 청도군처럼 개정 꼬리표("[제명개정 …]") 붙은 조례명은 `clean_name()`으로 정규화(빌더 `search_ordin`도 동일 비교).
 - **기준 조회(결정-등급 카드)**: 검색-퍼스트 외 `📐 기준 조회` 모드. 용도지역→건폐율·용적률·일조 / 건물용도→주차·이격 / 연면적→조경을 **국가 vs 도시 적용**으로 나란히 + 근거 조문 칩(클릭→원문 Reader) + 연결 판례·해석례 자동 수집. **전국 단위 카드(Stage 12).** 지역 스위처 = zoning REGIONS(마스터), 타 카드는 `r.code`로 조인(없으면 "준비중" guard). 카드별 커버리지:
   - **용도지역 84·조경 80** — 기계적 추출(정규식, 무료·무해석). 기존 17 손큐레이션 + 신규는 `zoning_auto.js`/`landscape_auto.js`(builder `gen_card_data.py` 생성, `?_auto.js` import+append).
   - **주차 66·이격 77·심의 77·완화 82** — LLM 보조 추출(claude-sonnet-4-6 temp0이 graph 별표/조문 → 스키마 JSON, 부산 등 손큐레이션 정확일치 검증). `parking_auto.js`·`setback_auto.js`·`review_auto.js`·`incentive_auto.js`(builder `gen_parking/setback/review/incentive_llm.py`). incentive 헬퍼는 `incentive_helpers.js`로 분리(순환 import 회피).
@@ -193,7 +194,7 @@ D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe builder/build_graph.p
 D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe builder/build_embeddings.py
 
 # ── 카드 회귀 스냅샷 테스트 (C-1). 루트에서 실행 ──────────────────────────
-D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe -m pytest        # 6검사: zoning/landscape × (frozen·extractor_sync·plausible)
+D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe -m pytest        # 9검사: zoning/landscape × (frozen·extractor_sync·plausible) + LLM카드(주차·이격·심의·완화) × (frozen·structural·plausible). node 필요(LLM카드 평가)
 D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe -m pytest --update-golden  # 카드 값 변경을 사람이 승인(골든 재생성)
 
 # ── 로컬 개발 (두 터미널 필요) ────────────────────────────────────────
@@ -281,6 +282,7 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 | VWorld 데이터 API(GetFeature)가 같은 키로 `INCORRECT_KEY` (address API는 OK) | 데이터 API는 키 발급 시 등록 도메인의 **`Referer` 헤더** 검사 → `Referer: SERVICE_URL`(기본 `http://localhost:8000`). Cloud Run은 등록 도메인으로 SERVICE_URL 설정 필요 |
 | VWorld 용도지역 속성명 `UQ_NM`로 추측 → 빈 값 | LT_C_UQ111 실제 속성명은 **`uname`**(자매앱 arch-law-diagnose `vworld_client.py` 검증) |
 | 추출기가 `100분의 1,000`(천단위 쉼표)을 `100분의1`=1% 로 오파싱 → 군포 중심상업 용적률 1% garbage가 zoning_auto.js 에 배포됨 | `extract_zoning.py` val 정규식 `100분의\d+`→`100분의\d[\d,]*`. **카드 회귀 테스트(C-1)의 타당성 경계가 검출**(용적률 허용 50~1500) |
+| 주소 자동조회에서 카드 미지원 지역(군 등) 입력 시 매칭 실패해도 현재 선택 도시(기본 서울) 카드를 그대로 표시 → 군 땅을 서울 기준으로 오인 | `SearchView.jsx handleAddrSearch`: `matched` 없으면 카드 변경 없이 "시 단위 카드 미지원(용도지역만 확인)" 안내 후 return. 군은 graph corpus에 0(시 83만) — 위임주체 검증: 건폐율·용적률=시·군(구 제외), 주차=시·군·구(주차장법§19). 자치구 도시계획/주차 조례 실재 확인(강남구) |
 
 ---
 
@@ -294,14 +296,15 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 - 표어: **"이 법이 뭐라고 하는가, 어디 근거하며, 무엇과 연결되는가."**
 - **graph는 산정·대지탐지를 구현하지 않음**(diagnose 담당). 단 그 계산의 *근거 조문 원문*은 graph가 보유(diagnose RAG가 `/api/lookup`으로 당겨씀). 통합 웹사이트 시 중복 기능(AI채팅·법규그래프 뷰)은 주인을 하나로 명시.
 
-> **검증된 현재 상태(2026-06-29 코드 확인)**: `/api/lookup`(배치 50)·`/api/zoning`·`/api/chat` 3개뿐 — 법령 API 표면 얇음. `ef_yd`(조문시행일자)는 모든 조문 노드에 저장·Reader에 "시행 YYYY-MM-DD" 노출됨(카드·인용칩엔 미전파). 빌더가 `현행연혁구분!=현행` 필터 → **현행 법령만** 보유(연혁 타임라인 없음). **카드 회귀 테스트 6건**(C-1, 2026-06-29 — zoning/landscape × frozen·extractor_sync·plausible; 그 외 영역은 여전히 0건, diagnose는 262건). 카드 데이터는 `web/src/*.js`에 묶여 API·diagnose가 못 씀.
+> **검증된 현재 상태(2026-06-29 코드 확인)**: `/api/lookup`(배치 50)·`/api/zoning`·`/api/chat` 3개뿐 — 법령 API 표면 얇음. `ef_yd`(조문시행일자)는 모든 조문 노드에 저장·Reader에 "시행 YYYY-MM-DD" 노출됨(카드·인용칩엔 미전파). 빌더가 `현행연혁구분!=현행` 필터 → **현행 법령만** 보유(연혁 타임라인 없음). **카드 회귀 테스트 9건**(C-1+Opt3, 2026-06-30 — zoning/landscape × frozen·extractor_sync·plausible + LLM카드(주차·이격·심의·완화) × frozen·structural·plausible; GitHub Actions CI(`test.yml`) push·PR 실행; 그 외 영역은 여전히 0건, diagnose는 262건). 카드 데이터는 `web/src/*.js`에 묶여 API·diagnose가 못 씀.
 
 ### 우선순위 로드맵 (정확도 + 정체성 기준)
 
 #### C. 정확도·신뢰 — 최우선 (graph가 데이터 주인)
 
-- ✅ **1. 카드 추출 회귀 스냅샷 테스트** (완료 2026-06-29) — `pytest`(루트, `pytest.ini`→`builder/tests/`). zoning 84·landscape 80개 시를 골든 스냅샷(`builder/tests/golden/*.json`, 값별 `src` 태그 extracted/hwp/manual/auto)에 고정. 카드당 3검사: **frozen**(live==골든, 사람 미승인 변경 차단)·**extractor_sync**(추출기 재실행==커밋카드, 재빌드/추출기수정 드리프트 검출)·**plausible**(건폐율 20~90·용적률 50~1500·조경 3~30 경계로 garbage 검출). `refresh_local.ps1`이 자동갱신 시 게이트로 실행 → 카드 값 바뀌면 자동 커밋 차단. 골든 승인은 `pytest --update-golden`. **버그 적발 실적**: 군포 중심상업 용적률 1%(쉼표 오파싱) garbage를 plausible이 검출 → 추출기 수정. 다음: 출처 배지(C-2)·LLM 카드(주차·이격·심의·완화) 동결·GH Actions CI.
-- **2. 값별 출처·신뢰도 배지** — 각 카드 값에 `기계추출/LLM보조/손큐레이션/guard` 표기. "준비중" guard는 있으나 채워진 값의 추출방식은 미표기. 충실성 원칙의 UI 가시화.
+- ✅ **1. 카드 추출 회귀 스냅샷 테스트** (완료 2026-06-29) — `pytest`(루트, `pytest.ini`→`builder/tests/`). zoning 84·landscape 80개 시를 골든 스냅샷(`builder/tests/golden/*.json`, 값별 `src` 태그 extracted/hwp/manual/auto)에 고정. 카드당 3검사: **frozen**(live==골든, 사람 미승인 변경 차단)·**extractor_sync**(추출기 재실행==커밋카드, 재빌드/추출기수정 드리프트 검출)·**plausible**(건폐율 20~90·용적률 50~1500·조경 3~30 경계로 garbage 검출). `refresh_local.ps1`이 자동갱신 시 게이트로 실행 → 카드 값 바뀌면 자동 커밋 차단. 골든 승인은 `pytest --update-golden`. **버그 적발 실적**: 군포 중심상업 용적률 1%(쉼표 오파싱) garbage를 plausible이 검출 → 추출기 수정.
+  - ✅ **Opt3 확장**(완료 2026-06-30) — LLM 카드(주차·이격·심의·완화) **frozen 동결**(`test_llm_cards.py`). LLM 출력이라 재현 불가 → extractor_sync 대신 frozen+structural+plausible. incentive items 가 함수 호출(relax/gg/green)이라 `dump_cards.mjs`(node)로 실제 평가 후 골든(`cards_llm.json`) 대조. **GitHub Actions CI**(`.github/workflows/test.yml`) push·PR 마다 pytest 실행(커밋된 graph.json+JS만 읽어 법제처 불필요, node 셋업). 카드 모듈 상대경로 import만 써 npm install 불요. 다음: 출처 배지(C-2).
+- ✅ **2. 값별 출처·신뢰도 배지** (완료 2026-06-30) — 6개 카드 데이터 모듈에 `src` 태깅(손큐레이션=manual·기계추출=machine·LLM보조=llm). 태깅은 export 스프레드에서 `...AUTO.map(r=>({...r,src})).` + `].map(r=>({src:"manual",...r}))`(손큐는 미지정→manual, AUTO는 자체 src 유지). `web/src/views/SourceBadge.jsx` 가 카드 cc-head 의 도시명 옆에 색상 배지+툴팁 렌더(6개 카드 전부). LLM 카드 골든(`cards_llm.json`)에 src 포함돼 frozen 테스트가 태깅 변경도 감시. guard "준비중"은 기존 빈-상태로 표시.
 - **3. 시행일 전파** — Reader엔 있는 `ef_yd`를 카드 근거 조문 칩·RAG 인용칩에도. "현행인가"를 모든 답변 지점에서 보장.
 - **4. RAG 인용 검증 라이트** — 답변의 `법령명 제N조`가 실제 graph 노드에 존재하는지 사후 체크(없으면 경고). `_name_to_node_id`/buildRefMap 재활용 → 저비용. 환각 인용 차단.
 
@@ -321,7 +324,7 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 #### E. 데이터 폭 — 중간 (권위 corpus 강화)
 
 - **10. 판례·해석례 확대** — 현재 cap 100/150, 키워드 19개. 완화·심의·친환경 신규 토픽 키워드 보강.
-- **11. 군(郡) 지역 조례** — 현재 84개 시. 군은 검색·RAG·원문 보유 목적(카드는 도단위 적용).
+- ✅ **11. 군(郡) 지역 조례** (완료 2026-06-30, Stage 13) — 82개 군 추가(조례 309→554, node 25235→42405). 검색·RAG·원문 corpus(카드 미생성). 도 산하 군 전원 용도지역 조례 확보, 광역시 산하 4군은 광역시 조례 적용. 카드 회귀 게이트가 시 값 불변 확증. 임베딩 재계산 완료(`embeddings.npy` 17928→30635, 군 벡터 RAG 검증). **잔존**: graph.json 58→93MB·embeddings 37→63MB(서버 에셋). 클라이언트 graph 12.6MB gzip 첫 로드 — 모바일 체감 나빠지면 서버사이드 검색(B-5)으로 근본 해결.
 - **12. diagnose 인용 조문 보유 확인** — 지구단위계획·가로구역 높이·용도지구 조문이 graph에 실재하는지 점검, 빈틈이면 빌더 보강.
 - **14. (선택·advanced) 개정 진행중(입법예고) 추적** — 법제처 DRF는 **현행 법령만** 제공(빌더가 `현행연혁구분!=현행` 버림) → graph는 "곧 시행될 개정"을 모름. "최신" 정체성을 날카롭게 하는 **유일한 정당한 외부 소스 추가**(국회 의안정보시스템·법제처 입법예고). 실무가치: "준공 시점엔 바뀐 법 적용". ⚠ 난도·유지보수 있어 1·6번보다 후순위.
 
@@ -344,7 +347,9 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 
 ### 완료 이력
 
-- ✅ **B. 데이터** — 조례 전국 84개 시(Stage 12).
+- ✅ **B. 데이터** — 조례 전국 84개 시(Stage 12) + 82개 군(Stage 13, 조례 554·node 42405).
+- ✅ **카드 회귀 스냅샷 테스트(C-1+Opt3)** — `pytest` 9검사(zoning/landscape × frozen·extractor_sync·plausible + LLM카드 × frozen·structural·plausible) + 골든 + refresh_local.ps1 게이트 + GitHub Actions CI(`test.yml`). 군포 용적률 1% garbage 적발·수정.
+- ✅ **주소 카드 미지원 지역 fallback 수정** — 군 등 매칭 실패 시 서울 카드 오표시 → "시 단위 카드 미지원(용도지역만 확인)" 안내.
 - ✅ **C-1 검색 고도화** — 동의어(20그룹)+초성. `web/src/search.js`.
 - ✅ **C-2 인용 관계 시각화** — Reader `CiteGraph`(좌=피인용·우=인용).
 - ✅ **C-3 채팅 벡터 RAG** — Voyage 1024d, `embeddings.npy`, 코사인 top_k+키워드 폴백.

@@ -1,6 +1,7 @@
 // 완화·혜택 카드 — 공개공지 / 부설주차 면제·완화를 국가 vs 도시 적용으로 표시.
 // item(label·rows·refs·notes)·regionName 은 SearchView 주입. rows = [{label,nat,sel,strict?}].
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
+import SourceBadge from "./SourceBadge.jsx";
 
 function shortLaw(name = "") {
   return name
@@ -29,12 +30,13 @@ function collectCases(refs) {
   return [...seen.values()].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0));
 }
 
-export default function IncentiveCard({ item, regionName, onOpen }) {
+export default function IncentiveCard({ item, regionName, src, onOpen }) {
   const cases = collectCases(item.refs);
   return (
     <div className="cc">
       <div className="cc-head">
         <span className="cc-region">{regionName}</span>
+        <SourceBadge src={src} />
         <h1 className="cc-h1-sm">{item.label}</h1>
         <span className="cc-grp">완화·혜택</span>
       </div>

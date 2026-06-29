@@ -162,8 +162,8 @@ export const REGIONS_LS = [
       tu1000: { sel: "대지면적의 5% 이상" },
     },
   },
-  ...LANDSCAPE_AUTO,   // 신규 도시(자동생성)
-];
+  ...LANDSCAPE_AUTO.map((r) => ({ ...r, src: "machine" })),   // 신규 도시(기계추출)
+].map((r) => ({ src: "manual", ...r }));   // 손큐=manual, AUTO는 자체 src 유지
 
 export const LANDSCAPE_NOTES = [
   "면적 200㎡ 미만 대지는 조경 의무 없음(법 제42조①).",

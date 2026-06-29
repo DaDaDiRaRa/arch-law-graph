@@ -1,6 +1,7 @@
 // 대지 안의 공지(이격거리) 카드 — 건물 용도를 고르면
 // 건축선·인접대지경계선 이격거리를 국가 범위(시행령 별표2) vs 서울 적용(건축조례 별표4)으로 표시.
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
+import SourceBadge from "./SourceBadge.jsx";
 
 function shortLaw(name = "") {
   return name
@@ -48,12 +49,13 @@ function collectCases(refs) {
   return [...seen.values()].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0));
 }
 
-export default function SetbackCard({ use, refs, regionName, onOpen }) {
+export default function SetbackCard({ use, refs, regionName, src, onOpen }) {
   const cases = collectCases(refs);
   return (
     <div className="cc">
       <div className="cc-head">
         <span className="cc-region">{regionName}</span>
+        <SourceBadge src={src} />
         <h1 className="cc-h1-sm">{use.label}</h1>
         <span className="cc-grp">대지 안의 공지</span>
       </div>

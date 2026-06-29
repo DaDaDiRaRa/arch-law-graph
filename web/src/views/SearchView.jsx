@@ -203,24 +203,39 @@ export default function SearchView() {
       if (data.error) { setAddrMsg({ ok: false, text: data.error }); return; }
 
       // sido/sigungu → REGIONS 매칭
-      // 광역·특별시: sido 앞부분이 r.name과 일치 ("서울특별시".startsWith("서울"))
-      // 기초시: sigungu 앞부분이 r.name과 일치 ("수원시".startsWith("수원"))
+      // 광역·특별시: sido 앞부분이 r.name과 일치 ("서울특별시".startsWith("서울특별시"))
+      // 기초시: sigungu 앞부분이 r.name과 일치 ("수원시".startsWith("수원시"))
       const matched = REGIONS.find((r) =>
         data.sido?.startsWith(r.name) || data.sigungu?.startsWith(r.name)
       );
-      if (matched) {
-        pickRegion(matched);
-        setMode("zoning");
-        setZaxis("zone");
+
+      // 카드 미지원 지역(군·미수록 시 등) — 엉뚱한 도시 카드를 보여주지 않고 용도지역만 정직하게 안내.
+      // (충실성 원칙: 다른 도시 기준을 이 땅의 기준인 양 오인시키지 않음. graph는 시 단위 조례만 보유.)
+      if (!matched) {
+        const where = [data.sido, data.sigungu].filter(Boolean).join(" ") || data.address || addr;
+        const zonePart = data.zone_name ? ` · ${data.zone_name}` : "";
+        setAddrMsg({
+          ok: false,
+          text: `${where}${zonePart} — 시 단위 카드 미지원 지역입니다(용도지역만 확인). 조례 원문은 🔍 검색·💬 AI 질의로 찾을 수 있습니다.`,
+        });
+        return;
       }
+
+      // 카드 지원 도시 — 해당 도시로 전환 후 용도지역 자동 선택.
+      pickRegion(matched);
+      setMode("zoning");
+      setZaxis("zone");
       if (data.zone_key) {
-        const zones = zonesOf(matched || region);
-        const z = zones.find((z) => z.key === data.zone_key);
-        if (z) setZone(z);
-        const regionName = matched ? matched.name : "";
-        setAddrMsg({ ok: true, text: `${regionName} · ${data.zone_name}` });
+        const z = zonesOf(matched).find((z) => z.key === data.zone_key);
+        if (z) {
+          setZone(z);
+          setAddrMsg({ ok: true, text: `${matched.name} · ${data.zone_name}` });
+        } else {
+          // 도시는 맞지만 그 용도지역 카드 데이터가 없음(guard).
+          setAddrMsg({ ok: false, text: `${matched.name} · ${data.zone_name} — 이 용도지역 카드는 데이터 준비 중입니다.` });
+        }
       } else {
-        setAddrMsg({ ok: false, text: `용도지역 미확인 (${data.address || addr})` });
+        setAddrMsg({ ok: false, text: `${matched.name} — 용도지역 미확인 (${data.address || addr})` });
       }
     } catch {
       setAddrMsg({ ok: false, text: "서버 오류 — 잠시 후 재시도" });
@@ -391,7 +406,7 @@ export default function SearchView() {
               </div>
             ) : zaxis === "zone" ? (
               zone ? (
-                <ComplianceCard zone={zone} refs={region.refs} regionName={region.name} onOpen={openRef} />
+                <ComplianceCard zone={zone} refs={region.refs} regionName={region.name} src={region.src} onOpen={openRef} />
               ) : (
                 <div className="empty"><div className="empty-art">📐</div>왼쪽에서 용도지역을 고르세요.</div>
               )
@@ -399,7 +414,7 @@ export default function SearchView() {
               !pkRegion ? (
                 <div className="empty"><div className="empty-art">🅿️</div>{region.name} 주차 기준은 데이터 준비 중입니다.</div>
               ) : use ? (
-                <ParkingCard use={use} refs={pkRegion.refs} regionName={pkRegion.name} onOpen={openRef} />
+                <ParkingCard use={use} refs={pkRegion.refs} regionName={pkRegion.name} src={pkRegion.src} onOpen={openRef} />
               ) : (
                 <div className="empty"><div className="empty-art">🅿️</div>왼쪽에서 건물 용도를 고르세요.</div>
               )
@@ -407,13 +422,13 @@ export default function SearchView() {
               !sbRegion ? (
                 <div className="empty"><div className="empty-art">📏</div>{region.name} 대지 공지(이격) 기준은 데이터 준비 중입니다.</div>
               ) : sb ? (
-                <SetbackCard use={sb} refs={sbRegion.refs} regionName={sbRegion.name} onOpen={openRef} />
+                <SetbackCard use={sb} refs={sbRegion.refs} regionName={sbRegion.name} src={sbRegion.src} onOpen={openRef} />
               ) : (
                 <div className="empty"><div className="empty-art">📏</div>왼쪽에서 건물 용도를 고르세요.</div>
               )
             ) : zaxis === "landscape" ? (
               land ? (
-                <LandscapeCard tier={land} refs={lsRegion.refs} regionName={lsRegion.name} onOpen={openRef} />
+                <LandscapeCard tier={land} refs={lsRegion.refs} regionName={lsRegion.name} src={lsRegion.src} onOpen={openRef} />
               ) : (
                 <div className="empty"><div className="empty-art">🌳</div>왼쪽에서 연면적 규모를 고르세요.</div>
               )
@@ -421,7 +436,7 @@ export default function SearchView() {
               !bnRegion ? (
                 <div className="empty"><div className="empty-art">🎁</div>{region.name} 완화·혜택은 데이터 준비 중입니다.</div>
               ) : benefit ? (
-                <IncentiveCard item={benefit} regionName={bnRegion.name} onOpen={openRef} />
+                <IncentiveCard item={benefit} regionName={bnRegion.name} src={bnRegion.src} onOpen={openRef} />
               ) : (
                 <div className="empty"><div className="empty-art">🎁</div>왼쪽에서 항목(공개공지·주차 면제)을 고르세요.</div>
               )

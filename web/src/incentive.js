@@ -116,5 +116,5 @@ export const BENEFIT_REGIONS = [
     green("천안시 녹색건축물 조성 지원 조례/제7조", "시범사업 지정·민간활동 지원 / 지방보조금"),
     PARKING_EXEMPT,
   ] },
-  ...BENEFIT_AUTO,   // 신규 도시(LLM 보조 생성)
-];
+  ...BENEFIT_AUTO.map((r) => ({ ...r, src: "llm" })),   // 신규 도시(LLM 보조)
+].map((r) => ({ src: "manual", ...r }));   // 손큐=manual, AUTO는 자체 src 유지

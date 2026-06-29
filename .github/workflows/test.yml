@@ -1,0 +1,33 @@
+name: 카드 회귀 테스트
+
+# 카드 추출 회귀 스냅샷 테스트(C-1 + Opt3)를 push·PR 마다 실행.
+# 커밋된 data/graph.json + web/src/*.js 만 읽으므로 법제처 API·외부 키 불필요
+# (법제처가 GH 러너 IP 를 차단하는 자동갱신 워크플로와 달리 CI 는 영향 없음).
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # LLM 카드(주차·이격·심의·완화) 동결 테스트가 node 로 web/src/*.js 를 평가.
+      # 카드 모듈은 상대경로 import 만 사용 → npm install 불필요.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: pytest 설치
+        run: pip install pytest
+
+      - name: 카드 회귀 스냅샷 테스트
+        run: python -m pytest -q

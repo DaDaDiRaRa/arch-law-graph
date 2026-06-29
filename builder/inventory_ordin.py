@@ -75,6 +75,49 @@ CITIES: list[tuple[str, str | None]] = [
     ("거제시", "경상남도"), ("양산시", "경상남도"),
 ]
 
+# ─── 전국 군(郡) 목록 — (군명, 상위 도/광역시). 검색·RAG·원문 corpus용. ───
+# 군도 기초자치단체라 자체 조례(건축·주차·군계획·녹색) 보유. 단 카드는 도단위 적용(미생성).
+# 군의 용도지역 조례는 명칭이 다양: "○○군 도시계획/군계획/계획 조례" → COUNTY_PLAN_CANON 으로 흡수.
+# 광역시 산하 군(강화·옹진·달성·군위·울주·기장)은 자체 군계획 조례 없을 수 있음(광역시 도시계획조례 적용).
+COUNTIES: list[tuple[str, str]] = [
+    # 경기도 (3)
+    ("가평군", "경기도"), ("양평군", "경기도"), ("연천군", "경기도"),
+    # 강원특별자치도 (11)
+    ("홍천군", "강원특별자치도"), ("횡성군", "강원특별자치도"), ("영월군", "강원특별자치도"),
+    ("평창군", "강원특별자치도"), ("정선군", "강원특별자치도"), ("철원군", "강원특별자치도"),
+    ("화천군", "강원특별자치도"), ("양구군", "강원특별자치도"), ("인제군", "강원특별자치도"),
+    ("고성군", "강원특별자치도"), ("양양군", "강원특별자치도"),
+    # 충청북도 (8)
+    ("보은군", "충청북도"), ("옥천군", "충청북도"), ("영동군", "충청북도"), ("증평군", "충청북도"),
+    ("진천군", "충청북도"), ("괴산군", "충청북도"), ("음성군", "충청북도"), ("단양군", "충청북도"),
+    # 충청남도 (7)
+    ("금산군", "충청남도"), ("부여군", "충청남도"), ("서천군", "충청남도"), ("청양군", "충청남도"),
+    ("홍성군", "충청남도"), ("예산군", "충청남도"), ("태안군", "충청남도"),
+    # 전북특별자치도 (8)
+    ("완주군", "전북특별자치도"), ("진안군", "전북특별자치도"), ("무주군", "전북특별자치도"),
+    ("장수군", "전북특별자치도"), ("임실군", "전북특별자치도"), ("순창군", "전북특별자치도"),
+    ("고창군", "전북특별자치도"), ("부안군", "전북특별자치도"),
+    # 전라남도 (17)
+    ("담양군", "전라남도"), ("곡성군", "전라남도"), ("구례군", "전라남도"), ("고흥군", "전라남도"),
+    ("보성군", "전라남도"), ("화순군", "전라남도"), ("장흥군", "전라남도"), ("강진군", "전라남도"),
+    ("해남군", "전라남도"), ("영암군", "전라남도"), ("무안군", "전라남도"), ("함평군", "전라남도"),
+    ("영광군", "전라남도"), ("장성군", "전라남도"), ("완도군", "전라남도"), ("진도군", "전라남도"),
+    ("신안군", "전라남도"),
+    # 경상북도 (12)
+    ("의성군", "경상북도"), ("청송군", "경상북도"), ("영양군", "경상북도"), ("영덕군", "경상북도"),
+    ("청도군", "경상북도"), ("고령군", "경상북도"), ("성주군", "경상북도"), ("칠곡군", "경상북도"),
+    ("예천군", "경상북도"), ("봉화군", "경상북도"), ("울진군", "경상북도"), ("울릉군", "경상북도"),
+    # 경상남도 (10)
+    ("의령군", "경상남도"), ("함안군", "경상남도"), ("창녕군", "경상남도"), ("고성군", "경상남도"),
+    ("남해군", "경상남도"), ("하동군", "경상남도"), ("산청군", "경상남도"), ("함양군", "경상남도"),
+    ("거창군", "경상남도"), ("합천군", "경상남도"),
+    # 광역시 산하 군 (6)
+    ("기장군", "부산광역시"),
+    ("달성군", "대구광역시"), ("군위군", "대구광역시"),
+    ("강화군", "인천광역시"), ("옹진군", "인천광역시"),
+    ("울주군", "울산광역시"),
+]
+
 # ─── 조례 4종: (키, 검색키워드, 명칭포함어, 명칭제외어, 표준접미사|None) ───
 # 표준접미사가 있으면 자치법규명(공백제거)이 그 중 하나로 끝나야 채택 — 부속·지원 조례 배제.
 PARK_CANON = [
@@ -89,10 +132,40 @@ TYPES = [
     ("녹색",     "녹색건축물", ["녹색건축물", "조례"], ["시행규칙"], None),
 ]
 
+# ─── 군(郡) 용도지역(건폐율·용적률) 조례 — 명칭 변형 흡수 ───
+# 군은 "○○군 도시계획/군계획/계획 조례" 로 제각각 → 접미사 화이트리스트로 채택, 위원회·재정·시설 등 배제.
+COUNTY_PLAN_CANON = ["도시계획조례", "도시·군계획조례", "군계획조례", "계획조례"]
+COUNTY_PLAN_EXCL = ["시행규칙", "운영", "위원회", "재정", "심의", "시설",
+                    "특별회계", "먹거리", "보상", "공장", "기금", "경관", "관리지역"]
+COUNTY_PLAN_KW = ["군계획", "도시계획", "계획"]
+
+
+async def county_plan(http: httpx.AsyncClient, gun: str, org: str) -> dict | None:
+    """군 용도지역 조례 1건. 여러 키워드 검색 결과를 합쳐 canon 접미사로 채택."""
+    items: list[dict] = []
+    seen = set()
+    for kw in COUNTY_PLAN_KW:
+        for it in await search(http, f"{gun} {kw}"):
+            mst = (it.get("자치법규일련번호") or "").strip()
+            key = (it.get("자치법규명", ""), mst)
+            if key not in seen:
+                seen.add(key)
+                items.append(it)
+    return pick(items, gun, org, ["조례"], COUNTY_PLAN_EXCL, COUNTY_PLAN_CANON)
+
 
 def org_of(city: str, parent: str | None) -> str:
     """법제처 지자체기관명 형식. 광역/특별자치=시명, 도 산하 시=\"도 시\"."""
     return city if parent is None else f"{parent} {city}"
+
+
+def clean_name(nm: str) -> str:
+    """자치법규명 끝의 개정 꼬리표 제거 — \"○○ 조례 [제명개정 2020. 10. 5.]\" → \"○○ 조례\".
+
+    법제처 검색결과 일부는 자치법규명 끝에 개정표시를 붙임(청도군 군계획 조례 등).
+    build_graph 의 search_ordin 도 동일 정규화로 비교해야 MST 를 다시 찾음.
+    """
+    return re.sub(r"\s*\[[^\]]*\]\s*$", "", nm).strip()
 
 
 async def search(http: httpx.AsyncClient, query: str) -> list[dict]:
@@ -126,7 +199,7 @@ def pick(items: list[dict], city: str, org: str,
     """
     cands = []
     for it in items:
-        nm = (it.get("자치법규명") or "").strip()
+        nm = clean_name((it.get("자치법규명") or "").strip())   # 개정 꼬리표 제거 후 비교·저장
         oo = (it.get("지자체기관명") or "").strip()
         if city not in oo:                       # 다른 지자체
             continue
@@ -151,40 +224,56 @@ def pick(items: list[dict], city: str, org: str,
     return cands[0]
 
 
+async def _resolve(http: httpx.AsyncClient, name: str, parent: str | None,
+                   county: bool) -> dict:
+    """한 지자체의 4조례 해소 → row dict. 군은 도시계획 슬롯에 county_plan 사용."""
+    org = org_of(name, parent)
+    row: dict = {"city": name, "org": org, "county": county}
+    marks = []
+    for i, (key, kw, incl, excl, canon) in enumerate(TYPES):
+        if county and i == 0:                       # 군 용도지역 = 명칭 변형 흡수
+            hit = await county_plan(http, name, org)
+        else:
+            hit = pick(await search(http, f"{name} {kw}"), name, org, incl, excl, canon)
+        row[key] = hit
+        marks.append("✓" if hit else "·")
+    found_orgs = {h["org"] for h in (row[k] for k, *_ in TYPES) if h}
+    org_note = "" if found_orgs in ({org}, set()) else f"  ⚠기관명:{sorted(found_orgs)}"
+    print(f"  {' '.join(marks)}  {name:<8} ({org}){org_note}")
+    return row
+
+
 async def main() -> None:
     if not KEY:
         sys.exit("✗ LAW_API_KEY 미설정 (.env 확인)")
 
     only = sys.argv[1:]
-    targets = [(c, p) for c, p in CITIES
-               if not only or any(o in c for o in only)]
+    def keep(n: str) -> bool:
+        return not only or any(o in n for o in only)
+    city_targets = [(c, p, False) for c, p in CITIES if keep(c)]
+    gun_targets = [(c, p, True) for c, p in COUNTIES if keep(c)]
 
     rows: list[dict] = []
+    gun_rows: list[dict] = []
     async with httpx.AsyncClient(timeout=20) as http:
-        for city, parent in targets:
-            org = org_of(city, parent)
-            row: dict = {"city": city, "org": org}
-            marks = []
-            for key, kw, incl, excl, canon in TYPES:
-                items = await search(http, f"{city} {kw}")
-                hit = pick(items, city, org, incl, excl, canon)
-                row[key] = hit
-                marks.append("✓" if hit else "·")
-            rows.append(row)
-            found_orgs = {h["org"] for h in (row[k] for k, *_ in TYPES) if h}
-            org_note = "" if found_orgs == {org} or not found_orgs else \
-                f"  ⚠기관명:{sorted(found_orgs)}"
-            print(f"  {' '.join(marks)}  {city:<8} ({org}){org_note}")
+        if city_targets:
+            print("── 시(市) ──")
+            for name, parent, _ in city_targets:
+                rows.append(await _resolve(http, name, parent, False))
+        if gun_targets:
+            print("── 군(郡) ──")
+            for name, parent, _ in gun_targets:
+                gun_rows.append(await _resolve(http, name, parent, True))
 
     # ─── CSV ───
     csv_path = ROOT / "builder" / "inventory_ordin.csv"
     with csv_path.open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.writer(f)
-        w.writerow(["시", "기관명(입력)", "조례종류", "발견조례명", "발견기관명", "MST"])
-        for r in rows:
+        w.writerow(["지자체", "구분", "기관명(입력)", "조례종류", "발견조례명", "발견기관명", "MST"])
+        for r in rows + gun_rows:
             for key, *_ in TYPES:
                 h = r[key]
-                w.writerow([r["city"], r["org"], key,
+                w.writerow([r["city"], "군" if r["county"] else "시", r["org"], key,
                             h["name"] if h else "", h["org"] if h else "",
                             h["mst"] if h else ""])
 
@@ -192,9 +281,10 @@ async def main() -> None:
     # 단일 진실원천(single source of truth): 인벤토리 재실행만으로 전국 목록 갱신.
     grp_path = ROOT / "builder" / "ordin_group.py"
     lines = [
-        '"""전국 시(市) 조례 목록 — builder/inventory_ordin.py 자동 생성.',
+        '"""전국 시·군 조례 목록 — builder/inventory_ordin.py 자동 생성.',
         "",
         "수동 편집 금지. 갱신: python builder/inventory_ordin.py 재실행.",
+        "시(市)는 카드+검색+RAG, 군(郡)은 검색+RAG+원문(카드는 도단위 적용).",
         '"""',
         "",
         "ORDIN_GROUP = [",
@@ -202,24 +292,34 @@ async def main() -> None:
         '    ("경기도", "경기도 도시계획 조례"),',
         '    ("경기도", "경기도 건축 조례"),',
     ]
-    for r in rows:
-        got = [k for k, *_ in TYPES if r[k]]
-        if not got:
-            continue
-        lines.append(f"    # ── {r['city']} ({len(got)}/4) ──")
-        for key, *_ in TYPES:
-            h = r[key]
-            if h:
-                lines.append(f'    ("{h["org"]}", "{h["name"]}"),')
+    def emit(rs: list[dict], header: str) -> None:
+        lines.append(f"    # ════════ {header} ════════")
+        for r in rs:
+            got = [k for k, *_ in TYPES if r[k]]
+            if not got:
+                continue
+            lines.append(f"    # ── {r['city']} ({len(got)}/4) ──")
+            for key, *_ in TYPES:
+                h = r[key]
+                if h:
+                    lines.append(f'    ("{h["org"]}", "{h["name"]}"),')
+    emit(rows, "시(市)")
+    emit(gun_rows, "군(郡) — 검색·RAG·원문 corpus")
     lines.append("]")
     grp_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
     # ─── 요약 ───
-    full = sum(1 for r in rows if all(r[k] for k, *_ in TYPES))
-    core3 = sum(1 for r in rows if all(r[k] for k in ("도시계획", "건축", "주차")))
-    none = sum(1 for r in rows if not any(r[k] for k, *_ in TYPES))
-    print(f"\n── 전국 {len(rows)}개 시 ──")
-    print(f"  4종 완비: {full}   핵심3종(도계·건축·주차): {core3}   0종(조례없음): {none}")
+    def stat(rs):
+        full = sum(1 for r in rs if all(r[k] for k, *_ in TYPES))
+        core3 = sum(1 for r in rs if all(r[k] for k in ("도시계획", "건축", "주차")))
+        none = sum(1 for r in rs if not any(r[k] for k, *_ in TYPES))
+        return full, core3, none
+    if rows:
+        f, c, n = stat(rows)
+        print(f"\n── 시 {len(rows)}개 ── 4종완비:{f} 핵심3종:{c} 0종:{n}")
+    if gun_rows:
+        f, c, n = stat(gun_rows)
+        print(f"── 군 {len(gun_rows)}개 ── 4종완비:{f} 핵심3종:{c} 0종:{n}")
     print(f"  CSV: {csv_path}")
     print(f"  ORDIN_GROUP: {grp_path}")
 

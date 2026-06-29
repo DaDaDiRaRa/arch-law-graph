@@ -301,8 +301,8 @@ export const REGIONS = [
       "nongrim": { bcr: 20, far: 80 }, "jayeon": { bcr: 20, far: 60 },
     },
   },
-  ...ZONING_AUTO,   // 신규 67개 시(자동생성). 기존 17개는 위 손큐레이션.
-];
+  ...ZONING_AUTO.map((r) => ({ ...r, src: "machine" })),   // 신규 67개 시(기계추출)
+].map((r) => ({ src: "manual", ...r }));   // 손큐 17개=src 미지정→manual, AUTO는 자체 src 유지
 
 // 도시의 zone 목록을 ZONE_DEFS 순서로 반환 (selector·카드용).
 export function zonesOf(region) {
