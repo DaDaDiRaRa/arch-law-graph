@@ -27,7 +27,11 @@ def num_m2(s: str) -> int:
 
 
 def pct_after(seg: str) -> int | None:
-    m = re.search(r"대지면적의\s*(\d+)\s*퍼센트", seg)
+    # '대지면적의 100분의 15'(분수, 퍼센트 suffix 없음) 우선 → '대지면적(의) 15퍼센트/%'.
+    m = re.search(r"대지면적\s*의?\s*100분의\s*(\d+)", seg)
+    if m:
+        return int(m.group(1))
+    m = re.search(r"대지면적\s*의?\s*(\d+)\s*(?:퍼센트|%)", seg)
     return int(m.group(1)) if m else None
 
 
@@ -46,6 +50,9 @@ def parse_landscape(content: str) -> dict[str, int]:
         # 대지 200~300 소규모
         if "200" in seg and "300" in seg and "미만" in seg and "tsmall" not in out:
             out["tsmall"] = p
+            continue
+        # 공장·물류·창고는 별도(대개 낮은) 기준 → 일반 건축물 연면적 tier 에서 제외
+        if "공장" in seg or "물류" in seg:
             continue
         # 연면적 구간
         has_2000 = ("2천" in seg or "2,000" in seg or "2000" in seg)

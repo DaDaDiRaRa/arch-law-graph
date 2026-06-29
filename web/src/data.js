@@ -1,5 +1,9 @@
 // 모든 뷰가 공유하는 graph.json 파생 데이터 + 색상 헬퍼
-import rawGraph from "../../data/graph.json";
+// graph.json(53MB)을 JS 번들에 인라인하지 않고 별도 정적 에셋(?url)으로 분리해
+// 런타임 fetch. top-level await 로 이 모듈을 import 하는 쪽은 자동으로 로드 완료까지 대기
+// → 소비자 코드 무수정. 번들 JS 대폭 감소 + graph 독립 캐싱 + JSON.parse(빠름).
+import graphUrl from "../../data/graph.json?url";
+const rawGraph = await fetch(graphUrl).then((r) => r.json());
 
 export const meta = rawGraph.meta || {};
 export const nodes = rawGraph.nodes;

@@ -107,7 +107,9 @@ def main() -> None:
         if any(city in e or e in city for e in existing_z):
             continue
         bcr, far = rec.get("bcr", {}), rec.get("far", {})
-        if not bcr or not far or len(bcr) < 13:
+        # 도시화된 시는 관리·농림·자연환경 지역이 없어 12~16존이 정상(부분파싱 아님).
+        # 10존 미만만 소스 이상으로 보고 스킵(별표방식 등).
+        if not bcr or not far or len(bcr) < 10:
             z_skip.append(f"{city}(건폐율{len(bcr)}/용적률{len(far)})")
             continue
         zones = {}

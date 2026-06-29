@@ -32,9 +32,15 @@ NAME2KEY = {
 
 
 def kor_pct(s: str) -> int | None:
-    """'50퍼센트'·'1천퍼센트'·'1천300퍼센트'·'1,300%'·'1300퍼센트' → int."""
+    """'50퍼센트'·'1천퍼센트'·'1천300퍼센트'·'1,300%'·'100분의40' → int.
+
+    '100분의 N' 분수표기(= N%)와 '천' 단위 모두 지원. 전부 조례 원문 표기 그대로.
+    """
     s = s.replace(",", "").replace(" ", "")
-    m = re.search(r"(\d+)천(\d+)?", s)
+    m = re.search(r"100분의(\d+)", s)        # '100분의 40' = 40%
+    if m:
+        return int(m.group(1))
+    m = re.search(r"(\d+)천(\d+)?", s)        # '1천300' = 1300
     if m:
         return int(m.group(1)) * 1000 + (int(m.group(2)) if m.group(2) else 0)
     m = re.search(r"(\d+)", s)
@@ -42,14 +48,17 @@ def kor_pct(s: str) -> int | None:
 
 
 def parse_ratio_article(content: str) -> dict[str, int]:
-    """'N. 용도지역명: 값퍼센트' 목록 → {key: pct}. 첫 매칭값만(본문 우선)."""
+    """'N. 용도지역명: 값' 목록 → {key: pct}. 첫 매칭값만(본문 우선).
+
+    공백 제거 후 매칭(이름 내 공백·줄바꿈 무시) + '100분의 N'·'N퍼센트'·'N%' 표기 모두 지원.
+    모두 조례 본문 수치 그대로 — 추정·해석 없음.
+    """
     out: dict[str, int] = {}
-    # "제1종전용주거지역: 50퍼센트" / "제1종전용주거지역 50퍼센트 이하"
+    c = re.sub(r"\s+", "", content)          # 공백·줄바꿈 제거 → '제1종 전용주거지역' = '제1종전용주거지역'
+    # 값 토큰: '100분의N' | 'N천M(퍼센트|%)' | 'N(퍼센트|%)'
+    val = r"(100분의\d+|\d[\d,]*천?\d*\s*(?:퍼센트|%))"
     for nm, key in NAME2KEY.items():
-        if key in out:
-            continue
-        # 이름 뒤 콜론/공백 후 첫 숫자(+천)+퍼센트|%
-        m = re.search(re.escape(nm) + r"[^\d]{0,8}((?:\d[\d,]*천?\d*))\s*(?:퍼센트|%)", content)
+        m = re.search(re.escape(nm) + r"[^0-9백천분%]{0,6}" + val, c)
         if m:
             v = kor_pct(m.group(1))
             if v is not None:
