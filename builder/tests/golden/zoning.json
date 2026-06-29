@@ -1,0 +1,7162 @@
+{
+  "강릉시": {
+    "code": "51150",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "거제시": {
+    "code": "48310",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 900
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1200
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 600
+      }
+    }
+  },
+  "경산시": {
+    "code": "47290",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 70,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 70,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 700
+      }
+    }
+  },
+  "경주시": {
+    "code": "47130",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 130
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 60
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 60
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1200
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 60
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 60
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 700
+      }
+    }
+  },
+  "계룡시": {
+    "code": "44250",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 40,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 700
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 60,
+        "far": 1100
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 70,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 400
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 900
+      }
+    }
+  },
+  "고양시": {
+    "code": "41280",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 180
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 230
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 250
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1200
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 380
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 90
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 400
+      }
+    }
+  },
+  "공주시": {
+    "code": "44150",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 150
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 220
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 250
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 500
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 200
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 900
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 600
+      }
+    }
+  },
+  "과천시": {
+    "code": "41290",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "광명시": {
+    "code": "41210",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 150
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 240
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 280
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "ilsang": {
+        "bcr": 70,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1100
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 450
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 700
+      }
+    }
+  },
+  "광양시": {
+    "code": "46230",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "광주광역시": {
+    "code": "29",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 150
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 220
+      },
+      "2jeon": {
+        "bcr": 40,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 250
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 90
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 60,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 60
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 70,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 60
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 800
+      }
+    }
+  },
+  "광주시": {
+    "code": "41610",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 180
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 500
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 900
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 60,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 450
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 50
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 400
+      }
+    }
+  },
+  "구리시": {
+    "code": "41310",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "구미시": {
+    "code": "47190",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 90
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 600
+      }
+    }
+  },
+  "군산시": {
+    "code": "52130",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungong": {
+        "bcr": 60,
+        "far": 300
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1200
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 800
+      }
+    }
+  },
+  "군포시": {
+    "code": "41410",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 230
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 280
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 600
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 70,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungsang": {
+        "bcr": 70,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 300
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 500
+      }
+    }
+  },
+  "김제시": {
+    "code": "52210",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "김천시": {
+    "code": "47150",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 30,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 40,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 700
+      }
+    }
+  },
+  "김포시": {
+    "code": "41570",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "김해시": {
+    "code": "48250",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 180
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 220
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 270
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 70
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 900
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 800
+      }
+    }
+  },
+  "나주시": {
+    "code": "46170",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "남양주시": {
+    "code": "41360",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 60
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 900
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 60
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 60
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 900
+      }
+    }
+  },
+  "남원시": {
+    "code": "52190",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 800
+      }
+    }
+  },
+  "논산시": {
+    "code": "44230",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1100
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 900
+      }
+    }
+  },
+  "당진시": {
+    "code": "44270",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 60
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "대구광역시": {
+    "code": "27",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 220
+      },
+      "2jeon": {
+        "bcr": 40,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 250
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 800
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 70,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 900
+      }
+    }
+  },
+  "대전광역시": {
+    "code": "30",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 150
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "2jeon": {
+        "bcr": 40,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 250
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 60
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 80
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 70,
+        "far": 1100
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 60
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 70
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 70
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 70
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 900
+      }
+    }
+  },
+  "동두천시": {
+    "code": "41250",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "동해시": {
+    "code": "51170",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "목포시": {
+    "code": "46110",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 70,
+        "far": 1100
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 900
+      }
+    }
+  },
+  "문경시": {
+    "code": "47280",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "밀양시": {
+    "code": "48270",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 230
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 270
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 800
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 330
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1200
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 900
+      }
+    }
+  },
+  "보령시": {
+    "code": "44180",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 800
+      }
+    }
+  },
+  "부산광역시": {
+    "code": "26",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 180
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 220
+      },
+      "2jeon": {
+        "bcr": 40,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 700
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 60,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 60
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 400
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 800
+      }
+    }
+  },
+  "부천시": {
+    "code": "41190",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 190
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 230
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 280
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 600
+      },
+      "ilgong": {
+        "bcr": 60,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 60,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 60,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 400
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 600
+      }
+    }
+  },
+  "사천시": {
+    "code": "48240",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 700
+      }
+    }
+  },
+  "삼척시": {
+    "code": "51230",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "상주시": {
+    "code": "47250",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "서산시": {
+    "code": "44210",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "서울특별시": {
+    "code": "11",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 150
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "2jeon": {
+        "bcr": 40,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 250
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 600
+      },
+      "ilgong": {
+        "bcr": 60,
+        "far": 200
+      },
+      "ilsang": {
+        "bcr": 60,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 60,
+        "far": 200
+      },
+      "jungong": {
+        "bcr": 60,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 60,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 400
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 600
+      }
+    }
+  },
+  "성남시": {
+    "code": "41130",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 160
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 210
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 280
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 70
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 600
+      }
+    }
+  },
+  "세종특별자치시": {
+    "code": "36",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1100
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 900
+      }
+    }
+  },
+  "속초시": {
+    "code": "51210",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 800
+      }
+    }
+  },
+  "수원시": {
+    "code": "41110",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 30,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 40,
+        "far": 300
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "ilgong": {
+        "bcr": 60,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 60,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 400
+      }
+    }
+  },
+  "순천시": {
+    "code": "46150",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 50
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 900
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 500
+      }
+    }
+  },
+  "시흥시": {
+    "code": "41390",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      }
+    }
+  },
+  "아산시": {
+    "code": "44200",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 180
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 280
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1100
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 60
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 700
+      }
+    }
+  },
+  "안동시": {
+    "code": "47170",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "안산시": {
+    "code": "41270",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 800
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 70,
+        "far": 1100
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 70,
+        "far": 1100
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 1000
+      }
+    }
+  },
+  "안성시": {
+    "code": "41550",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "안양시": {
+    "code": "41170",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 280
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 450
+      }
+    }
+  },
+  "양산시": {
+    "code": "48330",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 220
+      },
+      "2jeon": {
+        "bcr": 40,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 250
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 800
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 700
+      }
+    }
+  },
+  "양주시": {
+    "code": "41630",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "여수시": {
+    "code": "46130",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "여주시": {
+    "code": "41670",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 900
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "영주시": {
+    "code": "47210",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 400
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 700
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 700
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 500
+      }
+    }
+  },
+  "영천시": {
+    "code": "47230",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "오산시": {
+    "code": "41370",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 180
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 230
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 280
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 500
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1100
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 400
+      }
+    }
+  },
+  "용인시": {
+    "code": "41460",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 240
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 290
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 70
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 900
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 70
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1100
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 450
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 70
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 800
+      }
+    }
+  },
+  "울산광역시": {
+    "code": "31",
+    "src": "hwp",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 150
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 70,
+        "far": 1200
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 900
+      }
+    }
+  },
+  "원주시": {
+    "code": "51130",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "의왕시": {
+    "code": "41430",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 700
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 700
+      }
+    }
+  },
+  "의정부시": {
+    "code": "41150",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 500
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 500
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 500
+      }
+    }
+  },
+  "이천시": {
+    "code": "41500",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "익산시": {
+    "code": "52140",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 350
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 700
+      }
+    }
+  },
+  "인천광역시": {
+    "code": "28",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 70,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 800
+      }
+    }
+  },
+  "전주시": {
+    "code": "45110",
+    "src": "manual",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 40,
+        "far": 100
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 50
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 60,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jeongong": {
+        "bcr": 60,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 60,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1100
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 700
+      }
+    }
+  },
+  "정읍시": {
+    "code": "52180",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "제주특별자치도": {
+    "code": "50",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 40,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 60
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 80
+      },
+      "ilgong": {
+        "bcr": 60,
+        "far": 300
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 60,
+        "far": 200
+      },
+      "jungong": {
+        "bcr": 60,
+        "far": 300
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 50
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 60
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 700
+      }
+    }
+  },
+  "제천시": {
+    "code": "43150",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 60
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 900
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 600
+      }
+    }
+  },
+  "진주시": {
+    "code": "48170",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 180
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 230
+      },
+      "2jeon": {
+        "bcr": 40,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 270
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 60
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "geunsang": {
+        "bcr": 60,
+        "far": 400
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 900
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 60,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 70,
+        "far": 800
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 300
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 60
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 60
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 400
+      }
+    }
+  },
+  "창원시": {
+    "code": "48120",
+    "src": "hwp",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 220
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 250
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 700
+      }
+    }
+  },
+  "천안시": {
+    "code": "44130",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 60
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 700
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1100
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 60
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1200
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 700
+      }
+    }
+  },
+  "청주시": {
+    "code": "43110",
+    "src": "extracted",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 60,
+        "far": 350
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 600
+      }
+    }
+  },
+  "춘천시": {
+    "code": "51110",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "충주시": {
+    "code": "43130",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 900
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 600
+      }
+    }
+  },
+  "태백시": {
+    "code": "51190",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "통영시": {
+    "code": "48220",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 350
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 700
+      }
+    }
+  },
+  "파주시": {
+    "code": "41480",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 180
+      },
+      "1jeon": {
+        "bcr": 40,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 900
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 200
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 60,
+        "far": 300
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 50
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 50
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 600
+      }
+    }
+  },
+  "평택시": {
+    "code": "41220",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 60,
+        "far": 1100
+      }
+    }
+  },
+  "포천시": {
+    "code": "41650",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 600
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 250
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 600
+      }
+    }
+  },
+  "포항시": {
+    "code": "47110",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 80
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "하남시": {
+    "code": "41450",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 200
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 100
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 150
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 300
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 900
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 1300
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 90,
+        "far": 1500
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 500
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "yutong": {
+        "bcr": 80,
+        "far": 1100
+      }
+    }
+  },
+  "화성시": {
+    "code": "41590",
+    "src": "auto",
+    "zones": {
+      "1il": {
+        "bcr": 60,
+        "far": 180
+      },
+      "1jeon": {
+        "bcr": 50,
+        "far": 80
+      },
+      "2il": {
+        "bcr": 60,
+        "far": 250
+      },
+      "2jeon": {
+        "bcr": 50,
+        "far": 120
+      },
+      "3il": {
+        "bcr": 50,
+        "far": 270
+      },
+      "bojgwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "bojnok": {
+        "bcr": 20,
+        "far": 70
+      },
+      "geunsang": {
+        "bcr": 70,
+        "far": 400
+      },
+      "gyehoek": {
+        "bcr": 40,
+        "far": 100
+      },
+      "ilgong": {
+        "bcr": 70,
+        "far": 350
+      },
+      "ilsang": {
+        "bcr": 80,
+        "far": 800
+      },
+      "janok": {
+        "bcr": 20,
+        "far": 100
+      },
+      "jayeon": {
+        "bcr": 20,
+        "far": 50
+      },
+      "jeongong": {
+        "bcr": 70,
+        "far": 300
+      },
+      "jungong": {
+        "bcr": 70,
+        "far": 400
+      },
+      "jungsang": {
+        "bcr": 80,
+        "far": 1000
+      },
+      "junju": {
+        "bcr": 70,
+        "far": 400
+      },
+      "nongrim": {
+        "bcr": 20,
+        "far": 60
+      },
+      "saenggwan": {
+        "bcr": 20,
+        "far": 80
+      },
+      "saengnok": {
+        "bcr": 20,
+        "far": 80
+      },
+      "yutong": {
+        "bcr": 70,
+        "far": 400
+      }
+    }
+  }
+}

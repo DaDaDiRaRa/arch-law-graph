@@ -42,7 +42,23 @@ try {
         return
     }
 
-    # 4) 변경 시에만 커밋·푸시
+    # 4) 카드 회귀 게이트 — 재빌드가 카드(건폐율·용적률·조경) 값을 바꿨으면 자동 커밋 차단.
+    #    재빌드는 graph.json 만 바꾸므로, 카드 영향 시 추출기 재실행값이 커밋된 카드와 어긋남 →
+    #    test_*_extractor_sync 실패. 자동 배포 대신 사람이 검토(gen_card_data.py 재생성 →
+    #    `pytest --update-golden` 승인) 후 수동 커밋하도록 멈춘다.
+    Write-Log "카드 회귀 테스트 실행 (게이트)"
+    $env:PYTHONUTF8 = '1'
+    $testOut = & $Python '-m' 'pytest' '-q' 2>&1
+    $testOut | ForEach-Object { Write-Log "  pytest> $_" }
+    if ($LASTEXITCODE -ne 0) {
+        git checkout -- data/graph.json   # 재빌드 산출물 원복(작업 트리 청결, 재빌드 저렴)
+        throw ("카드 회귀 테스트 실패 — 재빌드가 카드 값을 바꿨습니다. 자동 커밋 차단(graph.json 원복). " +
+               "수동 검토: `python builder/build_graph.py; python builder/gen_card_data.py` 후 " +
+               "diff 확인 → `pytest --update-golden` 승인 → 커밋. 위 pytest 로그에 변경된 도시/존이 찍힘.")
+    }
+    Write-Log "카드 회귀 테스트 통과"
+
+    # 5) 변경 시에만 커밋·푸시
     Write-Log "변경 감지 — 커밋·푸시"
     git add data/graph.json
     git commit -m ("chore: 법령 데이터 자동 갱신 ({0}) [local]" -f (Get-Date -Format 'yyyy-MM-dd'))

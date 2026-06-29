@@ -192,6 +192,10 @@ D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe builder/build_graph.p
 # ── 조문 임베딩 사전계산 (벡터 RAG, graph 갱신 후 재실행 권장. VOYAGE_API_KEY 필요) ──
 D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe builder/build_embeddings.py
 
+# ── 카드 회귀 스냅샷 테스트 (C-1). 루트에서 실행 ──────────────────────────
+D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe -m pytest        # 6검사: zoning/landscape × (frozen·extractor_sync·plausible)
+D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe -m pytest --update-golden  # 카드 값 변경을 사람이 승인(골든 재생성)
+
 # ── 로컬 개발 (두 터미널 필요) ────────────────────────────────────────
 # 터미널 1 — 백엔드 (프로젝트 루트에서)
 D:\APPS\arch-law-diagnose\backend\.venv\Scripts\uvicorn.exe backend.main:app --port 8001 --reload
@@ -276,31 +280,74 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 | RAG 벡터 검색이 조례 조문에 밀려 국가법(시행령 제84조) 미반환 → "DB 확인 불가" hedging | RRF 하이브리드(벡터+키워드 융합) + 도메인 핀(`_PIN_RULES`) + max_chars 1500→6000 → 결론 일치 38%→88% (`builder/eval_rag.py`) |
 | VWorld 데이터 API(GetFeature)가 같은 키로 `INCORRECT_KEY` (address API는 OK) | 데이터 API는 키 발급 시 등록 도메인의 **`Referer` 헤더** 검사 → `Referer: SERVICE_URL`(기본 `http://localhost:8000`). Cloud Run은 등록 도메인으로 SERVICE_URL 설정 필요 |
 | VWorld 용도지역 속성명 `UQ_NM`로 추측 → 빈 값 | LT_C_UQ111 실제 속성명은 **`uname`**(자매앱 arch-law-diagnose `vworld_client.py` 검증) |
+| 추출기가 `100분의 1,000`(천단위 쉼표)을 `100분의1`=1% 로 오파싱 → 군포 중심상업 용적률 1% garbage가 zoning_auto.js 에 배포됨 | `extract_zoning.py` val 정규식 `100분의\d+`→`100분의\d[\d,]*`. **카드 회귀 테스트(C-1)의 타당성 경계가 검출**(용적률 허용 50~1500) |
 
 ---
 
 ## 다음 작업 후보
 
-### A. 마무리 (작은 빈틈)
+### 정체성 (방향타) — diagnose와의 역할 분담
 
-1. **LLM 카드 커버리지 잔존 보강** — 주차 66·이격 77·심의 77·완화 82. 이격 "별표 없음" 7개 도시(여주·동두천·원주·논산·영천·문경·양산)는 조례 자체에 대지공지 별표가 없는 것으로 판단, 영구 guard. 수원 주차도 영구 guard(법제처 DB 미등록). 심의·완화 gen 재실행으로 추가 개선 여지.
-2. **주차·이격 기계화 전환(선택)** — 현재 LLM 추출(검증됨). 별표 박스표 파서로 기계화하면 LLM 의존 제거 가능(사용자 선호 시).
+자매앱 **arch-law-diagnose**(`D:\APPS\arch-law-diagnose`)가 "이 대지에 지을 수 있나"(대지 GIS·산정 계산·신호등·사업성)를 가져감. 따라서 graph = **건축 법령의 단일 권위 지식원**. 네 단어: **권위(전체 법령군)·추적가능(원문 근거)·최신(시행일)·호출가능(법령 API)**.
 
-### B. 데이터 확장
+- 소비자 셋: ① 사람(웹 검색·Reader), ② RAG 채팅(**법령 해석** Q&A — 진단 Q&A 아님), ③ 기계/타앱(diagnose·미래 MCP).
+- 표어: **"이 법이 뭐라고 하는가, 어디 근거하며, 무엇과 연결되는가."**
+- **graph는 산정·대지탐지를 구현하지 않음**(diagnose 담당). 단 그 계산의 *근거 조문 원문*은 graph가 보유(diagnose RAG가 `/api/lookup`으로 당겨씀). 통합 웹사이트 시 중복 기능(AI채팅·법규그래프 뷰)은 주인을 하나로 명시.
 
-1. ✅ **조례 지자체 — 전국 84개 완료(Stage 12)**. 추가 후보: 군(郡) 지역(대개 검색·RAG만, 카드는 도단위 적용).
-2. **판례·해석례 확대** — 완화·심의·친환경 등 신규 토픽 키워드로 PREC/EXPC 보강(현재 키워드 19개, cap 100/150).
+> **검증된 현재 상태(2026-06-29 코드 확인)**: `/api/lookup`(배치 50)·`/api/zoning`·`/api/chat` 3개뿐 — 법령 API 표면 얇음. `ef_yd`(조문시행일자)는 모든 조문 노드에 저장·Reader에 "시행 YYYY-MM-DD" 노출됨(카드·인용칩엔 미전파). 빌더가 `현행연혁구분!=현행` 필터 → **현행 법령만** 보유(연혁 타임라인 없음). **카드 회귀 테스트 6건**(C-1, 2026-06-29 — zoning/landscape × frozen·extractor_sync·plausible; 그 외 영역은 여전히 0건, diagnose는 262건). 카드 데이터는 `web/src/*.js`에 묶여 API·diagnose가 못 씀.
 
-### C. 기능 고도화
+### 우선순위 로드맵 (정확도 + 정체성 기준)
 
-1. ✅ **검색 고도화(C-1, 완료)** — 동의어(20그룹)+초성 검색. `web/src/search.js`, SearchView 매칭. 동의어는 리터럴 superset, 초성은 head(제목·법령명) 단어 내 매칭.
-2. ✅ **인용 관계 시각화(C-2, 완료)** — Reader에 인용/피인용 SVG 미니 그래프(`CiteGraph`). 중앙=현재 조문, 좌=피인용·우=인용, 노드 클릭 이동.
-3. ✅ **채팅 벡터 RAG(C-3, 완료)** — Voyage(voyage-3-large 1024d) 임베딩 의미검색. `build_embeddings.py`→`embeddings.npy`, rag_engine 코사인 top_k + 키워드 폴백.
-4. ✅ **RAG 하이브리드 검색(C-3 확장, 완료)** — RRF(벡터+키워드 융합) + 도메인 핀 + max_chars 확대. `builder/eval_rag.py` 34문항 평가 하네스. 결론 일치 38%→88%, 법령 인용 59%→97%. 잔존: pk_busan 데이터 부재(영구 guard), complex/incentive 복합 추론. 남은 후보: 주소→용도지역 자동조회(VWorld), 판례·해석례 확대.
+#### C. 정확도·신뢰 — 최우선 (graph가 데이터 주인)
 
-### D. 운영·배포
+- ✅ **1. 카드 추출 회귀 스냅샷 테스트** (완료 2026-06-29) — `pytest`(루트, `pytest.ini`→`builder/tests/`). zoning 84·landscape 80개 시를 골든 스냅샷(`builder/tests/golden/*.json`, 값별 `src` 태그 extracted/hwp/manual/auto)에 고정. 카드당 3검사: **frozen**(live==골든, 사람 미승인 변경 차단)·**extractor_sync**(추출기 재실행==커밋카드, 재빌드/추출기수정 드리프트 검출)·**plausible**(건폐율 20~90·용적률 50~1500·조경 3~30 경계로 garbage 검출). `refresh_local.ps1`이 자동갱신 시 게이트로 실행 → 카드 값 바뀌면 자동 커밋 차단. 골든 승인은 `pytest --update-golden`. **버그 적발 실적**: 군포 중심상업 용적률 1%(쉼표 오파싱) garbage를 plausible이 검출 → 추출기 수정. 다음: 출처 배지(C-2)·LLM 카드(주차·이격·심의·완화) 동결·GH Actions CI.
+- **2. 값별 출처·신뢰도 배지** — 각 카드 값에 `기계추출/LLM보조/손큐레이션/guard` 표기. "준비중" guard는 있으나 채워진 값의 추출방식은 미표기. 충실성 원칙의 UI 가시화.
+- **3. 시행일 전파** — Reader엔 있는 `ef_yd`를 카드 근거 조문 칩·RAG 인용칩에도. "현행인가"를 모든 답변 지점에서 보장.
+- **4. RAG 인용 검증 라이트** — 답변의 `법령명 제N조`가 실제 graph 노드에 존재하는지 사후 체크(없으면 경고). `_name_to_node_id`/buildRefMap 재활용 → 저비용. 환각 인용 차단.
 
-1. **Cloud Run 배포** — GitHub push → 자동 재배포. ⚠ `ANTHROPIC_API_KEY`가 Cloud Run 환경변수에 설정돼야 AI 채팅 작동(`.env`는 컨테이너 미포함).
-2. **데이터 자동갱신** — 로컬 작업 스케줄러(매일 09:00, `scripts/refresh_local.ps1`)가 graph.json 갱신. ⚠ 신규 조례는 `ordin_group.py`(inventory 자동생성)에 있어야 추적됨 — 새 지자체 추가 시 `inventory_ordin.py` 재실행 필요.
+#### B. 법령 API / 호출가능성 — 높음 (고유 역할 + 통합·MCP 전조)
 
-> 진행: B(지자체 전국)·C-1·C-2·C-3·C-3확장(RRF+핀)·A-1(이격 64→77·주차 65→66·심의 46→77) 완료. 다음 후보: **주소→용도지역 자동조회(VWorld)** · **판례·해석례 확대(B-2)**.
+> ⚠ "법령 API" = graph가 **제공자(서버)** 가 되는 것. **외부 법 API를 새로 붙이는 게 아니라**, 이미 가진 graph.json을 엔드포인트로 노출. 소스는 법제처 하나로 충분(권위는 소스 수가 아니라 *건축 법령 내 깊이*에서 나옴). diagnose의 VWorld/EUM/LURIS는 대지 데이터라 graph가 끌어오지 않음.
+
+- **5. 구조화 조회 엔드포인트 확장** — `/api/article/{id}`(메타+본문+시행일)·`/api/citations/{id}`(인용/피인용)·`/api/standard?city=&zone=`(카드 데이터를 API로 → diagnose가 전국 비교를 graph에서 당겨씀).
+- **6. 카드 데이터 단일 소스화** — 추출 산출물을 `web/src/*.js`에서 `data/standards.json` 같은 **데이터 자산으로 분리**. (a) 5번 API 가능 (b) MCP 서버화·추출기 라이브러리 분리와 동일 방향. **한 작업이 API·MCP·통합 세 목표로 수렴.**
+- **7. 응답 안정성** — `@app.on_event("startup")` deprecated(과거 502 이력 → starlette 핀으로 막아둠) → lifespan 핸들러로 이전, 핀 해제.
+
+#### D. 관계 그래프 심화 — 높음 (graph라는 *이름값*, diagnose 불가 영역)
+
+- **8. 엣지 타입 구분 노출** — `contains/applied/interpreted/위임/인용` 관계 존재하나 CiteGraph는 인용/피인용만. 관계 종류별 색·필터로 "왜 연결됐나" 표시.
+- **9. 경로·영향 분석** — "조문 A→B 경로", "이 조문 개정 시 영향받는 피인용 트리". 권위 지식원의 고유 가치.
+
+#### E. 데이터 폭 — 중간 (권위 corpus 강화)
+
+- **10. 판례·해석례 확대** — 현재 cap 100/150, 키워드 19개. 완화·심의·친환경 신규 토픽 키워드 보강.
+- **11. 군(郡) 지역 조례** — 현재 84개 시. 군은 검색·RAG·원문 보유 목적(카드는 도단위 적용).
+- **12. diagnose 인용 조문 보유 확인** — 지구단위계획·가로구역 높이·용도지구 조문이 graph에 실재하는지 점검, 빈틈이면 빌더 보강.
+- **14. (선택·advanced) 개정 진행중(입법예고) 추적** — 법제처 DRF는 **현행 법령만** 제공(빌더가 `현행연혁구분!=현행` 버림) → graph는 "곧 시행될 개정"을 모름. "최신" 정체성을 날카롭게 하는 **유일한 정당한 외부 소스 추가**(국회 의안정보시스템·법제처 입법예고). 실무가치: "준공 시점엔 바뀐 법 적용". ⚠ 난도·유지보수 있어 1·6번보다 후순위.
+
+#### A. 정체성·UX 정리 — 낮음(저비용)
+
+- **13. 카드 = "전국 비교 레퍼런스" 리프레이밍** — 라벨·문구에서 "진단" 뉘앙스 제거, "대지별 판정은 diagnose" 안내.
+
+### 명시적 제외 (환각·과장 방지)
+
+- **산정 엔진·대지 GIS 탐지** — diagnose 담당. graph는 대지 컨텍스트 없어 무의미.
+- **3D 우주 시각화(galaxy 류)** — 실무 ROI 낮음. 이름값은 *관계의 깊이*(D)로 내지 화려함으로 내지 않음.
+- **RAG eval 88→95% 추격** — 수확체감(복합추론·모델 한계). 4번(인용 검증)으로 *틀린 답 차단*에 집중.
+- **연혁 타임라인** — "현행이 무엇인가"는 시행일로 충분. 특정 수요 생기면 그때.
+- **진단 종합 리포트/Excel** — diagnose 산출물 영역.
+
+### 운영·배포 (상시)
+
+- **Cloud Run 배포** — GitHub push → 자동 재배포. ⚠ `ANTHROPIC_API_KEY`가 Cloud Run 환경변수에 설정돼야 AI 채팅 작동.
+- **데이터 자동갱신** — 로컬 작업 스케줄러(매일 09:00, `scripts/refresh_local.ps1`). ⚠ 신규 조례는 `ordin_group.py`에 있어야 추적 — 새 지자체는 `inventory_ordin.py` 재실행.
+
+### 완료 이력
+
+- ✅ **B. 데이터** — 조례 전국 84개 시(Stage 12).
+- ✅ **C-1 검색 고도화** — 동의어(20그룹)+초성. `web/src/search.js`.
+- ✅ **C-2 인용 관계 시각화** — Reader `CiteGraph`(좌=피인용·우=인용).
+- ✅ **C-3 채팅 벡터 RAG** — Voyage 1024d, `embeddings.npy`, 코사인 top_k+키워드 폴백.
+- ✅ **C-3 확장 RAG 하이브리드** — RRF+도메인핀+max_chars. `builder/eval_rag.py` 34문항. 결론 일치 38→88%, 법령 인용 59→97%. 잔존: pk_busan 데이터 부재(guard), complex/incentive 복합추론.
+- ✅ **주소→용도지역 자동조회(VWorld)** — `/api/zoning`, REGIONS 매칭+zone 자동선택.
+- ✅ **A-1 LLM 카드 보강** — 이격 64→77·주차 65→66·심의 46→77. 이격 별표없음 7개시(여주·동두천·원주·논산·영천·문경·양산)·수원 주차는 영구 guard.
