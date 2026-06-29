@@ -244,7 +244,7 @@ export const SETBACK_AUTO = [
       { key: "gongdong", label: "공동주택", liner: { nat: "아파트 2~6m / 연립 2~5m / 다세대 1~4m", sel: "아파트 4m↑ / 연립 2m↑ / 다세대 1m↑", strict: true }, boundary: { nat: "아파트 2~6m / 연립 1.5~5m / 다세대 0.5~4m", sel: "아파트 6m↑ / 연립 3m↑(3층 이하 2m↑) / 다세대 3m↑(3층 이하 2m↑, 2층 이하 1m↑)", strict: true }, note: "상업지역 제외 적용" },
       { key: "jeonju", label: "전용주거지역 건축물(공동주택 제외)", boundary: { nat: "1~6m", sel: "1m↑(한옥: 처마선 0.5m↑, 외벽선 1m↑)", strict: false }, note: "한옥의 경우 처마선 0.5m, 외벽선 1m 이상" },
       { key: "panmae", label: "판매·숙박·문화집회·종교시설 등(대규모)", liner: { nat: "1,000㎡↑: 3~6m", sel: "3m↑", strict: false }, boundary: { nat: "1,000㎡↑(상업지역 아닌 곳): 1.5~6m", sel: "상업지역 제외, 3m↑(5층 이하 2m↑)", strict: true }, note: "바닥면적 합계 1,000㎡ 이상 문화·집회·종교·판매·운수·의료(종합병원)·숙박(일반숙박 제외) 시설" },
-      { key: "gongjang", label: "공장·창고(바닥면적 500㎡↑)", liner: { nat: "준공업 1.5~6m / 그 외 3~6m", sel: "준공업지역 1.5m↑ / 그 밖의 지역 3m↑", strict: false }, boundary: { nat: "준공업 1~6m / 그 외 1.5~6m", sel: "공장: 준공업지역 1m↑ / 그 밖의 지역 3m↑ / 창고: 해당 없음(별표 미기재)", strict: true }, note: "창고는 인접대지경계선 후퇴 규정 없음(-); 전용·일반공업지역 및 산업단지 내 공장·창고 제외" },
+      { key: "gongjang", label: "공장·창고(바닥면적 500㎡↑)", liner: { nat: "준공업 1.5~6m / 그 외 3~6m", sel: "준공업지역 1.5m↑ / 그 밖의 지역 3m↑", strict: false }, boundary: { nat: "준공업 1~6m / 그 외 1.5~6m", sel: "공장: 준공업지역 1m↑ / 그 밖의 지역 3m↑ / 창고: 해당 없음", strict: true }, note: "창고는 인접대지경계선 후퇴 규정 없음(-); 전용·일반공업지역 및 산업단지 내 공장·창고 제외" },
       { key: "etc", label: "그 밖의 건축물", liner: { nat: "1~6m", sel: "위험물저장·처리시설 2m↑ / 자원순환·묘지·장례식장 3m↑ / 축사·도축장·도계장(1,000㎡ 미만) 3m↑, (1,000㎡ 이상) 5m↑", strict: true }, boundary: { nat: "0.5~6m", sel: "위험물저장·처리시설 2m↑ / 자원순환·묘지·장례식장 6m↑ / 축사·도축장·도계장(1,000㎡ 미만) 2m↑, (1,000㎡ 이상) 6m↑", strict: true }, note: "그 밖의 건축물은 세 가지 세부 용도로 구분하여 각각 상이한 이격거리 적용" },
     ] },
   { code: "44200", name: "아산시",
@@ -323,7 +323,7 @@ export const SETBACK_AUTO = [
     refs: [A58, AD80, AD_BP, "포항시 건축 조례/제28조", "포항시 건축 조례/별표3"],
     uses: [
       { key: "gongdong", label: "공동주택", liner: { nat: "아파트 2~6m / 연립 2~5m / 다세대 1~4m", sel: "아파트 4m↑(재개발·재건축 3m↑) / 연립 2m↑ / 다세대 2m↑", strict: true }, boundary: { nat: "아파트 2~6m / 연립 1.5~5m / 다세대 0.5~4m", sel: "아파트 4m↑(재개발·재건축 3m↑) / 연립 2m↑ / 다세대 2m↑(채광창 없는 측벽 1m↑)", strict: true }, note: "인접경계 다세대는 채광창 없는 측벽 부분 1m↑ 적용; 상업지역 공동주택은 인접경계 규정 제외" },
-      { key: "jeonju", label: "전용주거지역 건축물(공동주택 제외)", boundary: { nat: "1~6m", sel: "-(별표에 수치 미기재)", strict: false }, note: "전용주거지역 건축물(공동주택 제외)은 인접경계 항목에 '-'로 표기되어 구체 수치 없음" },
+      { key: "jeonju", label: "전용주거지역 건축물(공동주택 제외)", boundary: { nat: "1~6m", sel: "해당 없음", strict: false }, note: "전용주거지역 건축물(공동주택 제외)은 인접경계 항목에 '-'로 표기되어 구체 수치 없음" },
       { key: "panmae", label: "판매·숙박·문화집회·종교시설 등(대규모)", liner: { nat: "1,000㎡↑: 3~6m", sel: "1,000㎡↑: 3m↑ / 5,000㎡↑: 6m↑", strict: true }, boundary: { nat: "1,000㎡↑(상업지역 아닌 곳): 1.5~6m", sel: "1,000㎡↑(상업지역 제외): 3m↑ / 5,000㎡↑(상업지역 제외): 5m↑", strict: true }, note: "건축선 기준 5,000㎡↑는 6m↑; 인접경계 기준 5,000㎡↑는 5m↑(상업지역 제외)" },
       { key: "gongjang", label: "공장·창고(바닥면적 500㎡↑)", liner: { nat: "준공업 1.5~6m / 그 외 3~6m", sel: "공장: 준공업 2m↑ / 그 외 5m↑ / 창고: 준공업 2m↑ / 그 외 3m↑", strict: true }, boundary: { nat: "준공업 1~6m / 그 외 1.5~6m", sel: "공장: 준공업 1.5m↑ / 그 외 2.5m↑", strict: true }, note: "건축선: 전용·일반공업지역 및 산업단지 내 공장·창고 제외; 인접경계: 창고시설 항목 별표에 미기재" },
       { key: "etc", label: "그 밖의 건축물", liner: { nat: "1~6m", sel: "1m↑(제2종근린생활시설 중 종교집회장·장례식장, 학원, 노유자시설)", strict: true }, boundary: { nat: "0.5~6m", sel: "해당 없음", strict: false }, note: "별표상 '그 밖의 건축물' 일반 항목은 없으며, 바항(종교집회장·장례식장·학원·노유자시설)에 1m↑ 규정" },
