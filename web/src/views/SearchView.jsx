@@ -1,4 +1,4 @@
-import { useMemo, useState, Fragment } from "react";
+import { useMemo, useState, useEffect, Fragment } from "react";
 import {
   internalLaws,
   articlesByLaw,
@@ -108,6 +108,24 @@ export default function SearchView() {
   const [onlyBm, setOnlyBm] = useState(false);
   const query = q.trim();
   const pq = useMemo(() => parseQuery(query), [query]);
+
+  // 외부 앱(arch-law-diagnose 등) 딥링크 — mount 시 URL에서 초기 검색/조문 설정.
+  // ?q=<검색어> → 검색 모드 + 검색어 채움. ?node=<노드id> → 해당 조문 바로 선택.
+  // 둘 다 없으면 평소대로. (추가형·degrade 안전)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const qParam = params.get("q");
+    const nodeParam = params.get("node");
+    if (qParam) {
+      setMode("search");
+      setQ(qParam);
+    }
+    if (nodeParam) {
+      const n = nodeById.get(nodeParam);
+      if (n) setSelected(n);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggleBm = (id) =>
     setBm((s) => {

@@ -3,6 +3,8 @@
 // nat = 시행령 제27조② baseline(공장·물류·소규모 등), sel = 도시 조례 적용값.
 //   strict = 서울/부산/인천이 baseline보다 강화, relax = 완화(소규모 대지).
 
+import { LANDSCAPE_AUTO } from "./landscape_auto.js"; // 신규 도시 자동생성
+
 const L_ARCH = "건축법";
 const L_ARCH_D = "건축법 시행령";
 
@@ -160,6 +162,7 @@ export const REGIONS_LS = [
       tu1000: { sel: "대지면적의 5% 이상" },
     },
   },
+  ...LANDSCAPE_AUTO,   // 신규 도시(자동생성)
 ];
 
 export const LANDSCAPE_NOTES = [

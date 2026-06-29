@@ -4,6 +4,8 @@
 //   ※ 도시마다 존재하는 용도지역이 다름(서울·수원은 16, 그 외 광역시·시는 17~21).
 //   ※ 울산·창원 건폐율·용적률은 도시계획 조례 별표(HWP)에서 추출.
 
+import { ZONING_AUTO } from "./zoning_auto.js"; // 신규 도시 자동생성(기계적 추출)
+
 const L_GUKTO = "국토의 계획 및 이용에 관한 법률";
 const L_GUKTO_D = "국토의 계획 및 이용에 관한 법률 시행령";
 const L_ARCH = "건축법";
@@ -299,6 +301,7 @@ export const REGIONS = [
       "nongrim": { bcr: 20, far: 80 }, "jayeon": { bcr: 20, far: 60 },
     },
   },
+  ...ZONING_AUTO,   // 신규 67개 시(자동생성). 기존 17개는 위 손큐레이션.
 ];
 
 // 도시의 zone 목록을 ZONE_DEFS 순서로 반환 (selector·카드용).
