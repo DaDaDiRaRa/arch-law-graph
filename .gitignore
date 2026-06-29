@@ -16,4 +16,7 @@ web/.vite/
 data/*.db
 
 # 로컬 자동갱신 로그
-scripts/refresh_local.log
+scripts/*.log
+
+# 빌드 임시 파일
+data/*.bak
