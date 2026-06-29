@@ -45,6 +45,26 @@ def _tokenize(text: str) -> list:
     return [t for t in tokens if len(t) >= 2]
 
 
+# 외부 앱이 보내는 조문명 → graph 노드 id 구성용.
+# graph id 형식: "<법령명(공백포함)>/제N조". 약칭은 정식명(공백포함)으로 편다.
+_LAW_ABBR = [("국토계획법", "국토의 계획 및 이용에 관한 법률")]
+
+
+def _name_to_node_id(name: str):
+    """조문명("건축법 시행령 제119조 (면적…)") → 노드 id("건축법 시행령/제119조").
+
+    매칭 실패 시 None. 검색 추정은 하지 않음(틀린 조문 주입 방지) — exact only.
+    """
+    s = re.sub(r"\s*\([^)]*\)\s*$", "", name or "").strip()  # 끝 괄호주석 제거
+    for abbr, full in _LAW_ABBR:
+        s = s.replace(abbr, full)
+    s = re.sub(r"(제\d+)조의(\d+)", r"\1의\2조", s)  # 제N조의M → 제N의M조(graph 형식)
+    m = re.match(r"^(.+?)\s+(제\d+(?:의\d+)?조)$", s)
+    if m:
+        return m.group(1).strip() + "/" + m.group(2)
+    return None
+
+
 class RAGEngine:
     def __init__(self):
         with open(GRAPH_PATH, encoding="utf-8") as f:
@@ -83,6 +103,38 @@ class RAGEngine:
 
         scored.sort(key=lambda x: -x[0])
         return [art for _, art in scored[:top_k]]
+
+    def lookup(self, queries: list) -> list:
+        """조문명/노드id 목록 → 원문 본문. 외부 앱(arch-law-diagnose 등) 그라운딩용.
+
+        각 query: 노드 id 직접 매칭 → 실패 시 조문명에서 id 구성 후 정확 매칭.
+        검색 추정은 하지 않음(틀린 조문 본문 주입은 환각보다 위험).
+        graph 미보유 조문은 found=False (호출부에서 degrade).
+        """
+        out = []
+        for q in queries:
+            q = (q or "").strip()
+            if not q:
+                out.append({"query": q, "found": False})
+                continue
+            node = self._by_id.get(q)  # 이미 정확한 노드 id 인 경우(?node= 딥링크 등)
+            if node is None or not node.get("content"):
+                cid = _name_to_node_id(q)
+                node = self._by_id.get(cid) if cid else None
+            if node is None or not node.get("content"):
+                out.append({"query": q, "found": False})
+                continue
+            out.append({
+                "query": q,
+                "found": True,
+                "id": node.get("id"),
+                "law_nm": node.get("law_nm"),
+                "article_no": node.get("article_no"),
+                "title": node.get("title"),
+                "content": node.get("content"),
+                "source_url": node.get("source_url"),
+            })
+        return out
 
     def _fmt(self, art: dict, max_chars: int = 1500) -> str:
         law_nm = art.get("law_nm", "")

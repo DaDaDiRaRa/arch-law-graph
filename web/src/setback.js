@@ -4,6 +4,8 @@
 //   ※ 부산·인천 별표는 HWP 첨부 → 빌더 HWP 폴백으로 graph.json 수록.
 //   strict = 도시가 국가 범위 하한을 구체화/강화.
 
+import { SETBACK_AUTO } from "./setback_auto.js"; // 신규 도시 자동생성(LLM 보조)
+
 const L_ARCH = "건축법";
 const L_ARCH_D = "건축법 시행령";
 
@@ -371,4 +373,5 @@ export const SETBACK_REGIONS = [
         boundary: { nat: NAT.gongjang_b, sel: "준공업 1m↑ / 그 외 1.5m↑", strict: true } },
     ],
   },
+  ...SETBACK_AUTO,   // 신규 도시(LLM 보조 생성)
 ];

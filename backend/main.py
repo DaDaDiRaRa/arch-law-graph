@@ -34,6 +34,20 @@ def ping():
     return {"ok": True}
 
 
+class LookupRequest(BaseModel):
+    queries: list[str]
+
+
+@app.post("/api/lookup")
+def lookup(req: LookupRequest):
+    """조문명/노드id 목록 → 원문 본문 배치 조회 (외부 앱 그라운딩용).
+
+    arch-law-diagnose 가 진단 적용 조문의 본문을 받아 LLM 환각을 막는 데 사용.
+    과도한 요청 방지로 최대 50건만 처리.
+    """
+    return {"results": _engine.lookup(req.queries[:50])}
+
+
 class ChatRequest(BaseModel):
     question: str
     selected_id: str | None = None

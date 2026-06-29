@@ -5,6 +5,8 @@
 //   ※ 인천은 도시지역/지구단위 vs 관리지역 2단 기준 → sel=도시지역, note=관리지역.
 //   strict = 서울/부산/인천이 국가보다 강화(면적기준↓ = 더 많은 주차).
 
+import { PARKING_AUTO } from "./parking_auto.js"; // 신규 도시 자동생성(LLM 보조)
+
 const PK = "주차장법";
 const PK_D = "주차장법 시행령";
 
@@ -269,4 +271,5 @@ export const PARKING_REGIONS = [
       { key: "etc", label: "그 밖의 건축물", nat: NAT.etc, sel: "시설면적 300㎡당 1대", strict: false },
     ],
   },
+  ...PARKING_AUTO,   // 신규 도시(LLM 보조 생성)
 ];
