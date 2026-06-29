@@ -47,7 +47,11 @@ _HWP5HTML = _find_hwp5html()
 _hwp_cache: dict[str, str] = {}  # URL → 박스드로잉 텍스트 (런 내 중복 변환 방지)
 # 데이터표 별표 제목 신호(표지판·안내표시·요금·구획 등 양식 제외, 변환 비용 한정)
 # 건폐율·용적률: 울산 등 일부 도시계획 조례는 건폐율/용적률 표를 HWP 별표로 첨부.
-_BP_TABLE_TITLE = re.compile(r"기준|산정|종류|건폐율|용적률")
+# 공지·주차·이격·조경: 의정부류 서술형 제목("[별표 3] 대지안의 공지")은 '기준'이 없어 누락되던 것 포착.
+_BP_TABLE_TITLE = re.compile(r"기준|산정|종류|건폐율|용적률|공지|주차|이격|조경")
+# 묶음 별표(여러 별표가 한 HWP에): "[별표 1] ~[별표 6]", "[별표1~4]", "[별표] ○○조례".
+# 별지·서식(신청서 양식)은 제외. 화성·광주·목포 등 경기·신규 시가 이 형식.
+_BP_BUNDLE_TITLE = re.compile(r"^\[?\s*별표\s*\d*\s*\]?(?:\s*[~∼])|^\[?\s*별표\s*\]")
 
 
 def _cw(ch: str) -> int:
@@ -199,6 +203,48 @@ def _hwp_bytes_to_box_text(data: bytes) -> str:
     return _text_from_xhtml(xhtml)
 
 
+def _split_box_tables(box: str) -> list[str]:
+    """묶음 HWP 박스텍스트(여러 표 = 여러 ┌블록)를 표 단위 세그먼트로 분할.
+
+    각 표는 좌상단 '┌' 줄로 시작(내부는 ├/┼). 다음 '┌' 줄 전까지를 한 표로 묶는다.
+    """
+    segs: list[str] = []
+    cur: list[str] = []
+    for ln in box.split("\n"):
+        if ln.lstrip().startswith("┌") and cur:
+            segs.append("\n".join(cur).strip())
+            cur = [ln]
+        else:
+            cur.append(ln)
+    if cur:
+        segs.append("\n".join(cur).strip())
+    return [s for s in segs if "┌" in s]
+
+
+def _classify_byeolpyo_table(seg: str) -> str:
+    """분할된 표 세그먼트를 헤더 신호로 분류해 제목 부여(카드 gather가 찾도록).
+
+    대지공지 표는 '띄어야 할 거리'/'건축선·인접대지경계선' 헤더가 고유 신호.
+    그 외는 첫 데이터 셀 텍스트를 제목으로(없으면 '별표 표').
+    """
+    flat = seg.replace(" ", "")
+    # 대지공지(별표2) 시그니처: '띄어야 할 거리' 헤더 또는 데이터행 고유 표현
+    # ('전용주거지역에 건축', '대상건축물'+'준공업지역'+'미터 이상'). 화성·목포는 '띄어야' 없이 데이터행만.
+    if ("띄어야" in flat or "이격거리" in flat
+            or ("건축선" in flat and "인접대지경계" in flat)
+            or "전용주거지역에건축" in flat
+            or ("대상건축물" in flat and "준공업지역" in flat and "미터이상" in flat)):
+        return "대지 안의 공지"
+    if "부설주차" in flat or "㎡당" in flat or "설치대상시설물" in flat:
+        return "부설주차장 설치기준"
+    if "건폐율" in flat or "용적률" in flat:
+        return "건폐율·용적률"
+    if "조경면적" in flat or ("조경" in flat and "식재" in flat):
+        return "대지 안의 조경"
+    m = re.search(r"│([^│\n]{2,30})│", seg)
+    return (m.group(1).replace(" ", "").strip()[:20] if m else "별표 표")
+
+
 class LawGoKrClient:
     def __init__(self) -> None:
         self._key = os.getenv("LAW_API_KEY", "")
@@ -306,25 +352,40 @@ class LawGoKrClient:
         """본문이 비고 HWP 첨부뿐인 별표(_hwp_url)를 다운로드·변환해 content 채움."""
         if not _HWP5HTML:
             return
+        extra: list[dict] = []  # 묶음 별표를 표 단위로 분할한 자식 노드
         for art in articles:
             url = art.pop("_hwp_url", None)
+            is_bundle = art.pop("_bundle", False)
             if not url:
                 continue
             if url in _hwp_cache:
-                art["content"] = _hwp_cache[url]
-                continue
-            try:
-                resp = await self._http.get(url, follow_redirects=True, timeout=30)
-                box = _hwp_bytes_to_box_text(resp.content) if resp.status_code == 200 else ""
-            except Exception as e:
-                logger.warning("별표 HWP 다운로드 실패 (%s): %s", art.get("title"), e)
-                box = ""
-            _hwp_cache[url] = box
-            art["content"] = box
-            if box:
-                logger.info("별표 HWP 변환: %s (%d자)", art.get("article_no"), len(box))
+                box = _hwp_cache[url]
             else:
+                try:
+                    resp = await self._http.get(url, follow_redirects=True, timeout=30)
+                    box = _hwp_bytes_to_box_text(resp.content) if resp.status_code == 200 else ""
+                except Exception as e:
+                    logger.warning("별표 HWP 다운로드 실패 (%s): %s", art.get("title"), e)
+                    box = ""
+                _hwp_cache[url] = box
+            if not box:
                 art["_hwp_empty"] = True  # 표 없음(양식·도형) → 노드 미생성
+                continue
+            # 묶음 별표(여러 표 한 파일) → 표 단위 분할·분류해 자식 노드로 펼침.
+            if is_bundle:
+                segs = _split_box_tables(box)
+                if len(segs) > 1:
+                    art["_hwp_empty"] = True  # 묶음 placeholder 자체는 제거
+                    base = str(art.get("article_no", "별표"))
+                    for i, seg in enumerate(segs, 1):
+                        extra.append({"article_no": f"{base}_{i}",
+                                      "title": _classify_byeolpyo_table(seg), "content": seg})
+                    logger.info("묶음 별표 분할: %s → %d개 표", base, len(segs))
+                    continue
+            art["content"] = box
+            logger.info("별표 HWP 변환: %s (%d자)", art.get("article_no"), len(box))
+        if extra:
+            articles.extend(extra)
 
     # ─── 행정규칙(고시·지침·예규) ─────────────────────────────────────────
 
@@ -756,11 +817,13 @@ def _parse_byeolpyo_units(root) -> list[dict]:
         fg = (byp.findtext("별표첨부파일구분") or "").strip().lower()
         url = html.unescape((byp.findtext("별표첨부파일명") or "").strip())
         is_hwp = fg in ("hwp", "hwpx") or url.lower().split("?")[0].endswith((".hwp", ".hwpx"))
+        is_bundle = bool(_BP_BUNDLE_TITLE.match(bp_title)) and "별지" not in bp_title and "서식" not in bp_title
         is_data = bool(_BP_TABLE_TITLE.search(bp_title)) or bool(
             re.fullmatch(r"\[?\s*별표\s*\d*\s*\]?", bp_title)
-        )
+        ) or is_bundle
         if is_hwp and url.startswith("http") and is_data:
-            out.append({"article_no": article_no, "title": bp_title, "content": "", "_hwp_url": url})
+            out.append({"article_no": article_no, "title": bp_title, "content": "",
+                        "_hwp_url": url, "_bundle": is_bundle})
     return out
 
 

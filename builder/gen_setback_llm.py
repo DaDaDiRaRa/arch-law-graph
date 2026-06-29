@@ -59,17 +59,31 @@ def load_nodes():
     return g["nodes"]
 
 
+def _city_match(city, law):
+    # 부분문자열 오매칭 방지("양주"⊄"남양주"). 도시명은 접두 또는 공백 뒤에만 인정.
+    return bool(re.search(r"(?:^|\s)" + re.escape(city), law))
+
+
 def gather(nodes, city):
-    bp = bp_id = art_id = ""
+    """대지공지 별표 본문 + ref + 위임 조문 id.
+
+    묶음 HWP가 표 단위로 분할되며 도시에 따라 대지공지 표가 2개(건축선축·인접경계축)로
+    쪼개지므로, 제목에 '공지'가 든 별표를 모두 모아 합친다(빌더가 '대지 안의 공지'로 분류).
+    """
+    bp_parts: list[str] = []
+    bp_id = art_id = ""
     for n in nodes:
         law = n.get("law_nm", "")
-        if city not in law or ("건축 조례" not in law and "건축조례" not in law):
+        if not _city_match(city, law) or ("건축 조례" not in law and "건축조례" not in law):
             continue
         t, a, c = n.get("title", ""), str(n.get("article_no", "")), n.get("content", "") or ""
-        if "별표" in a and "공지" in (t + c[:300]) and len(c) > len(bp):
-            bp, bp_id = c, n.get("id", "")
+        if "별표" in a and "공지" in (t + c[:300]) and len(c.strip()) > 80:
+            bp_parts.append(c)
+            if not bp_id:
+                bp_id = n.get("id", "")
         if "공지" in t and "별표" not in a and not art_id:
             art_id = n.get("id", "")
+    bp = "\n\n".join(bp_parts)
     return (bp, bp_id, art_id) if bp else None
 
 
@@ -79,7 +93,7 @@ def extract(client, city, bp):
     msg = client.messages.create(
         model=MODEL, max_tokens=2000, temperature=0, system=SYS,
         messages=[{"role": "user", "content": PROMPT.format(
-            city=city, types=types, byeolpyo=bp[:6500])}])
+            city=city, types=types, byeolpyo=bp[:8000])}])
     m = re.search(r"\{.*\}", msg.content[0].text, re.S)
     try:
         return json.loads(m.group(0)) if m else None
