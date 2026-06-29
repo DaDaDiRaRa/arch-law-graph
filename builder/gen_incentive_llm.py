@@ -52,15 +52,27 @@ def load_nodes():
 
 
 def gather(nodes, city):
-    """(공개공지 조문본문, 공개공지 ref, 녹색 조문본문, 녹색 ref)."""
+    """(공개공지 조문본문, 공개공지 ref, 녹색 조문본문, 녹색 ref).
+
+    공개공지 면적기준은 '공개공지 등의 확보' 조문에 있음. 제목에 '공개공지'가 들어가는
+    '안내판 설치기준'·'관리대장' 별표가 본문이 더 길어 오선택되는 문제를 점수로 회피:
+    면적 비율(퍼센트/100분의/%) 보유 + 조문(article)일수록 우선.
+    """
     gg_c = gg_id = gr_c = gr_id = ""
+    gg_score = -1
     for n in nodes:
         law = n.get("law_nm", "")
-        if city not in law:
+        # 부분문자열 오매칭 방지(예: "양주시" ⊄ "남양주시 건축 조례"). 도시명은 접두 또는 공백 뒤에만 인정.
+        if not re.search(r"(?:^|\s)" + re.escape(city), law):
             continue
         t, c = n.get("title", ""), n.get("content", "") or ""
-        if ("건축 조례" in law or "건축조례" in law) and "공개공지" in (t + c[:200]) and len(c) > len(gg_c):
-            gg_c, gg_id = c, n.get("id", "")
+        if ("건축 조례" in law or "건축조례" in law) and "공개공지" in (t + c[:200]).replace(" ", ""):
+            if "안내판" not in t and "관리대장" not in t:
+                has_ratio = bool(re.search(r"(100분의|퍼센트|%)", c))
+                is_article = n.get("type") == "article"
+                score = (2 if has_ratio else 0) + (1 if is_article else 0)
+                if score > gg_score or (score == gg_score and len(c) > len(gg_c)):
+                    gg_c, gg_id, gg_score = c, n.get("id", ""), score
         if "녹색건축물" in law and ("지원" in t or "재정" in c or "기금" in c or "보조" in c) and len(c) > len(gr_c):
             gr_c, gr_id = c, n.get("id", "")
     return gg_c, gg_id, gr_c, gr_id
