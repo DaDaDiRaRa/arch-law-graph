@@ -512,11 +512,30 @@
 }
 
 /* 근거·관련 조립 */
+.citegraph {
+  margin-top: 34px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.citegraph .cg-head {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.citegraph .cg-head span {
+  font-weight: 400;
+  color: var(--text-dim, #8b95a1);
+  margin-left: 6px;
+  font-size: 12px;
+}
+.citegraph .cg-node:hover rect { fill: #f2f6ff; }
+.citegraph .cg-node:hover text { font-weight: 700; }
+
 .assemble {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 22px;
-  margin-top: 38px;
+  margin-top: 30px;
   padding-top: 26px;
   border-top: 1px solid var(--line);
 }

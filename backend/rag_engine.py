@@ -5,7 +5,10 @@ from pathlib import Path
 
 from anthropic import AsyncAnthropic
 
-GRAPH_PATH = Path(__file__).parent.parent / "data" / "graph.json"
+DATA_DIR = Path(__file__).parent.parent / "data"
+GRAPH_PATH = DATA_DIR / "graph.json"
+EMB_PATH = DATA_DIR / "embeddings.npy"
+EMB_META_PATH = DATA_DIR / "embeddings_meta.json"
 
 # 도메인 용어 정규화 — 검색 전 쿼리에 적용
 _DOMAIN_NORM = {
@@ -78,9 +81,63 @@ class RAGEngine:
         ]
         self._by_id = {n["id"]: n for n in nodes}
         self._client = AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-        print(f"[RAG] {len(self._articles):,}개 조문 로드 완료")
+
+        # 벡터 검색(Voyage) — 임베딩 파일 + 키 + 라이브러리 모두 있어야 활성. 없으면 키워드 FTS.
+        self._vec = None  # (matrix float32 normalized, [article nodes], voyage client, model, dim)
+        self._init_vector()
+        mode = "벡터(Voyage)" if self._vec else "키워드 FTS"
+        print(f"[RAG] {len(self._articles):,}개 조문 로드 · 검색모드={mode}")
+
+    def _init_vector(self):
+        if not (EMB_PATH.exists() and EMB_META_PATH.exists() and os.environ.get("VOYAGE_API_KEY")):
+            return
+        try:
+            import numpy as np
+            import voyageai
+            meta = json.loads(EMB_META_PATH.read_text(encoding="utf-8"))
+            mat = np.load(EMB_PATH).astype(np.float32)  # 이미 L2 정규화됨
+            ids = meta["ids"]
+            if mat.shape[0] != len(ids):
+                print("[RAG] 임베딩 행수≠ids — 벡터 비활성"); return
+            # ids → 현재 graph 노드. 누락 행은 제외(graph 변경 대비).
+            rows, arts = [], []
+            for i, _id in enumerate(ids):
+                n = self._by_id.get(_id)
+                if n and n.get("content"):
+                    rows.append(i); arts.append(n)
+            mat = mat[rows]
+            client = voyageai.Client(api_key=os.environ["VOYAGE_API_KEY"])
+            self._np = np
+            self._vec = (mat, arts, client, meta.get("model", "voyage-3-large"), meta.get("dim", 1024))
+        except Exception as e:
+            print(f"[RAG] 벡터 초기화 실패 → 키워드 폴백: {e}")
+            self._vec = None
 
     def search(self, query: str, top_k: int = 12) -> list:
+        """벡터 검색(가능 시) → 의미 유사 조문. 실패·미설정 시 키워드 FTS 폴백."""
+        if self._vec:
+            try:
+                return self._vector_search(query, top_k)
+            except Exception as e:
+                print(f"[RAG] 벡터 검색 오류 → 키워드 폴백: {e}")
+        return self._keyword_search(query, top_k)
+
+    def _vector_search(self, query: str, top_k: int) -> list:
+        mat, arts, client, model, dim = self._vec
+        np = self._np
+        r = client.embed([query], model=model, input_type="query",
+                         output_dimension=dim, truncation=True)
+        q = np.asarray(r.embeddings[0], dtype=np.float32)
+        n = np.linalg.norm(q)
+        if n:
+            q = q / n
+        scores = mat @ q                       # 코사인(정규화됨) = 내적
+        k = min(top_k, len(arts))
+        idx = np.argpartition(-scores, k - 1)[:k]
+        idx = idx[np.argsort(-scores[idx])]
+        return [arts[i] for i in idx]
+
+    def _keyword_search(self, query: str, top_k: int = 12) -> list:
         tokens = _tokenize(query)
         if not tokens:
             return []

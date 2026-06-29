@@ -2,3 +2,5 @@ fastapi>=0.111
 uvicorn[standard]>=0.29
 anthropic>=0.30
 python-dotenv>=1.0
+voyageai>=0.3        # 벡터 RAG 질의 임베딩(런타임). 미설정 시 키워드 FTS 폴백
+numpy>=1.26          # 임베딩 코사인 top_k

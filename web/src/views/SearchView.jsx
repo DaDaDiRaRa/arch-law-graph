@@ -26,6 +26,7 @@ import { SETBACK_REGIONS } from "../setback.js";
 import { REGIONS_LS, tiersOf } from "../landscape.js";
 import { BENEFIT_REGIONS } from "../incentive.js";
 import { REVIEW_REGIONS, REVIEW_NATIONAL } from "../review.js";
+import { matchTerm, isChoseong, choseongOf } from "../search.js";
 
 const TYPE_LABEL = { references: "참조", cross_law: "타법령", byeolpyo: "별표", delegates: "위임", applied: "판례", interpreted: "해석례" };
 
@@ -146,13 +147,16 @@ export default function SearchView() {
     if (empty) {
       matched = [...pool].sort((a, b) => (citeIn.get(b.id) || 0) - (citeIn.get(a.id) || 0));
     } else {
+      // 초성 검색어가 있으면 대상 초성은 head(조문번호·제목·법령명)만 — 성능·정확도.
+      const needsCho = pq.need.some(isChoseong) || pq.exc.some(isChoseong);
       const scored = [];
       for (const a of pool) {
         const head = `${a.article_no} ${a.title} ${a.law_nm}`;
         const hay = head + " " + (a.content || "");
-        if (pq.exc.some((e) => hay.includes(e))) continue;
-        if (!pq.need.every((t) => hay.includes(t))) continue;
-        const inHead = pq.need.every((t) => head.includes(t));
+        const headCho = needsCho ? choseongOf(head) : "";
+        if (pq.exc.some((e) => matchTerm(e, hay, headCho))) continue;
+        if (!pq.need.every((t) => matchTerm(t, hay, headCho))) continue;
+        const inHead = pq.need.every((t) => matchTerm(t, head, headCho));
         scored.push({ a, rank: inHead ? 0 : 1 });
       }
       scored.sort((x, y) => x.rank - y.rank || (citeIn.get(y.a.id) || 0) - (citeIn.get(x.a.id) || 0));
@@ -545,11 +549,84 @@ function Reader({ node, terms, marked, onStar, onPick, onLaw }) {
         <a className="link" href={node.source_url} target="_blank" rel="noreferrer">국가법령정보센터 원문 ↗</a>
       )}
 
-      {/* 근거·관련 조립 */}
+      {/* 인용 관계 미니 그래프 — 피인용(좌) ← 현재 조문 → 인용(우) */}
+      {(outList.length > 0 || inList.length > 0) && (
+        <CiteGraph node={node} outList={outList} inList={inList} onPick={onPick} />
+      )}
+
+      {/* 근거·관련 조립 (전체 목록) */}
       <div className="assemble">
         <RelCol title="이 조문이 인용" sub="나가는 근거" list={outList} onPick={onPick} />
         <RelCol title="이 조문을 인용" sub="피인용" list={inList} onPick={onPick} />
       </div>
+    </div>
+  );
+}
+
+const REL_COLOR = {
+  references: "#3182f6", cross_law: "#8b5cf6", byeolpyo: "#f59e0b",
+  delegates: "#10b981", applied: "#ef4444", interpreted: "#ec4899",
+};
+
+// 인용 관계도 — 현재 조문(중앙) 기준 피인용(좌)·인용(우)을 SVG 방사형으로. 노드 클릭 시 이동.
+function CiteGraph({ node, outList, inList, onPick }) {
+  const N = 6; // 한쪽 최대 표시 수
+  const ins = inList.slice(0, N);
+  const outs = outList.slice(0, N);
+  const rows = Math.max(ins.length, outs.length, 1);
+  const rowH = 38, padY = 20, W = 620;
+  const H = padY * 2 + rows * rowH;
+  const cy = H / 2;
+  const cxL = 250, cxR = 370; // 중앙 박스 좌/우 가장자리
+  const nodeAnchorL = 172, nodeAnchorR = 448; // 좌/우 노드 안쪽 가장자리
+  const yOf = (i, count) => padY + rowH / 2 + ((rows - count) / 2 + i) * rowH;
+
+  const label = (id) => {
+    const n = nodeById.get(id);
+    const lw = shortLaw(lawOf(id));
+    const art = n?.type === "law" ? "" : (n?.article_no || "");
+    return { lw, art, color: lawColor(lawOf(id)) };
+  };
+
+  const SideNode = ({ r, x, y, side }) => {
+    const { lw, art, color } = label(r.id);
+    const bw = 164, bx = side === "L" ? x - bw : x;
+    return (
+      <g className="cg-node" onClick={() => onPick(r.id)} style={{ cursor: "pointer" }}>
+        <rect x={bx} y={y - 14} width={bw} height={28} rx={7} fill="#fff" stroke={color} strokeWidth="1.5" />
+        <text x={bx + 9} y={y + 4} fontSize="12.5" fill={color} fontWeight="600">
+          {lw}{art ? ` ${art}` : ""}
+        </text>
+      </g>
+    );
+  };
+
+  return (
+    <div className="citegraph">
+      <div className="cg-head">인용 관계도 <span>피인용 {inList.length} · 인용 {outList.length}{(inList.length > N || outList.length > N) ? " (상위 일부)" : ""}</span></div>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ display: "block" }}>
+        {/* 엣지: 피인용(좌→중앙) */}
+        {ins.map((r, i) => {
+          const y = yOf(i, ins.length);
+          return <path key={"ei" + r.id} d={`M ${nodeAnchorL} ${y} C ${(nodeAnchorL + cxL) / 2} ${y}, ${(nodeAnchorL + cxL) / 2} ${cy}, ${cxL} ${cy}`}
+            fill="none" stroke={REL_COLOR[r.type] || "#c0c4cc"} strokeWidth="1.5" opacity="0.55" />;
+        })}
+        {/* 엣지: 인용(중앙→우) */}
+        {outs.map((r, i) => {
+          const y = yOf(i, outs.length);
+          return <path key={"eo" + r.id} d={`M ${cxR} ${cy} C ${(cxR + nodeAnchorR) / 2} ${cy}, ${(cxR + nodeAnchorR) / 2} ${y}, ${nodeAnchorR} ${y}`}
+            fill="none" stroke={REL_COLOR[r.type] || "#c0c4cc"} strokeWidth="1.5" opacity="0.55" />;
+        })}
+        {/* 노드 */}
+        {ins.map((r, i) => <SideNode key={"ni" + r.id} r={r} x={nodeAnchorL} y={yOf(i, ins.length)} side="L" />)}
+        {outs.map((r, i) => <SideNode key={"no" + r.id} r={r} x={nodeAnchorR} y={yOf(i, outs.length)} side="R" />)}
+        {/* 중앙: 현재 조문 */}
+        <rect x={cxL} y={cy - 18} width={cxR - cxL} height={36} rx={9}
+          fill={lawColor(node.law_nm)} opacity="0.12" stroke={lawColor(node.law_nm)} strokeWidth="2" />
+        <text x={(cxL + cxR) / 2} y={cy + 5} textAnchor="middle" fontSize="13" fontWeight="700" fill={lawColor(node.law_nm)}>
+          {node.type === "law" ? shortLaw(node.law_nm) : (node.article_no || node.title)}
+        </text>
+      </svg>
     </div>
   );
 }
