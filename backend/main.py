@@ -14,10 +14,11 @@ from pydantic import BaseModel
 
 from .rag_engine import RAGEngine
 
-VWORLD_KEY = os.getenv("VWORLD_API_KEY", "")
+# .strip() — 환경변수 값에 앞뒤 공백이 섞여 들어가도(콘솔 입력 실수) VWorld가 키를 거부하지 않도록 방어.
+VWORLD_KEY = os.getenv("VWORLD_API_KEY", "").strip()
 # VWorld 데이터 API는 키 발급 시 등록한 도메인의 Referer 헤더를 검사.
 # 미설정 시 localhost(개발). Cloud Run 배포 시 등록 도메인으로 SERVICE_URL 설정 필요.
-VWORLD_REFERER = os.getenv("SERVICE_URL", "http://localhost:8000")
+VWORLD_REFERER = os.getenv("SERVICE_URL", "http://localhost:8000").strip()
 
 # VWorld 용도지역명 → zoning.js zone.key 매핑
 _ZONE_KEY_MAP = {
@@ -75,7 +76,6 @@ async def lookup_zoning(address: str = Query(..., description="도로명 또는 
     async with httpx.AsyncClient(timeout=10.0, headers={"Referer": VWORLD_REFERER}) as client:
         # 1. 주소 → 좌표 (도로명 우선, 실패 시 지번)
         geo = None
-        diag = {"recv": address}  # 진단용 — 프로덕션 geocoding 실패 원인 추적
         for addr_type in ("road", "parcel"):
             r = await client.get(
                 "https://api.vworld.kr/req/address",
@@ -92,19 +92,13 @@ async def lookup_zoning(address: str = Query(..., description="도로명 또는 
                     "key": VWORLD_KEY,
                 },
             )
-            body = r.json()
-            resp = body.get("response", {})
-            diag[addr_type] = {
-                "status": resp.get("status"),
-                "error": resp.get("error"),
-                "http": r.status_code,
-            }
+            resp = r.json().get("response", {})
             if resp.get("status") == "OK":
                 geo = resp
                 break
 
         if not geo:
-            return {"error": "주소를 찾을 수 없습니다. 더 구체적인 주소를 입력해 주세요.", "_diag": diag}
+            return {"error": "주소를 찾을 수 없습니다. 더 구체적인 주소를 입력해 주세요."}
 
         point = geo["result"]["point"]
         x = float(point["x"])  # 경도 (longitude)
