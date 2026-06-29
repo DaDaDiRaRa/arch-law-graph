@@ -98,6 +98,9 @@ export default function SearchView() {
   const [sb, setSb] = useState(null);
   const [land, setLand] = useState(null);
   const [benefit, setBenefit] = useState(null);
+  const [addrQ, setAddrQ] = useState("");
+  const [addrLoading, setAddrLoading] = useState(false);
+  const [addrMsg, setAddrMsg] = useState(null); // { ok: bool, text: string }
   const [q, setQ] = useState("");
   const [domain, setDomain] = useState(null);
   const [kind, setKind] = useState(null); // 문서 종류 필터
@@ -188,6 +191,44 @@ export default function SearchView() {
     setZone(null); setLand(null); setUse(null); setSb(null); setBenefit(null); setSelected(null);
   };
 
+  // VWorld 주소 → 용도지역 자동 세팅
+  const handleAddrSearch = async () => {
+    const addr = addrQ.trim();
+    if (!addr) return;
+    setAddrLoading(true);
+    setAddrMsg(null);
+    try {
+      const res = await fetch(`/api/zoning?address=${encodeURIComponent(addr)}`);
+      const data = await res.json();
+      if (data.error) { setAddrMsg({ ok: false, text: data.error }); return; }
+
+      // sido/sigungu → REGIONS 매칭
+      // 광역·특별시: sido 앞부분이 r.name과 일치 ("서울특별시".startsWith("서울"))
+      // 기초시: sigungu 앞부분이 r.name과 일치 ("수원시".startsWith("수원"))
+      const matched = REGIONS.find((r) =>
+        data.sido?.startsWith(r.name) || data.sigungu?.startsWith(r.name)
+      );
+      if (matched) {
+        pickRegion(matched);
+        setMode("zoning");
+        setZaxis("zone");
+      }
+      if (data.zone_key) {
+        const zones = zonesOf(matched || region);
+        const z = zones.find((z) => z.key === data.zone_key);
+        if (z) setZone(z);
+        const regionName = matched ? matched.name : "";
+        setAddrMsg({ ok: true, text: `${regionName} · ${data.zone_name}` });
+      } else {
+        setAddrMsg({ ok: false, text: `용도지역 미확인 (${data.address || addr})` });
+      }
+    } catch {
+      setAddrMsg({ ok: false, text: "서버 오류 — 잠시 후 재시도" });
+    } finally {
+      setAddrLoading(false);
+    }
+  };
+
   return (
     <div className="view search-view">
       {/* 모드 전환: 검색 ↔ 기준 조회 */}
@@ -205,6 +246,23 @@ export default function SearchView() {
 
       {mode === "zoning" ? (
         <>
+        {/* 주소 입력 → 용도지역 자동 조회 */}
+        <div className="addr-search">
+          <input
+            className="addr-input"
+            placeholder="주소 입력 후 Enter — 용도지역 자동 조회"
+            value={addrQ}
+            onChange={(e) => setAddrQ(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") handleAddrSearch(); }}
+          />
+          <button className="addr-btn" onClick={handleAddrSearch} disabled={addrLoading}>
+            {addrLoading ? "…" : "📍"}
+          </button>
+          {addrMsg && (
+            <span className={"addr-msg" + (addrMsg.ok ? " ok" : " err")}>{addrMsg.text}</span>
+          )}
+        </div>
+
         {/* 도시 전환 */}
         <div className="region-switch">
           {REGIONS.map((r) => (

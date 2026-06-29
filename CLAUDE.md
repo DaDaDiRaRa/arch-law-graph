@@ -24,9 +24,9 @@ builder/          # Python — 법제처 fetch → graph.json 빌드
 
 backend/          # Python — FastAPI 자연어 질의 API (런타임)
   __init__.py
-  main.py         # FastAPI app — /api/ping, /api/chat (SSE 스트리밍)
+  main.py         # FastAPI app — /api/ping, /api/chat (SSE 스트리밍), /api/zoning (주소→VWorld→용도지역), /api/lookup
   rag_engine.py   # RRF 하이브리드(벡터 top-30 + 키워드 top-30 → RRF k=60) → Claude API. 벡터 없으면 키워드 FTS 폴백. 도메인 핀(_PIN_RULES)으로 건폐율/용적률 국가 기준 쿼리에 시행령 제84·85조 고정 주입
-  requirements.txt  # fastapi, uvicorn[standard], anthropic, python-dotenv
+  requirements.txt  # fastapi, uvicorn[standard], anthropic, python-dotenv, httpx(VWorld)
 
 web/src/
   App.jsx            # 최상위 shell — SearchView 하나 감싸는 구조
@@ -146,7 +146,7 @@ nginx.conf        # port 8080, gzip, /api/ → uvicorn 프록시(SSE buffering o
 ### UI — 3가지 모드
 
 1. **🔍 검색**: 조문 번호/제목/본문 풀텍스트. 검색 문법: `"정확한 구절"`, `-제외어`, AND(스페이스). 결과 정렬: 피인용 수 내림차순. 별표 인라인 렌더링, ★ 북마크, 도메인 칩 필터.
-2. **📐 기준 조회**: 용도지역/건물용도/연면적 선택 → 국가 vs 도시 기준 카드. 근거 조문 칩 클릭 → Reader.
+2. **📐 기준 조회**: 용도지역/건물용도/연면적 선택 → 국가 vs 도시 기준 카드. 근거 조문 칩 클릭 → Reader. **상단 주소 입력창**(`/api/zoning`) → VWorld로 용도지역 자동 조회 → REGIONS 매칭(sido/sigungu↔r.name) + zone 자동 선택 → 카드 즉시 렌더.
 3. **💬 AI 질의**: 사이드 드로어(backdrop 없음 → Reader 스크롤·클릭 가능). 현재 열린 조문 자동 컨텍스트 주입. 답변 내 법령 참조 자동 링크.
 
 ### ChatPanel 동작 원리
@@ -217,6 +217,8 @@ ANTHROPIC_API_KEY=...    # Claude API 키 (런타임 필수 — Cloud Run 환경
 ANTHROPIC_MODEL=...      # 선택, 기본값 claude-sonnet-4-6
 VOYAGE_API_KEY=...       # 벡터 RAG 임베딩 (빌드 build_embeddings.py + 런타임 질의). 없으면 키워드 FTS 폴백
 VOYAGE_MODEL=...         # 선택, 기본값 voyage-3-large.  VOYAGE_DIM 기본 1024
+VWORLD_API_KEY=...       # 주소→용도지역 자동조회 (/api/zoning 런타임). 미설정 시 입력창에 안내 에러
+SERVICE_URL=...          # VWorld 데이터 API Referer (기본 http://localhost:8000). Cloud Run은 등록 도메인 설정 필수
 ```
 
 **Docker/Cloud Run**: `.env`는 `.dockerignore`에 의해 컨테이너 미포함.
@@ -272,6 +274,8 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 | HWP 별표 게이트가 `공지\|주차` 신호 누락 → 이격·주차 별표 미fetch | `_BP_TABLE_TITLE`에 `공지\|주차\|이격\|조경` 추가 → 이격 64→77, 주차 65→66 |
 | 묶음 HWP("[별표 1]~[별표 N]") 제목이 게이트 미통과 → 전체 스킵 | `_BP_BUNDLE_TITLE` + `_split_box_tables()` + `_classify_byeolpyo_table()` 추가, 묶음 분할 후 개별 표 판별 |
 | RAG 벡터 검색이 조례 조문에 밀려 국가법(시행령 제84조) 미반환 → "DB 확인 불가" hedging | RRF 하이브리드(벡터+키워드 융합) + 도메인 핀(`_PIN_RULES`) + max_chars 1500→6000 → 결론 일치 38%→88% (`builder/eval_rag.py`) |
+| VWorld 데이터 API(GetFeature)가 같은 키로 `INCORRECT_KEY` (address API는 OK) | 데이터 API는 키 발급 시 등록 도메인의 **`Referer` 헤더** 검사 → `Referer: SERVICE_URL`(기본 `http://localhost:8000`). Cloud Run은 등록 도메인으로 SERVICE_URL 설정 필요 |
+| VWorld 용도지역 속성명 `UQ_NM`로 추측 → 빈 값 | LT_C_UQ111 실제 속성명은 **`uname`**(자매앱 arch-law-diagnose `vworld_client.py` 검증) |
 
 ---
 

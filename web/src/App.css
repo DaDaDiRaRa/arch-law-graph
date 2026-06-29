@@ -791,6 +791,41 @@
 .rv-gu li { font-weight: 400; }
 
 /* ─── 도시 전환 (서울·부산·인천) ───────────────────────────────────────── */
+/* ─── 주소 → 용도지역 자동 조회 ─────────────────────────────────────────── */
+.addr-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px 0;
+  flex-wrap: wrap;
+}
+.addr-input {
+  flex: 1;
+  min-width: 180px;
+  font-size: 13.5px;
+  padding: 7px 12px;
+  border: 1.5px solid var(--line2);
+  border-radius: 8px;
+  outline: none;
+  color: var(--text);
+  background: #fff;
+}
+.addr-input:focus { border-color: var(--accent); }
+.addr-btn {
+  font-size: 15px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  cursor: pointer;
+  line-height: 1;
+}
+.addr-btn:disabled { opacity: 0.5; cursor: default; }
+.addr-msg { font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.addr-msg.ok { color: var(--accent); }
+.addr-msg.err { color: #ef4444; }
+
 .region-switch { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 18px 0; }
 .region-btn {
   font-size: 13px; font-weight: 600; padding: 6px 16px; border-radius: 18px;
