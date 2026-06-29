@@ -113,14 +113,71 @@ class RAGEngine:
             print(f"[RAG] 벡터 초기화 실패 → 키워드 폴백: {e}")
             self._vec = None
 
+    # 도메인 필수 조문 고정 — 쿼리 키워드 → 항상 컨텍스트에 포함할 조문 id
+    _PIN_RULES = [
+        ({"건폐율"}, {"국가", "시행령", "상한", "법령", "상위법"},
+         "국토의 계획 및 이용에 관한 법률 시행령/제84조"),
+        ({"용적률"}, {"국가", "시행령", "상한", "법령", "상위법"},
+         "국토의 계획 및 이용에 관한 법률 시행령/제85조"),
+    ]
+
     def search(self, query: str, top_k: int = 12) -> list:
-        """벡터 검색(가능 시) → 의미 유사 조문. 실패·미설정 시 키워드 FTS 폴백."""
+        """RRF 융합(벡터+키워드) → 없으면 키워드 FTS 단독.
+
+        도메인 핀: 건폐율/용적률 국가 기준 쿼리에 시행령 제84·85조 고정 추가.
+        """
         if self._vec:
             try:
-                return self._vector_search(query, top_k)
+                results = self._rrf_search(query, top_k)
             except Exception as e:
-                print(f"[RAG] 벡터 검색 오류 → 키워드 폴백: {e}")
-        return self._keyword_search(query, top_k)
+                print(f"[RAG] RRF 오류 → 키워드 폴백: {e}")
+                results = self._keyword_search(query, top_k)
+        else:
+            results = self._keyword_search(query, top_k)
+
+        return self._apply_pins(query, results, top_k)
+
+    def _apply_pins(self, query: str, results: list, top_k: int) -> list:
+        """필수 조문 고정: 규칙 조건을 만족하는 쿼리에 지정 조문을 맨 앞에 추가."""
+        pinned = []
+        existing_ids = {r["id"] for r in results}
+        for must_all, must_any, pin_id in self._PIN_RULES:
+            if (all(kw in query for kw in must_all)
+                    and any(kw in query for kw in must_any)
+                    and pin_id not in existing_ids):
+                node = self._by_id.get(pin_id)
+                if node and node.get("content"):
+                    pinned.append(node)
+                    existing_ids.add(pin_id)
+        if pinned:
+            return pinned + results[:top_k - len(pinned)]
+        return results
+
+    def _norm_query(self, query: str) -> str:
+        """도메인 정규화를 벡터·키워드 모두에 적용."""
+        for k, v in _DOMAIN_NORM.items():
+            query = query.replace(k, v)
+        return query
+
+    def _rrf_search(self, query: str, top_k: int) -> list:
+        """Reciprocal Rank Fusion: 벡터 top-30 + 키워드 top-30 → RRF(k=60) → top-k."""
+        POOL, K = 30, 60
+        nq = self._norm_query(query)
+
+        vec_list = self._vector_search(nq, POOL)
+        kw_list  = self._keyword_search(nq, POOL)
+
+        art_map: dict = {}
+        rrf: dict = {}
+        for rank, art in enumerate(vec_list, 1):
+            aid = art["id"]; art_map[aid] = art
+            rrf[aid] = rrf.get(aid, 0.0) + 1.0 / (K + rank)
+        for rank, art in enumerate(kw_list, 1):
+            aid = art["id"]; art_map[aid] = art
+            rrf[aid] = rrf.get(aid, 0.0) + 1.0 / (K + rank)
+
+        ranked = sorted(rrf.items(), key=lambda x: -x[1])
+        return [art_map[aid] for aid, _ in ranked[:top_k]]
 
     def _vector_search(self, query: str, top_k: int) -> list:
         mat, arts, client, model, dim = self._vec
@@ -193,7 +250,7 @@ class RAGEngine:
             })
         return out
 
-    def _fmt(self, art: dict, max_chars: int = 1500) -> str:
+    def _fmt(self, art: dict, max_chars: int = 6000) -> str:
         law_nm = art.get("law_nm", "")
         no = art.get("article_no", "")
         title = art.get("title", "")
