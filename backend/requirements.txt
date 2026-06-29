@@ -1,7 +1,10 @@
-fastapi>=0.111
-uvicorn[standard]>=0.29
-anthropic>=0.30
-python-dotenv>=1.0
-voyageai>=0.3        # 벡터 RAG 질의 임베딩(런타임). 미설정 시 키워드 FTS 폴백
-numpy>=1.26          # 임베딩 코사인 top_k
-httpx>=0.27          # VWorld API 비동기 HTTP 클라이언트
+# 버전 핀(==) — 미핀(>=) 시 빌드 캐시 무효화될 때마다 최신 메이저가 설치되어
+# fastapi/starlette 1.x가 @app.on_event 를 제거 → uvicorn 기동 실패(502) 발생함.
+# 검증된 조합(자매앱 arch-law-diagnose와 동일 라인). starlette 0.41.x는 on_event 동작.
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+anthropic==0.40.0
+python-dotenv==1.0.1
+voyageai==0.3.2      # 벡터 RAG 질의 임베딩(런타임). 0.4 메이저 점프 방지. 미설정 시 키워드 FTS 폴백
+numpy>=1.26,<3       # 임베딩 코사인 top_k
+httpx==0.27.2        # VWorld API 비동기 HTTP 클라이언트
