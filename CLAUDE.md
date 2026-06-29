@@ -64,15 +64,15 @@ nginx.conf        # port 8080, gzip, /api/ → uvicorn 프록시(SSE buffering o
 
 ## 현재 상태 (2026-06-29 기준)
 
-- **graph.json**: node≈24800, edge≈70733 — 법령 29 + 고시 16 + 조례 **309** + 대법원 판례 100 + 법령해석례 150 (Phase 1–4 + Stage 1–12 완료)
+- **graph.json**: node≈25235, edge≈71804 — 법령 29 + 고시 16 + 조례 **309** + 대법원 판례 100 + 법령해석례 150 (Phase 1–4 + Stage 1–12 완료)
   - 법령 29 = 건축 관련 법령 19 + **심의 별도 법령 5종(도시교통정비촉진법·환경영향평가법·경관법·지하안전관리에 관한 특별법·자연재해대책법) + 시행령 5종**(Stage 11).
   - 조례 309 = **전국 84개 시 × 도시계획·건축·주차·녹색건축 4종**(Stage 12) + 경기도 도단위 2. `builder/ordin_group.py`(자동생성)가 목록 보유, `build_graph.py`가 import.
 - **기준 조회(결정-등급 카드)**: 검색-퍼스트 외 `📐 기준 조회` 모드. 용도지역→건폐율·용적률·일조 / 건물용도→주차·이격 / 연면적→조경을 **국가 vs 도시 적용**으로 나란히 + 근거 조문 칩(클릭→원문 Reader) + 연결 판례·해석례 자동 수집. **전국 단위 카드(Stage 12).** 지역 스위처 = zoning REGIONS(마스터), 타 카드는 `r.code`로 조인(없으면 "준비중" guard). 카드별 커버리지:
   - **용도지역 84·조경 80** — 기계적 추출(정규식, 무료·무해석). 기존 17 손큐레이션 + 신규는 `zoning_auto.js`/`landscape_auto.js`(builder `gen_card_data.py` 생성, `?_auto.js` import+append).
-  - **주차 65·이격 64·심의 46·완화 82** — LLM 보조 추출(claude-sonnet-4-6 temp0이 graph 별표/조문 → 스키마 JSON, 부산 등 손큐레이션 정확일치 검증). `parking_auto.js`·`setback_auto.js`·`review_auto.js`·`incentive_auto.js`(builder `gen_parking/setback/review/incentive_llm.py`). incentive 헬퍼는 `incentive_helpers.js`로 분리(순환 import 회피).
+  - **주차 66·이격 77·심의 77·완화 82** — LLM 보조 추출(claude-sonnet-4-6 temp0이 graph 별표/조문 → 스키마 JSON, 부산 등 손큐레이션 정확일치 검증). `parking_auto.js`·`setback_auto.js`·`review_auto.js`·`incentive_auto.js`(builder `gen_parking/setback/review/incentive_llm.py`). incentive 헬퍼는 `incentive_helpers.js`로 분리(순환 import 회피).
   - **충실성 원칙**: 모든 카드 값은 graph 원문 수치 그대로. 기계적 추출은 표기만 정규화(100분의 N·공백 이름·조사 생략·공장줄 제외). 소스 없는 도시·항목은 "준비중" guard(예: 원주 일반 조경, 수원 주차) — 지어내지 않음.
   - 코드 체계: 특·광역시·특별자치 = 2자리("11"서울), 기초시 = 5자리 법정동코드(`gen_card_data.py` CITY_CODE). 경기도는 도단위라 카드 미생성(조례는 graph에 두어 검색·RAG만).
-- **번들 최적화(2026-06-29)**: graph.json(53MB)을 `?url` 정적 에셋으로 분리 + `data.js` top-level await fetch → **JS 번들 7.3MB→102KB gzip(98.6%↓)**. graph는 별도 캐싱·JSON.parse. `vite.config.js` build.target es2022, `index.html` 로딩 스피너.
+- **번들 최적화(2026-06-29)**: graph.json(~58MB)을 `?url` 정적 에셋으로 분리 + `data.js` top-level await fetch → **JS 번들 7.3MB→110KB gzip(98.5%↓)**. graph는 별도 캐싱·JSON.parse. `vite.config.js` build.target es2022, `index.html` 로딩 스피너.
 - **AI 자연어 질의(Stage 3 + C-3 벡터RAG)**: 오른쪽 하단 `💬` 버튼 → 사이드 드로어. **Voyage 임베딩 의미검색**(`data/embeddings.npy` 코사인 top_k=12, 질의만 런타임 임베딩) → Claude API SSE 스트리밍. 의미가 통하면 단어가 안 겹쳐도 매칭(예 "옆 건물과 얼마나 떨어뜨려야" → 대지 안의 공지). `VOYAGE_API_KEY`/`embeddings.npy` 없으면 키워드 FTS로 자동 폴백. 답변 내 `법령명 제N조` 패턴 자동 파싱 → 클릭 시 Reader 원문. selected_id 자동 컨텍스트 주입. 하단 근거 조문 칩 병행.
 - **HWP 별표 폴백**: 부산·인천 조례 별표는 본문이 HWP 첨부뿐(별표구분='서식'으로 표기). 빌더가 `별표첨부파일명` URL → 다운로드 → `pyhwp(hwp5html)` 변환 → HTML 표를 **선문자(박스드로잉) 텍스트**로 렌더해 graph.json 별표 content 채움. ⚠ `-m hwp5.hwp5html`는 Windows에서 빈 출력 → 콘솔 `.exe` 직접 호출.
 - **법제처 API 접근**: 이 로컬 머신(국내 IP)에서 직접 작동 → 재빌드·조례 fetch 가능. GH Actions만 차단됨.
@@ -115,9 +115,9 @@ nginx.conf        # port 8080, gzip, /api/ → uvicorn 프록시(SSE buffering o
 17. ✅ **Stage 12 — 전국 84개 시 확장** (완료 2026-06-29). 17→84개 시.
     - **병목① 자동 해소**: `inventory_ordin.py`가 전국 시 × 4조례를 법제처 API로 자동 검색·매칭(주차는 표준접미사 화이트리스트로 부속조례 배제) → `ordin_group.py`(309조례). build_graph가 import. 재빌드 node 8936→24800.
     - **기계적 카드(무해석)**: 건폐율·용적률·조경이 본문 번호목록이라 정규식 추출 가능 → 용도지역 84·조경 80개. 표기 정규화(100분의 N·공백 이름·조사생략·공장줄 제외)로 충실 추출, 소스 없으면 guard.
-    - **LLM 보조 카드**: 주차·이격·완화·심의는 별표 표/산문 → Claude(temp0) 스키마추출. 주차 65·이격 64·심의 46·완화 82. 부산 등 손큐레이션 정확일치로 환각 없음 검증. 별표 원문 수치만 사용.
-    - **번들 최적화**: graph.json `?url` 분리 + TLA fetch → JS 번들 7.3MB→102KB gzip.
-    - 다음 후보: 주차·이격을 LLM→별표 표 파서로 기계화 전환 / review·incentive 커버리지 보강(소스 매칭 개선).
+    - **LLM 보조 카드**: 주차·이격·완화·심의는 별표 표/산문 → Claude(temp0) 스키마추출. 초기 주차 65·이격 64·심의 46·완화 82. 부산 등 손큐레이션 정확일치로 환각 없음 검증. 별표 원문 수치만 사용.
+    - **번들 최적화**: graph.json `?url` 분리 + TLA fetch → JS 번들 7.3MB→110KB gzip.
+    - **HWP 게이트 보강(2026-06-29)**: `_BP_TABLE_TITLE`에 `공지|주차|이격|조경` 신호 추가 + `_BP_BUNDLE_TITLE`(묶음 범위 제목) 인식 + `_split_box_tables()`/`_classify_byeolpyo_table()` 추가 → 화성·의정부·광주·목포 등 이격 별표 신규 확보. 재빌드 node 24800→25235, 이격 64→77·주차 65→66. 심의도 gen_review_llm.py 재실행으로 46→77.
 
 ### 노드 category 체계
 
@@ -269,6 +269,8 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 | 용도지역 파싱 0/부분(군포·과천 등) | `100분의 N` 분수표기 인식 + 공백 무시 매칭(과천 "제1종 전용주거지역") |
 | 조경 파싱 누락(포천·양산·원주) | "의" 조사 선택적 + `100분의 N`(퍼센트 없는 분수) + 공장줄 일반tier 제외 |
 | incentive_auto import만 하고 spread 누락 → 완화 미반영 | `...BENEFIT_AUTO` 배열 추가(빌드는 통과해 시각확인서 발견) |
+| HWP 별표 게이트가 `공지\|주차` 신호 누락 → 이격·주차 별표 미fetch | `_BP_TABLE_TITLE`에 `공지\|주차\|이격\|조경` 추가 → 이격 64→77, 주차 65→66 |
+| 묶음 HWP("[별표 1]~[별표 N]") 제목이 게이트 미통과 → 전체 스킵 | `_BP_BUNDLE_TITLE` + `_split_box_tables()` + `_classify_byeolpyo_table()` 추가, 묶음 분할 후 개별 표 판별 |
 
 ---
 
@@ -276,7 +278,7 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 
 ### A. 마무리 (작은 빈틈)
 
-1. **LLM 카드 커버리지 보강** — 주차 65·이격 64·심의 46·완화 82. 소스 매칭 미스로 "준비중"인 도시(특히 심의 46) gather 필터 개선 여지. 진짜 소스 없는 곳(원주 일반조경·수원 주차)은 영구 guard.
+1. **LLM 카드 커버리지 잔존 보강** — 주차 66·이격 77·심의 77·완화 82. 이격 "별표 없음" 7개 도시(여주·동두천·원주·논산·영천·문경·양산)는 조례 자체에 대지공지 별표가 없는 것으로 판단, 영구 guard. 수원 주차도 영구 guard(법제처 DB 미등록). 심의·완화 gen 재실행으로 추가 개선 여지.
 2. **주차·이격 기계화 전환(선택)** — 현재 LLM 추출(검증됨). 별표 박스표 파서로 기계화하면 LLM 의존 제거 가능(사용자 선호 시).
 
 ### B. 데이터 확장
@@ -295,4 +297,4 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 1. **Cloud Run 배포** — GitHub push → 자동 재배포. ⚠ `ANTHROPIC_API_KEY`가 Cloud Run 환경변수에 설정돼야 AI 채팅 작동(`.env`는 컨테이너 미포함).
 2. **데이터 자동갱신** — 로컬 작업 스케줄러(매일 09:00, `scripts/refresh_local.ps1`)가 graph.json 갱신. ⚠ 신규 조례는 `ordin_group.py`(inventory 자동생성)에 있어야 추적됨 — 새 지자체 추가 시 `inventory_ordin.py` 재실행 필요.
 
-> 진행: B(지자체 전국)·C-1·C-2·C-3 완료. 다음 후보: **A-1(LLM 카드 커버리지 보강)** · **하이브리드 RAG(키워드+벡터)** · **판례·해석례 확대(B-2)**.
+> 진행: B(지자체 전국)·C-1·C-2·C-3·A-1(이격 64→77·주차 65→66·심의 46→77) 완료. 다음 후보: **주소→용도지역 자동조회(VWorld, C-3 확장)** · **하이브리드 RAG(키워드+벡터)** · **판례·해석례 확대(B-2)**.
