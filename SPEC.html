@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>arch-law-graph — 시스템 명세서</title>
+<style>
+  :root {
+    --accent: #3182f6;
+    --accent-light: #eff6ff;
+    --accent-mid: #bfdbfe;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-900: #111827;
+    --green: #059669;
+    --green-light: #d1fae5;
+    --orange: #d97706;
+    --orange-light: #fef3c7;
+    --red: #dc2626;
+    --red-light: #fee2e2;
+    --purple: #7c3aed;
+    --purple-light: #ede9fe;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--gray-700);
+    background: var(--gray-50);
+  }
+
+  /* ── Layout ───────────────────────────────────────────────────── */
+  .wrapper { display: flex; min-height: 100vh; }
+
+  nav {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    width: 240px;
+    flex-shrink: 0;
+    background: #fff;
+    border-right: 1px solid var(--gray-200);
+    overflow-y: auto;
+    padding: 24px 0;
+  }
+
+  nav .logo {
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: 12px;
+  }
+  nav .logo span {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-light);
+    border-radius: 4px;
+    padding: 2px 7px;
+    margin-bottom: 6px;
+  }
+  nav .logo h1 { font-size: 14px; font-weight: 700; color: var(--gray-900); }
+  nav .logo p { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+
+  nav ul { list-style: none; padding: 0 8px; }
+  nav ul li a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    color: var(--gray-600);
+    text-decoration: none;
+    transition: background .15s, color .15s;
+  }
+  nav ul li a:hover { background: var(--gray-100); color: var(--gray-900); }
+  nav ul li a .num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--gray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--gray-400);
+    flex-shrink: 0;
+  }
+
+  main {
+    flex: 1;
+    max-width: 860px;
+    padding: 48px 52px 80px;
+    min-width: 0;
+  }
+
+  /* ── Header ───────────────────────────────────────────────────── */
+  .doc-header {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--gray-200);
+  }
+  .doc-header .badge-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 20px;
+    letter-spacing: .02em;
+  }
+  .badge-spec { background: var(--accent-light); color: var(--accent); }
+  .badge-rev  { background: var(--green-light); color: var(--green); }
+  .badge-warn { background: var(--orange-light); color: var(--orange); }
+  .doc-header h1 {
+    font-size: 28px; font-weight: 800;
+    color: var(--gray-900); line-height: 1.3;
+    margin-bottom: 8px;
+  }
+  .doc-header p { font-size: 14px; color: var(--gray-400); }
+
+  /* ── Section ──────────────────────────────────────────────────── */
+  section { margin-bottom: 52px; scroll-margin-top: 24px; }
+
+  .section-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 20px;
+  }
+  .section-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  section h2 { font-size: 20px; font-weight: 700; color: var(--gray-900); }
+
+  section h3 {
+    font-size: 15px; font-weight: 700;
+    color: var(--gray-900);
+    margin: 24px 0 10px;
+    padding-left: 10px;
+    border-left: 3px solid var(--accent);
+  }
+  section h4 {
+    font-size: 13px; font-weight: 700; color: var(--gray-600);
+    margin: 18px 0 8px; text-transform: uppercase; letter-spacing: .05em;
+  }
+
+  p { margin-bottom: 10px; }
+
+  /* ── Cards / highlights ───────────────────────────────────────── */
+  .card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 10px;
+    padding: 18px 22px;
+    margin: 14px 0;
+  }
+  .card.accent {
+    background: var(--accent-light);
+    border-color: var(--accent-mid);
+  }
+  .card.warn { background: var(--orange-light); border-color: #fcd34d; }
+  .card.green { background: var(--green-light); border-color: #6ee7b7; }
+
+  .purpose-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 16px 0;
+  }
+  .purpose-item {
+    background: #fff; border: 1px solid var(--gray-200);
+    border-radius: 10px; padding: 16px;
+    border-top: 3px solid var(--accent);
+  }
+  .purpose-item .icon { font-size: 22px; margin-bottom: 8px; }
+  .purpose-item strong { display: block; font-size: 14px; color: var(--gray-900); margin-bottom: 4px; }
+  .purpose-item p { font-size: 13px; color: var(--gray-600); margin: 0; }
+
+  /* ── Flow diagram ─────────────────────────────────────────────── */
+  .flow-wrap {
+    background: #1e293b; border-radius: 10px; padding: 24px 28px; margin: 14px 0;
+    overflow-x: auto;
+  }
+  .flow-wrap pre {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 12px; line-height: 1.8;
+    color: #e2e8f0; background: none;
+    border: none; padding: 0;
+  }
+
+  /* ── Code ─────────────────────────────────────────────────────── */
+  pre {
+    background: #1e293b; color: #e2e8f0;
+    border-radius: 8px; padding: 18px 20px; margin: 12px 0;
+    overflow-x: auto; font-size: 12.5px; line-height: 1.75;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  }
+  code {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 12.5px;
+    background: var(--gray-100); color: #e11d48;
+    padding: 1px 5px; border-radius: 4px;
+  }
+  pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
+
+  .comment { color: #64748b; }
+  .kw { color: #7dd3fc; }
+  .str { color: #86efac; }
+  .fn { color: #fbbf24; }
+
+  /* ── Tables ───────────────────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; margin: 14px 0; }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+    border-radius: 8px; overflow: hidden;
+    box-shadow: 0 0 0 1px var(--gray-200);
+  }
+  thead th {
+    background: var(--gray-50);
+    padding: 10px 14px;
+    text-align: left; font-weight: 700; font-size: 12px;
+    color: var(--gray-600); letter-spacing: .04em;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  tbody td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: top;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--gray-50); }
+
+  /* ── Metric cards ─────────────────────────────────────────────── */
+  .metric-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 14px 0;
+  }
+  .metric-card {
+    background: #fff; border: 1px solid var(--gray-200);
+    border-radius: 10px; padding: 16px;
+    text-align: center;
+  }
+  .metric-card .label { font-size: 11px; color: var(--gray-400); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+  .metric-card .val { font-size: 28px; font-weight: 800; color: var(--gray-900); margin: 4px 0; }
+  .metric-card .sub { font-size: 12px; color: var(--gray-400); }
+  .metric-card.best { border-top: 3px solid var(--green); }
+  .metric-card.best .val { color: var(--green); }
+
+  /* ── Limit tags ───────────────────────────────────────────────── */
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px; margin-right: 4px;
+  }
+  .tag-guard { background: var(--orange-light); color: var(--orange); }
+  .tag-data  { background: var(--red-light);    color: var(--red); }
+  .tag-est   { background: var(--purple-light);  color: var(--purple); }
+  .tag-ok    { background: var(--green-light);   color: var(--green); }
+
+  /* ── Decision boxes ───────────────────────────────────────────── */
+  .decision {
+    background: #fff; border: 1px solid var(--gray-200);
+    border-radius: 8px; padding: 16px 18px; margin: 10px 0;
+    display: flex; gap: 14px;
+  }
+  .decision .q {
+    flex-shrink: 0; font-size: 11px; font-weight: 700;
+    color: var(--accent); letter-spacing: .04em;
+    width: 140px; padding-top: 2px;
+  }
+  .decision .a { font-size: 13.5px; color: var(--gray-700); line-height: 1.6; }
+
+  /* ── Todo table ───────────────────────────────────────────────── */
+  .todo-done { text-decoration: line-through; color: var(--gray-400); }
+
+  /* ── Callout ──────────────────────────────────────────────────── */
+  .callout {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--orange-light); border: 1px solid #fcd34d;
+    border-radius: 8px; padding: 12px 16px; margin: 14px 0;
+    font-size: 13.5px; color: #92400e;
+  }
+  .callout .icon { flex-shrink: 0; font-size: 16px; margin-top: 1px; }
+
+  hr { border: none; border-top: 1px solid var(--gray-200); margin: 32px 0; }
+
+  footer {
+    margin-top: 60px; padding-top: 20px;
+    border-top: 1px solid var(--gray-200);
+    font-size: 12px; color: var(--gray-400); line-height: 1.6;
+  }
+
+  @media (max-width: 900px) {
+    nav { display: none; }
+    main { padding: 24px 20px; }
+    .purpose-grid, .metric-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<!-- ── Sidebar nav ───────────────────────────────────────── -->
+<nav>
+  <div class="logo">
+    <span>SPEC</span>
+    <h1>arch-law-graph</h1>
+    <p>시스템 명세서 · 2026-06-29</p>
+  </div>
+  <ul>
+    <li><a href="#s1"><span class="num">1</span>목적</a></li>
+    <li><a href="#s2"><span class="num">2</span>전체 데이터 흐름</a></li>
+    <li><a href="#s3"><span class="num">3</span>그래프 데이터 모델</a></li>
+    <li><a href="#s4"><span class="num">4</span>빌더 파이프라인</a></li>
+    <li><a href="#s5"><span class="num">5</span>프론트엔드</a></li>
+    <li><a href="#s6"><span class="num">6</span>백엔드 / RAG</a></li>
+    <li><a href="#s7"><span class="num">7</span>배포 구조</a></li>
+    <li><a href="#s8"><span class="num">8</span>알려진 한계</a></li>
+    <li><a href="#s9"><span class="num">9</span>설계 결정 근거</a></li>
+    <li><a href="#s10"><span class="num">10</span>미구현 후보</a></li>
+  </ul>
+</nav>
+
+<!-- ── Main content ──────────────────────────────────────── -->
+<main>
+
+  <!-- Header -->
+  <div class="doc-header">
+    <div class="badge-row">
+      <span class="badge badge-spec">SPEC v1.0</span>
+      <span class="badge badge-rev">코드 역추론</span>
+      <span class="badge badge-warn">추정 항목 포함</span>
+    </div>
+    <h1>arch-law-graph 시스템 명세서</h1>
+    <p>기준 커밋 b6cd71d &nbsp;·&nbsp; 불확실한 항목은 <span class="tag tag-est">추정</span> 표기</p>
+  </div>
+
+  <!-- 1. 목적 -->
+  <section id="s1">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h2>목적</h2>
+    </div>
+    <p>건축설계 실무자(소장·중간관리자)가 <strong>건축 법령을 빠르게 탐색하고, 기준 수치를 즉답 받으며, 복합 법령을 AI로 해석</strong>하도록 돕는 도구.</p>
+
+    <div class="purpose-grid">
+      <div class="purpose-item">
+        <div class="icon">🔍</div>
+        <strong>탐색 속도</strong>
+        <p>25,000+ 조문을 동의어·초성·피인용 순으로 즉시 검색</p>
+      </div>
+      <div class="purpose-item">
+        <div class="icon">📐</div>
+        <strong>기준 즉답</strong>
+        <p>용도지역·건물용도·연면적 → 국가 상한 vs 도시 조례 비교, 근거 조문 직접 링크</p>
+      </div>
+      <div class="purpose-item">
+        <div class="icon">💬</div>
+        <strong>복합 해석</strong>
+        <p>"적용 가능한지", "단서 조항이 있는지"를 자연어 질의로 확인</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <strong>대상 도메인</strong>
+      <p style="margin-top:6px;font-size:13.5px;">건축법·국토계획법·주차장법·녹색건축물법 등 <strong>법령 29개</strong> + 국토부 <strong>고시 16개</strong> + 전국 84개 시 <strong>조례 309개</strong></p>
+    </div>
+  </section>
+
+  <!-- 2. 데이터 흐름 -->
+  <section id="s2">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h2>전체 데이터 흐름</h2>
+    </div>
+
+    <div class="flow-wrap"><pre>
+[법제처 DRF API]   ← 빌드 전용 (국내 IP만 허용)
+      │
+      ▼  build_graph.py
+[data/graph.json]  노드 25,235 / 엣지 71,804
+      │
+      ├── build_embeddings.py ──► embeddings.npy
+      │     Voyage voyage-3-large · 17,928벡터 · L2정규화
+      │
+      ├── gen_card_data.py ──────► zoning_auto.js · landscape_auto.js
+      │     (정규식 자동 추출)
+      │
+      └── gen_*_llm.py ──────────► parking_auto.js · setback_auto.js
+            (Claude temp0 추출)         review_auto.js · incentive_auto.js
+
+[브라우저]
+  ├── SPA(React/Vite) ◄── nginx :8080 정적 서빙
+  │     data.js: runtime fetch(graph.json ?url 에셋)
+  │     JS 번들 102KB gzip / graph.json 별도 캐싱
+  │
+  └── /api/chat → nginx → uvicorn :8001 → rag_engine.py
+        RRF 검색 → Claude SSE → 브라우저 스트리밍</pre></div>
+
+    <div class="callout">
+      <span class="icon">⚠️</span>
+      법제처 API는 <strong>빌드 전용</strong> — 런타임에는 graph.json 정적 스냅샷만 사용. Cloud Run 배포 후 법령 실시간 반영 불가 (일 1회 로컬 갱신 → push → 자동 재배포).
+    </div>
+  </section>
+
+  <!-- 3. 그래프 데이터 모델 -->
+  <section id="s3">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h2>그래프 데이터 모델</h2>
+    </div>
+
+    <h3>노드 스키마</h3>
+    <pre><code><span class="comment">// type=article 노드 예시</span>
+{
+  <span class="str">"id"</span>:          <span class="str">"건축법 시행령/제119조"</span>,   <span class="comment">// &lt;법령명&gt;/&lt;조문번호&gt;</span>
+  <span class="str">"type"</span>:        <span class="str">"article"</span>,
+  <span class="str">"law_nm"</span>:      <span class="str">"건축법 시행령"</span>,
+  <span class="str">"article_no"</span>:  <span class="str">"119"</span>,
+  <span class="str">"title"</span>:       <span class="str">"면적 등의 산정방법"</span>,
+  <span class="str">"content"</span>:     <span class="str">"&lt;조문 본문&gt;"</span>,
+  <span class="str">"category"</span>:    <span class="kw">null</span>,           <span class="comment">// null=국가법령, "고시","조례","판례","해석례"</span>
+  <span class="str">"domain_tags"</span>: [<span class="str">"면적"</span>, <span class="str">"높이"</span>],  <span class="comment">// 검색·도메인 필터용</span>
+  <span class="str">"byeolpyo"</span>:    [{ <span class="str">"title"</span>: <span class="str">"별표1"</span>, <span class="str">"content"</span>: <span class="str">"..."</span> }]
+}</code></pre>
+
+    <p style="font-size:13.5px;"><code>category: null</code> = 국가 법령(법·시행령·시행규칙). 색상·family 분기에 사용.</p>
+
+    <h3>엣지 유형</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>type</th><th>의미</th><th>예시</th></tr></thead>
+      <tbody>
+        <tr><td><code>delegates</code></td><td>위임</td><td>건축법 제61조 → 시행령 제86조</td></tr>
+        <tr><td><code>cites</code></td><td>인용</td><td>시행령 제119조 → 시행규칙 제43조</td></tr>
+        <tr><td><code>applied</code></td><td>판례 적용 조문</td><td>대법원 판결 → 건축법 제14조</td></tr>
+        <tr><td><code>interpreted</code></td><td>해석례 대상 조문</td><td>법령해석 20-0419 → 건축법 제2조</td></tr>
+      </tbody>
+    </table></div>
+
+    <p style="font-size:13px;margin-top:8px;color:var(--gray-600);">피인용 수(<code>citeIn</code>) = <code>applied</code> + <code>interpreted</code> 엣지 수 → 검색 결과 정렬 기준.</p>
+
+    <h3>법령 구성 (29개)</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>패밀리</th><th>포함 법령</th></tr></thead>
+      <tbody>
+        <tr><td>건축법</td><td>건축법·시행령·시행규칙 + 피난방화·설비·구조·대장 규칙</td></tr>
+        <tr><td>국토계획</td><td>국토계획법·시행령·시행규칙</td></tr>
+        <tr><td>주차장</td><td>주차장법·시행령·시행규칙</td></tr>
+        <tr><td>분양·녹색</td><td>건축물분양법·녹색건축물조성지원법 (각 시행령 포함)</td></tr>
+        <tr><td>심의 별도</td><td>도시교통정비법·환경영향평가법·경관법·지하안전법·자연재해법 + 시행령</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 4. 빌더 파이프라인 -->
+  <section id="s4">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h2>빌더 파이프라인</h2>
+    </div>
+
+    <h3>graph.json 빌드 (<code>build_graph.py</code>)</h3>
+    <div class="flow-wrap"><pre>
+법제처 DRF API (target=law/admrul/ordin/prec/expc)
+  │
+  ├── law_go_kr_client.py
+  │     ─ XML 파싱 (조문·별표)
+  │     ─ HWP 첨부 폴백: hwp5html.exe → 박스드로잉 텍스트
+  │     ─ HWPX(zip/OWPML) 폴백: hp:tbl 파싱
+  │     ─ East Asian Width 기반 열 경계 계산 (한글=2칸)
+  │
+  ├── ordin_group.py  ← inventory_ordin.py 자동생성
+  │     ─ 전국 84개 시 × 도시계획·건축·주차·녹색건축 4종
+  │     ─ 주차: 표준접미사 화이트리스트로 부속조례 배제
+  │
+  ├── 판례/해석례: 키워드 19개 · cap 판례 100, 해석례 150
+  │     ─ 참조조문 파싱 → applied/interpreted 엣지 생성
+  │
+  └── 직렬화
+        ─ built_at 타임스탬프 포함 (해시 비교 시 제외)
+        ─ 빈 결과 → exit 1 (자동갱신 안전장치)</pre></div>
+
+    <h3>기준 카드 데이터 생성</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;">
+      <div class="card green">
+        <strong>경로 A — 정규식 추출</strong><br>
+        <code style="font-size:11px;">gen_card_data.py</code><br>
+        <p style="font-size:13px;margin-top:8px;">건폐율·용적률·조경. <code>100분의 N</code>, <code>N%</code> 등 수치 패턴 추출. 표기 정규화(공백 이름 매칭, "의" 조사 선택, 공장 줄 제외). 소스 미발견 → <code>null</code>.</p>
+      </div>
+      <div class="card accent">
+        <strong>경로 B — LLM 추출</strong><br>
+        <code style="font-size:11px;">gen_*_llm.py</code><br>
+        <p style="font-size:13px;margin-top:8px;">주차·이격·심의·완화. graph 별표 원문 → Claude (sonnet-4-6, temp=0) → 표준 JSON. 프롬프트에 9개 표준 용도 사전 주입 → 모델은 수치만 채움.</p>
+      </div>
+    </div>
+
+    <h3>벡터 임베딩 (<code>build_embeddings.py</code>)</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>항목</th><th>값</th></tr></thead>
+      <tbody>
+        <tr><td>입력 텍스트</td><td><code>법령명 + 제N조 제목 + 본문</code> (최대 1600자)</td></tr>
+        <tr><td>모델</td><td>Voyage voyage-3-large · dim=1024</td></tr>
+        <tr><td>배치</td><td>64건 · 5회 재시도</td></tr>
+        <tr><td>저장 형식</td><td>float16 행렬(<code>embeddings.npy</code>) + 메타(<code>embeddings_meta.json</code>)</td></tr>
+        <tr><td>정규화</td><td>L2 정규화 (코사인 = 내적으로 계산 가능)</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>자동갱신 (<code>refresh_local.ps1</code>)</h3>
+    <div class="flow-wrap"><pre>
+Windows 작업 스케줄러  매일 09:00
+  │
+  ├── 해시(built_at 제외) 비교 → 변경 없으면 graph.json 원복 후 종료
+  ├── build_graph.py 실행
+  │     실패(exit 1) → 파일 미작성, 커밋 안 함
+  └── 변경 있으면 git commit + push
+        → Cloud Run 자동 재배포 트리거</pre></div>
+    <div class="callout">
+      <span class="icon">⚠️</span>
+      GitHub Actions 크론 <strong>비활성화</strong> — 법제처 API가 GH 러너(해외 IP) 차단. 로컬 PC에서만 빌드 가능.
+    </div>
+  </section>
+
+  <!-- 5. 프론트엔드 -->
+  <section id="s5">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <h2>프론트엔드 아키텍처</h2>
+    </div>
+
+    <h3>데이터 로딩 (<code>data.js</code>)</h3>
+    <p>graph.json(~58MB)을 Vite <code>?url</code> 에셋으로 번들 분리 → 브라우저 런타임 fetch(top-level await). JS 번들 7.3MB gzip → <strong>102KB gzip (98.5% 감소)</strong>. graph.json은 브라우저 캐시 개별 관리.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>심볼</th><th>용도</th></tr></thead>
+      <tbody>
+        <tr><td><code>nodeById</code></td><td>id → 노드 O(1) 조회</td></tr>
+        <tr><td><code>articlesByLaw</code></td><td>법령명 → 조문 배열</td></tr>
+        <tr><td><code>citeIn</code></td><td>노드 id → 피인용 수 (검색 정렬)</td></tr>
+        <tr><td><code>inRel / outRel</code></td><td>인용/피인용 엣지 목록</td></tr>
+        <tr><td><code>lawColor()</code></td><td>category → 색상 팔레트</td></tr>
+        <tr><td><code>familyOf()</code></td><td>법령명 → 패밀리 레이블</td></tr>
+        <tr><td><code>DOMAINS / domainCount</code></td><td>도메인 태그 필터용</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>3가지 UI 모드</h3>
+
+    <h4>모드 1 — 🔍 검색</h4>
+    <div class="card">
+      <p style="font-size:13.5px;">검색어 파싱: <code>"정확한 구절"</code>(따옴표) · <code>-제외어</code> · 스페이스 AND. 정렬: 피인용 수 내림차순.</p>
+      <p style="font-size:13px;margin-top:6px;color:var(--gray-600);">부가: 동의어 그룹 20개 · 초성 검색 · 도메인 칩 필터 · ★ 북마크(localStorage) · URL 딥링크(<code>?q=</code>, <code>?node=</code>)</p>
+    </div>
+
+    <h4>모드 2 — 📐 기준 조회</h4>
+    <p style="font-size:13.5px;margin-bottom:10px;">선택 흐름: 지역 스위처(REGIONS) → 서브탭 6종</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>카드</th><th>입력</th><th>출력</th></tr></thead>
+      <tbody>
+        <tr><td>ComplianceCard</td><td>용도지역</td><td>건폐율·용적률·일조 (국가 vs 도시)</td></tr>
+        <tr><td>ParkingCard</td><td>건물 용도</td><td>부설주차 설치기준 (국가 vs 도시)</td></tr>
+        <tr><td>SetbackCard</td><td>건물 용도</td><td>대지 안의 공지 이격 (국가 vs 도시)</td></tr>
+        <tr><td>LandscapeCard</td><td>연면적</td><td>조경 의무면적 비율 (국가 vs 도시)</td></tr>
+        <tr><td>IncentiveCard</td><td>용도지역</td><td>완화·혜택 (공개공지·녹색·임대 등)</td></tr>
+        <tr><td>ReviewCard</td><td>용도·규모</td><td>건축위원회 심의 대상 체크리스트</td></tr>
+      </tbody>
+    </table></div>
+
+    <p style="font-size:13px;margin-top:8px;"><strong>데이터 계층:</strong> 손큐레이션(<code>*.js</code>, 기존 17개 시) + 자동생성(<code>*_auto.js</code>, 신규 67개 시) → import+spread 병합. 지역 코드: 특·광역시 2자리, 기초시 5자리 법정동코드.</p>
+
+    <h4>모드 3 — 💬 AI 질의</h4>
+    <div class="card">
+      <p style="font-size:13.5px;">사이드 드로어(backdrop 없음) — Reader 동시 사용 가능. 현재 열린 조문 id(<code>selected_id</code>) 자동 컨텍스트 주입. 스트리밍 중 <code>▋</code> 커서 → 완료 후 <code>"법령명 제N조"</code> 패턴 인라인 참조 버튼 활성화 → 클릭 시 Reader 원문 열기.</p>
+    </div>
+
+    <h3>별표 파싱 (<code>lib/lawContent.jsx</code>)</h3>
+    <div class="flow-wrap"><pre>
+선문자(박스드로잉) 표 텍스트
+  │
+  ├── 세로선(│) 위치 → 열 경계 감지 (East Asian Width: 한글=2칸)
+  ├── 가로선(─) 위치 → 행 경계
+  └── 셀 내용 추출 → &lt;table&gt;&lt;tr&gt;&lt;td&gt; 생성
+                실패 시 &lt;pre&gt; 폴백</pre></div>
+  </section>
+
+  <!-- 6. 백엔드 / RAG -->
+  <section id="s6">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <h2>백엔드 / RAG 파이프라인</h2>
+    </div>
+
+    <h3>FastAPI 엔드포인트 (<code>main.py</code>)</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>경로</th><th>용도</th></tr></thead>
+      <tbody>
+        <tr><td><code>GET /api/ping</code></td><td>헬스체크</td></tr>
+        <tr><td><code>POST /api/chat</code></td><td>SSE 스트리밍 질의응답 (RAGEngine.answer_stream)</td></tr>
+        <tr><td><code>POST /api/lookup</code></td><td>조문 원문 배치 조회 (외부 앱 그라운딩용)</td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;margin-top:6px;color:var(--gray-600);">RAGEngine 싱글톤 — 앱 시작 시 graph.json + embeddings.npy 전부 메모리 로드.</p>
+
+    <h3>검색 알고리즘 (<code>search()</code>)</h3>
+    <div class="flow-wrap"><pre>
+query
+  │
+  ├── _norm_query()  도메인 약어 정규화
+  │     건폐 → 건폐율 · 이격거리 → 대지공지 · 일조권 → 높이·일조 등
+  │
+  ├── [Voyage 있음] _rrf_search()
+  │     ├── _vector_search(POOL=30)
+  │     │     Voyage 임베딩 코사인, 런타임 질의 임베딩
+  │     ├── _keyword_search(POOL=30)
+  │     │     제목·법령명 3× · 본문 1× · 도메인태그 2× 가중 스코어
+  │     └── RRF(k=60): score += 1/(60+rank) → 합산 후 top-12
+  │
+  ├── [Voyage 없음] _keyword_search(top_k=12)
+  │
+  └── _apply_pins()  도메인 핀
+        ─ "건폐율" + ("국가"|"시행령"|"상한"|"법령"|"상위법")
+              → 시행령 제84조 강제 포함 (맨 앞)
+        ─ "용적률" + 동일 트리거
+              → 시행령 제85조 강제 포함 (맨 앞)</pre></div>
+
+    <h3>답변 생성 (<code>answer_stream()</code>)</h3>
+    <div class="flow-wrap"><pre>
+top-12 조문  →  _fmt(max_chars=6000)  →  컨텍스트 블록
+  │
+  ├── selected_id 있으면 맨 앞에 추가 (현재 열린 조문 우선)
+  │
+  └── Claude API  (claude-sonnet-4-6 · max_tokens=2500 · SSE)
+        system: 건축사 페르소나 + 조문 근거 원칙
+                "조문에 없는 내용은 DB 확인 불가"</pre></div>
+
+    <h3>성능 벤치마크 (<code>builder/eval_rag.py</code>, 34문항)</h3>
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="label">키워드 FTS</div>
+        <div class="val">38%</div>
+        <div class="sub">결론 일치 · factual 21%</div>
+      </div>
+      <div class="metric-card">
+        <div class="label">+ RRF</div>
+        <div class="val">71%</div>
+        <div class="sub">결론 일치 · factual 63%</div>
+      </div>
+      <div class="metric-card best">
+        <div class="label">+ 핀 + max_chars</div>
+        <div class="val">88%</div>
+        <div class="sub">결론 일치 · factual 95% · 법령인용 97%</div>
+      </div>
+    </div>
+    <p style="font-size:12.5px;color:var(--gray-400);margin-top:6px;">Judge: claude-opus-4-8 (tool_choice 강제 구조화 출력) · RAG 생성: claude-sonnet-4-6</p>
+  </section>
+
+  <!-- 7. 배포 -->
+  <section id="s7">
+    <div class="section-header">
+      <div class="section-num">7</div>
+      <h2>배포 구조</h2>
+    </div>
+
+    <h3>Docker multistage</h3>
+    <div class="flow-wrap"><pre>
+Stage 1  node:20-alpine
+  └── cd web && npm ci && npm run build  →  /dist
+
+Stage 2  python:3.12-slim
+  └── pip install -r backend/requirements.txt
+
+Stage 3 (런타임)  python:3.12-slim + nginx :8080
+  ├── /dist            Vite 정적 빌드 결과
+  ├── data/            graph.json · embeddings.npy
+  ├── backend/         FastAPI
+  └── startup.sh       uvicorn :8001 + nginx :8080 동시 실행</pre></div>
+
+    <h3>nginx 설정</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>경로</th><th>처리</th></tr></thead>
+      <tbody>
+        <tr><td><code>/api/</code></td><td>→ 127.0.0.1:8001 프록시 · SSE 버퍼링 OFF · 타임아웃 120s</td></tr>
+        <tr><td><code>/assets/</code></td><td>1년 캐시 (Vite 해시 파일명)</td></tr>
+        <tr><td>그 외</td><td>SPA fallback → index.html · gzip 압축</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Cloud Run 환경변수</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>변수</th><th>필요</th><th>용도</th></tr></thead>
+      <tbody>
+        <tr><td><code>ANTHROPIC_API_KEY</code></td><td><span class="tag tag-data">필수</span></td><td>Claude API (RAG 답변 생성)</td></tr>
+        <tr><td><code>VOYAGE_API_KEY</code></td><td><span class="tag tag-guard">선택</span></td><td>벡터 임베딩 (없으면 키워드 FTS 폴백)</td></tr>
+        <tr><td><code>ANTHROPIC_MODEL</code></td><td><span class="tag tag-guard">선택</span></td><td>기본값 <code>claude-sonnet-4-6</code></td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:13px;margin-top:6px;color:var(--gray-600);"><code>.env</code>는 <code>.dockerignore</code>로 컨테이너 미포함 → GCP Console에서 별도 설정 필요.</p>
+  </section>
+
+  <!-- 8. 한계 -->
+  <section id="s8">
+    <div class="section-header">
+      <div class="section-num">8</div>
+      <h2>알려진 한계</h2>
+    </div>
+
+    <h3>데이터 한계</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>법령 실시간성</td><td>오프라인 스냅샷. 법제처 개정 후 당일 갱신 불가 (최대 1일 지연)</td></tr>
+        <tr><td>수원 주차 <span class="tag tag-data">영구 guard</span></td><td>법제처 DB에 일반 주차장 설치 조례 미등록</td></tr>
+        <tr><td>이격 7개 도시 <span class="tag tag-data">영구 guard</span></td><td>여주·동두천·원주·논산·영천·문경·양산 — 조례 자체에 별표 없음</td></tr>
+        <tr><td>부산 단독주택 주차</td><td>세부 데이터 미보유 (eval pk_busan_1 실패)</td></tr>
+        <tr><td>군(郡) 지역</td><td>카드 미생성, 검색·RAG만 지원</td></tr>
+        <tr><td>HWP 전용 조례 <span class="tag tag-est">추정</span></td><td>pyhwp 변환 — Windows 콘솔 exe 직접 호출 필요, CI 환경 불가</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>검색·RAG 한계</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>"DB 확인 불가" 패턴</td><td>조문에 없는 수치는 모델이 답변 거부 (시스템 프롬프트 의도적 설계)</td></tr>
+        <tr><td>임베딩 staleness</td><td>graph.json 갱신 후 <code>build_embeddings.py</code> 재실행 안 하면 검색 품질 저하</td></tr>
+        <tr><td>키워드 FTS noise</td><td>"국가", "상한" 같은 범용 토큰이 무관한 장문 조문(별표) 상위 랭킹 유발</td></tr>
+        <tr><td>복합 쿼리</td><td>건폐율+일조 동시 질문 시 한쪽 누락 가능 (eval complex_1 실패)</td></tr>
+        <tr><td>완화 복합 reasoning</td><td>녹색건축 완화율 같은 조건부 수치 오해 가능 (eval incentive_1)</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>빌드·운영 한계</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>항목</th><th>내용</th></tr></thead>
+      <tbody>
+        <tr><td>법제처 IP 차단</td><td>해외 IP(GH Actions) 차단 → 로컬에서만 빌드 가능</td></tr>
+        <tr><td>특정 조례만 업데이트 <span class="tag tag-est">추정</span></td><td><code>--only</code> 옵션이 법령 단위만 지원 (조례 단위 선택 불가)</td></tr>
+        <tr><td>LLM 추출 비용 <span class="tag tag-est">추정</span></td><td>gen_*_llm.py 전체 재실행 시 Claude API 비용 발생 (수백 건 × API 호출)</td></tr>
+        <tr><td>단일 컨테이너</td><td>uvicorn + nginx 같은 프로세스 → 백엔드 재시작 시 정적 서빙도 중단</td></tr>
+        <tr><td>메모리 상시 점유</td><td>graph.json(~58MB) + embeddings.npy(~35MB <span class="tag tag-est">추정</span>) 상시 로드</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 9. 설계 결정 근거 -->
+  <section id="s9">
+    <div class="section-header">
+      <div class="section-num">9</div>
+      <h2>설계 결정 근거 (역추론)</h2>
+    </div>
+
+    <div class="decision">
+      <div class="q">graph.json ?url 분리</div>
+      <div class="a">JS 번들에 58MB JSON 인라인 → 빌드 결과 7.3MB gzip. <code>?url</code> 분리로 그래프 캐싱·JS 캐싱 독립 관리 — JS 수정 시 그래프 재다운로드 불필요.</div>
+    </div>
+
+    <div class="decision">
+      <div class="q">손큐레이션 + 자동생성 이중 계층</div>
+      <div class="a">초기 17개 도시는 직접 큐레이션(정확도 높음). 전국 84개를 모두 손큐레이션하면 비용 과다 → 정규식/LLM 자동 추출 후 손큐레이션을 ground_truth로 검증.</div>
+    </div>
+
+    <div class="decision">
+      <div class="q">RRF + 도메인 핀 조합</div>
+      <div class="a">벡터 단독 → "제2종전용주거지역"처럼 조례에 많이 등장하는 용어로 국가법(시행령 제84조)이 밀림. 키워드 FTS 단독 → "국가", "상한" 같은 범용 토큰으로 무관 문서 상위. RRF로 융합하고 핀으로 BCR/FAR 국가 기준 조문 보장.</div>
+    </div>
+
+    <div class="decision">
+      <div class="q">ChatPanel backdrop 제거</div>
+      <div class="a">사이드 드로어 방식으로 Reader를 가리지 않으면 "AI 답변 보면서 원문 확인" 워크플로 가능. backdrop이 있으면 Reader 스크롤·클릭이 막혀 실무 사용성 저하.</div>
+    </div>
+
+    <div class="decision">
+      <div class="q">Judge 모델 opus-4-8 고정</div>
+      <div class="a">RAG 답변 생성(sonnet-4-6)보다 상위 모델로 판정해야 judge 신뢰도 확보. <code>tool_choice</code> 강제로 구조화 JSON 출력 → 파싱 오류 없이 평가 자동화.</div>
+    </div>
+
+    <div class="decision">
+      <div class="q">빌드 venv를 자매 앱 공유 <span class="tag tag-est">추정</span></div>
+      <div class="a">빌더 의존성(networkx·httpx·fastapi·anthropic 등)이 arch-law-diagnose 백엔드와 겹침. 별도 venv 관리 비용 절약 목적으로 보임.</div>
+    </div>
+  </section>
+
+  <!-- 10. 미구현 -->
+  <section id="s10">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <h2>미구현 / 향후 후보</h2>
+    </div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>항목</th><th>상태</th></tr></thead>
+      <tbody>
+        <tr><td>주소 → 용도지역 자동조회 (VWorld API)</td><td>미구현</td></tr>
+        <tr><td>판례·해석례 확대 (신규 토픽 키워드)</td><td>미구현</td></tr>
+        <tr><td>멀티턴 컨텍스트 (이전 대화 주입)</td><td>미구현</td></tr>
+        <tr><td>군(郡) 지역 카드</td><td>미구현 (검색·RAG만)</td></tr>
+        <tr><td>주차·이격 별표 기계화 전환</td><td>LLM 추출 유지 중</td></tr>
+        <tr class="todo-done"><td>하이브리드 RAG (키워드+벡터 융합)</td><td><span class="tag tag-ok">완료 — RRF로 구현</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <footer>
+    <p>이 문서는 코드 역추론 기반으로 작성되었습니다. 공식 설계 문서가 아니며, 실제 동작과 일부 차이가 있을 수 있습니다.</p>
+    <p style="margin-top:4px;">생성: Claude Sonnet 4.6 · 기준 커밋 b6cd71d (2026-06-29)</p>
+  </footer>
+
+</main>
+</div>
+</body>
+</html>
