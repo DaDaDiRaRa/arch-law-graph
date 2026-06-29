@@ -36,7 +36,7 @@ builder/             # Python — 법제처 fetch → graph.json 빌드
 
 backend/             # FastAPI — AI 자연어 질의 API (SSE 스트리밍)
   main.py            # /api/ping, /api/chat
-  rag_engine.py      # Voyage 코사인 벡터검색 → Claude API (키워드 FTS 폴백)
+  rag_engine.py      # RRF 하이브리드(벡터+키워드 top-30 융합) + 도메인 핀 → Claude API (키워드 FTS 폴백)
 
 web/src/             # React/Vite SPA
   views/             # SearchView, ChatPanel, ComplianceCard, ParkingCard, ...

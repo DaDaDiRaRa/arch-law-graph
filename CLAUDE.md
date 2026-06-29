@@ -25,7 +25,7 @@ builder/          # Python — 법제처 fetch → graph.json 빌드
 backend/          # Python — FastAPI 자연어 질의 API (런타임)
   __init__.py
   main.py         # FastAPI app — /api/ping, /api/chat (SSE 스트리밍)
-  rag_engine.py   # 벡터검색(Voyage 임베딩 코사인) → Claude API. 임베딩 없으면 키워드 FTS 폴백
+  rag_engine.py   # RRF 하이브리드(벡터 top-30 + 키워드 top-30 → RRF k=60) → Claude API. 벡터 없으면 키워드 FTS 폴백. 도메인 핀(_PIN_RULES)으로 건폐율/용적률 국가 기준 쿼리에 시행령 제84·85조 고정 주입
   requirements.txt  # fastapi, uvicorn[standard], anthropic, python-dotenv
 
 web/src/
@@ -73,7 +73,7 @@ nginx.conf        # port 8080, gzip, /api/ → uvicorn 프록시(SSE buffering o
   - **충실성 원칙**: 모든 카드 값은 graph 원문 수치 그대로. 기계적 추출은 표기만 정규화(100분의 N·공백 이름·조사 생략·공장줄 제외). 소스 없는 도시·항목은 "준비중" guard(예: 원주 일반 조경, 수원 주차) — 지어내지 않음.
   - 코드 체계: 특·광역시·특별자치 = 2자리("11"서울), 기초시 = 5자리 법정동코드(`gen_card_data.py` CITY_CODE). 경기도는 도단위라 카드 미생성(조례는 graph에 두어 검색·RAG만).
 - **번들 최적화(2026-06-29)**: graph.json(~58MB)을 `?url` 정적 에셋으로 분리 + `data.js` top-level await fetch → **JS 번들 7.3MB→110KB gzip(98.5%↓)**. graph는 별도 캐싱·JSON.parse. `vite.config.js` build.target es2022, `index.html` 로딩 스피너.
-- **AI 자연어 질의(Stage 3 + C-3 벡터RAG)**: 오른쪽 하단 `💬` 버튼 → 사이드 드로어. **Voyage 임베딩 의미검색**(`data/embeddings.npy` 코사인 top_k=12, 질의만 런타임 임베딩) → Claude API SSE 스트리밍. 의미가 통하면 단어가 안 겹쳐도 매칭(예 "옆 건물과 얼마나 떨어뜨려야" → 대지 안의 공지). `VOYAGE_API_KEY`/`embeddings.npy` 없으면 키워드 FTS로 자동 폴백. 답변 내 `법령명 제N조` 패턴 자동 파싱 → 클릭 시 Reader 원문. selected_id 자동 컨텍스트 주입. 하단 근거 조문 칩 병행.
+- **AI 자연어 질의(Stage 3 + C-3 + RRF 하이브리드)**: 오른쪽 하단 `💬` 버튼 → 사이드 드로어. **RRF 하이브리드 검색**(Voyage 벡터 top-30 + 키워드 top-30 → RRF k=60 → top-12) + **도메인 핀**(`_PIN_RULES`: 건폐율/용적률 + 국가·시행령·상위법 키워드 시 시행령 제84·85조 고정 포함) → Claude API SSE 스트리밍. 컨텍스트 max_chars=6000(시행령 제84조 5187자 완전 포함). 의미가 통하면 단어가 안 겹쳐도 매칭(예 "옆 건물과 얼마나 떨어뜨려야" → 대지 안의 공지). `VOYAGE_API_KEY`/`embeddings.npy` 없으면 키워드 FTS로 자동 폴백. 답변 내 `법령명 제N조` 패턴 자동 파싱 → 클릭 시 Reader 원문. selected_id 자동 컨텍스트 주입. 하단 근거 조문 칩 병행. **eval 결과**: `builder/eval_rag.py` 34문항 → 결론 일치 38%(키워드FTS) → 71%(RRF) → **88%(RRF+핀+chars)**, 법령 인용 97%.
 - **HWP 별표 폴백**: 부산·인천 조례 별표는 본문이 HWP 첨부뿐(별표구분='서식'으로 표기). 빌더가 `별표첨부파일명` URL → 다운로드 → `pyhwp(hwp5html)` 변환 → HTML 표를 **선문자(박스드로잉) 텍스트**로 렌더해 graph.json 별표 content 채움. ⚠ `-m hwp5.hwp5html`는 Windows에서 빈 출력 → 콘솔 `.exe` 직접 호출.
 - **법제처 API 접근**: 이 로컬 머신(국내 IP)에서 직접 작동 → 재빌드·조례 fetch 가능. GH Actions만 차단됨.
 - **배포**: Cloud Run (GitHub push → 자동 재배포). Cloud Run 환경변수에 `ANTHROPIC_API_KEY` 설정 필요.
@@ -271,6 +271,7 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 | incentive_auto import만 하고 spread 누락 → 완화 미반영 | `...BENEFIT_AUTO` 배열 추가(빌드는 통과해 시각확인서 발견) |
 | HWP 별표 게이트가 `공지\|주차` 신호 누락 → 이격·주차 별표 미fetch | `_BP_TABLE_TITLE`에 `공지\|주차\|이격\|조경` 추가 → 이격 64→77, 주차 65→66 |
 | 묶음 HWP("[별표 1]~[별표 N]") 제목이 게이트 미통과 → 전체 스킵 | `_BP_BUNDLE_TITLE` + `_split_box_tables()` + `_classify_byeolpyo_table()` 추가, 묶음 분할 후 개별 표 판별 |
+| RAG 벡터 검색이 조례 조문에 밀려 국가법(시행령 제84조) 미반환 → "DB 확인 불가" hedging | RRF 하이브리드(벡터+키워드 융합) + 도메인 핀(`_PIN_RULES`) + max_chars 1500→6000 → 결론 일치 38%→88% (`builder/eval_rag.py`) |
 
 ---
 
@@ -290,11 +291,12 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 
 1. ✅ **검색 고도화(C-1, 완료)** — 동의어(20그룹)+초성 검색. `web/src/search.js`, SearchView 매칭. 동의어는 리터럴 superset, 초성은 head(제목·법령명) 단어 내 매칭.
 2. ✅ **인용 관계 시각화(C-2, 완료)** — Reader에 인용/피인용 SVG 미니 그래프(`CiteGraph`). 중앙=현재 조문, 좌=피인용·우=인용, 노드 클릭 이동.
-3. ✅ **채팅 벡터 RAG(C-3, 완료)** — Voyage(voyage-3-large 1024d) 임베딩 의미검색. `build_embeddings.py`→`embeddings.npy`, rag_engine 코사인 top_k + 키워드 폴백. 남은 후보: 하이브리드(키워드+벡터) 가중, 신규 토픽 우선 힌트, 주소→용도지역 자동조회(VWorld).
+3. ✅ **채팅 벡터 RAG(C-3, 완료)** — Voyage(voyage-3-large 1024d) 임베딩 의미검색. `build_embeddings.py`→`embeddings.npy`, rag_engine 코사인 top_k + 키워드 폴백.
+4. ✅ **RAG 하이브리드 검색(C-3 확장, 완료)** — RRF(벡터+키워드 융합) + 도메인 핀 + max_chars 확대. `builder/eval_rag.py` 34문항 평가 하네스. 결론 일치 38%→88%, 법령 인용 59%→97%. 잔존: pk_busan 데이터 부재(영구 guard), complex/incentive 복합 추론. 남은 후보: 주소→용도지역 자동조회(VWorld), 판례·해석례 확대.
 
 ### D. 운영·배포
 
 1. **Cloud Run 배포** — GitHub push → 자동 재배포. ⚠ `ANTHROPIC_API_KEY`가 Cloud Run 환경변수에 설정돼야 AI 채팅 작동(`.env`는 컨테이너 미포함).
 2. **데이터 자동갱신** — 로컬 작업 스케줄러(매일 09:00, `scripts/refresh_local.ps1`)가 graph.json 갱신. ⚠ 신규 조례는 `ordin_group.py`(inventory 자동생성)에 있어야 추적됨 — 새 지자체 추가 시 `inventory_ordin.py` 재실행 필요.
 
-> 진행: B(지자체 전국)·C-1·C-2·C-3·A-1(이격 64→77·주차 65→66·심의 46→77) 완료. 다음 후보: **주소→용도지역 자동조회(VWorld, C-3 확장)** · **하이브리드 RAG(키워드+벡터)** · **판례·해석례 확대(B-2)**.
+> 진행: B(지자체 전국)·C-1·C-2·C-3·C-3확장(RRF+핀)·A-1(이격 64→77·주차 65→66·심의 46→77) 완료. 다음 후보: **주소→용도지역 자동조회(VWorld)** · **판례·해석례 확대(B-2)**.
