@@ -45,18 +45,58 @@ def load_nodes():
     return json.loads((ROOT / "data" / "graph.json").read_text(encoding="utf-8"))["nodes"]
 
 
+_BAD_TITLE = ("소위원회", "민원전문위원회", "전문위원회", "회의록", "비치")
+_GOOD_TITLE = ("심의대상", "심의 대상", "심의사항")
+
+
+def _title_spec(t: str) -> int:
+    """제목 기반 특이성 점수 (높을수록 실제 심의대상 조문)."""
+    if any(kw in t for kw in _GOOD_TITLE):
+        return 4  # 심의대상/심의사항이 제목에 명시
+    if "기능" in t or ("심의" in t and "등" in t):
+        return 3  # 건축위원회 기능, 심의 등
+    if any(kw in t for kw in _BAD_TITLE):
+        return 1  # 소위원회·전문위원회 등 부속 조문
+    return 2
+
+
 def gather(nodes, city):
-    """심의대상 조문(영 제5조의5 8호 언급 + 심의대상) 본문 + ref id."""
-    best = ("", "")
+    """심의대상 조문(영 제5조의5 8호 언급 + 심의대상) 본문 + ref id.
+
+    우선순위 정렬: (score DESC, title_spec DESC, len DESC)
+    score 3 — 제목(위원회/심의) + 내용 모두 매칭
+    score 2 — 내용에만 명시적 심의대상 키워드
+    score 1 — 제목만 매칭 + 내용 200자 이상
+
+    content_ok 키워드:
+      심의대상/심의 대상/심의를 거쳐야/심의를 받아야 — 직접 표현
+      제5조의5제1항제8호 — 위임근거 명시 (§5조의5.①.8호에 따라 xxx 심의한다)
+      제5조의5제1항에   — 기능 조문형 위임 (§5조의5.①에 따라 위원회는 다음 각 호를 심의)
+    """
+    candidates: list[tuple[int, int, int, str, str]] = []  # (score, spec, len, content, id)
     for n in nodes:
         law = n.get("law_nm", "")
         if city not in law or ("건축 조례" not in law and "건축조례" not in law):
             continue
         t, c = n.get("title", ""), n.get("content", "") or ""
-        if ("위원회" in t or "심의" in t) and ("제5조의5" in c or "심의대상" in c or "심의 대상" in c):
-            if len(c) > len(best[0]):
-                best = (c, n.get("id", ""))
-    return best if best[0] else None
+        title_ok = "위원회" in t or "심의" in t
+        content_ok = ("심의대상" in c or "심의 대상" in c
+                      or "심의를 거쳐야" in c or "심의를 받아야" in c
+                      or "제5조의5제1항제8호" in c
+                      or "제5조의5제1항에" in c)  # 기능 조문형 위임 표현
+        if title_ok and content_ok:
+            score = 3
+        elif content_ok:
+            score = 2
+        elif title_ok and len(c) > 200:
+            score = 1
+        else:
+            continue
+        candidates.append((score, _title_spec(t), len(c), c, n.get("id", "")))
+    if not candidates:
+        return None
+    candidates.sort(key=lambda x: (x[0], x[1], x[2]), reverse=True)
+    return (candidates[0][3], candidates[0][4])
 
 
 def extract(client, city, art):
