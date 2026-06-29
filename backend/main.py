@@ -75,6 +75,7 @@ async def lookup_zoning(address: str = Query(..., description="도로명 또는 
     async with httpx.AsyncClient(timeout=10.0, headers={"Referer": VWORLD_REFERER}) as client:
         # 1. 주소 → 좌표 (도로명 우선, 실패 시 지번)
         geo = None
+        diag = {"recv": address}  # 진단용 — 프로덕션 geocoding 실패 원인 추적
         for addr_type in ("road", "parcel"):
             r = await client.get(
                 "https://api.vworld.kr/req/address",
@@ -91,13 +92,19 @@ async def lookup_zoning(address: str = Query(..., description="도로명 또는 
                     "key": VWORLD_KEY,
                 },
             )
-            data = r.json()
-            if data.get("response", {}).get("status") == "OK":
-                geo = data["response"]
+            body = r.json()
+            resp = body.get("response", {})
+            diag[addr_type] = {
+                "status": resp.get("status"),
+                "error": resp.get("error"),
+                "http": r.status_code,
+            }
+            if resp.get("status") == "OK":
+                geo = resp
                 break
 
         if not geo:
-            return {"error": "주소를 찾을 수 없습니다. 더 구체적인 주소를 입력해 주세요."}
+            return {"error": "주소를 찾을 수 없습니다. 더 구체적인 주소를 입력해 주세요.", "_diag": diag}
 
         point = geo["result"]["point"]
         x = float(point["x"])  # 경도 (longitude)
