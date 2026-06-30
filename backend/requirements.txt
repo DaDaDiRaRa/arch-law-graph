@@ -1,6 +1,8 @@
-# 버전 핀(==) — 미핀(>=) 시 빌드 캐시 무효화될 때마다 최신 메이저가 설치되어
-# fastapi/starlette 1.x가 @app.on_event 를 제거 → uvicorn 기동 실패(502) 발생함.
-# 검증된 조합(자매앱 arch-law-diagnose와 동일 라인). starlette 0.41.x는 on_event 동작.
+# 버전 핀(==) — 재현 가능한 컨테이너 빌드를 위해 정확 핀 유지.
+# (과거: 미핀 시 fastapi/starlette 1.x가 @app.on_event 를 제거 → 502. 현재는
+#  lifespan 핸들러로 이전(backend/main.py)해 on_event 의존을 없앴으므로 그 사유는 해소됨.
+#  핀은 이제 안정성 목적이며, 업그레이드 시 Docker 빌드로 검증 후 일괄 갱신 권장.)
+# 검증된 조합(자매앱 arch-law-diagnose와 동일 라인).
 fastapi==0.115.5
 uvicorn[standard]==0.32.1
 anthropic==0.40.0

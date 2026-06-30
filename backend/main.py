@@ -1,5 +1,6 @@
 import json
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -7,12 +8,15 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
 
 import httpx
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from .rag_engine import RAGEngine
+
+# 카드 단일소스(B-6 생성물) — /api/standard 가 서빙. 없으면 None(엔드포인트 503).
+_STANDARDS_PATH = Path(__file__).parent.parent / "data" / "standards.json"
 
 # .strip() — 환경변수 값에 앞뒤 공백이 섞여 들어가도(콘솔 입력 실수) VWorld가 키를 거부하지 않도록 방어.
 VWORLD_KEY = os.getenv("VWORLD_API_KEY", "").strip()
@@ -45,21 +49,28 @@ _ZONE_KEY_MAP = {
     "자연환경보전지역": "jayeon",
 }
 
-app = FastAPI(title="arch-law-graph API")
+_engine: RAGEngine | None = None
+_standards: dict | None = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # startup — graph.json + 임베딩을 메모리로 로드 (yield 앞)
+    global _engine, _standards
+    _engine = RAGEngine()
+    if _STANDARDS_PATH.exists():
+        _standards = json.loads(_STANDARDS_PATH.read_text(encoding="utf-8"))
+    yield
+    # shutdown — 별도 정리 불필요(프로세스 종료 시 메모리 해제)
+
+
+app = FastAPI(title="arch-law-graph API", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
     allow_methods=["POST", "GET"],
     allow_headers=["*"],
 )
-
-_engine: RAGEngine | None = None
-
-
-@app.on_event("startup")
-async def startup():
-    global _engine
-    _engine = RAGEngine()
 
 
 @app.get("/api/ping")
@@ -175,6 +186,55 @@ def lookup(req: LookupRequest):
     과도한 요청 방지로 최대 50건만 처리.
     """
     return {"results": _engine.lookup(req.queries[:50])}
+
+
+@app.get("/api/article/{node_id:path}")
+def get_article(node_id: str):
+    """조문(또는 법령/고시/조례/판례/해석례) 단건 — 메타 + 본문 + 시행일(ef_yd).
+
+    node_id 는 graph 노드 id("건축법 시행령/제84조"). 슬래시 포함이라 path 컨버터 사용.
+    """
+    art = _engine.get_article(node_id)
+    if art is None:
+        raise HTTPException(status_code=404, detail=f"노드 없음: {node_id}")
+    return art
+
+
+@app.get("/api/citations/{node_id:path}")
+def get_citations(node_id: str):
+    """조문의 인용(out)·피인용(in) 관계. contains(구조) 제외, type별 구분."""
+    cites = _engine.get_citations(node_id)
+    if cites is None:
+        raise HTTPException(status_code=404, detail=f"노드 없음: {node_id}")
+    return cites
+
+
+# 카드 도메인 6종 — /api/standard/{domain} 허용 값
+_STANDARD_DOMAINS = {"zoning", "landscape", "parking", "setback", "incentive", "review"}
+
+
+@app.get("/api/standard/{domain}")
+def get_standard(domain: str, code: str | None = Query(None, description="지자체 코드(2자리 특·광역시 / 5자리 기초시). 미지정 시 전체")):
+    """카드 기준 데이터(국가 vs 도시) — diagnose·MCP 가 전국 비교를 당겨쓰는 엔드포인트.
+
+    domain: zoning·landscape·parking·setback·incentive·review.
+    code 지정 시 해당 지자체 region 1건 + 국가 정의, 미지정 시 도메인 전체 regions.
+    """
+    if _standards is None:
+        raise HTTPException(status_code=503, detail="standards.json 미로드 — `node builder/gen_standards.mjs` 후 배포")
+    if domain not in _STANDARD_DOMAINS:
+        raise HTTPException(status_code=404, detail=f"알 수 없는 도메인: {domain} (허용: {sorted(_STANDARD_DOMAINS)})")
+
+    national = _standards.get("national", {}).get(domain)
+    regions = _standards["domains"][domain]["regions"]
+
+    if code is None:
+        return {"domain": domain, "national": national, "regions": regions}
+
+    region = next((r for r in regions if r.get("code") == code), None)
+    if region is None:
+        raise HTTPException(status_code=404, detail=f"{domain} 카드 미지원 지자체 코드: {code}")
+    return {"domain": domain, "national": national, "region": region}
 
 
 class ChatRequest(BaseModel):

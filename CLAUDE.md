@@ -296,7 +296,7 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 - 표어: **"이 법이 뭐라고 하는가, 어디 근거하며, 무엇과 연결되는가."**
 - **graph는 산정·대지탐지를 구현하지 않음**(diagnose 담당). 단 그 계산의 *근거 조문 원문*은 graph가 보유(diagnose RAG가 `/api/lookup`으로 당겨씀). 통합 웹사이트 시 중복 기능(AI채팅·법규그래프 뷰)은 주인을 하나로 명시.
 
-> **검증된 현재 상태(2026-06-29 코드 확인)**: `/api/lookup`(배치 50)·`/api/zoning`·`/api/chat` 3개뿐 — 법령 API 표면 얇음. `ef_yd`(조문시행일자)는 **중앙법령 조문에만** 저장(article 37867 중 2134; 조례·고시·판례·해석례는 미저장)·Reader+카드 근거칩+RAG 인용칩에 `2026-03-24` 형식으로 전파됨(C-3 완료 2026-06-30, `fmtEf`/`efDate`/`RefChip`). 빌더가 `현행연혁구분!=현행` 필터 → **현행 법령만** 보유(연혁 타임라인 없음). **카드 회귀 테스트 9건**(C-1+Opt3, 2026-06-30 — zoning/landscape × frozen·extractor_sync·plausible + LLM카드(주차·이격·심의·완화) × frozen·structural·plausible; GitHub Actions CI(`test.yml`) push·PR 실행; 그 외 영역은 여전히 0건, diagnose는 262건). 카드 데이터는 `web/src/*.js`에 묶여 API·diagnose가 못 씀.
+> **검증된 현재 상태(2026-06-30 코드 확인)**: API 표면 = `/api/ping`·`/api/zoning`·`/api/lookup`(배치 50)·`/api/chat` + **B-5 신규** `/api/article/{id}`·`/api/citations/{id}`·`/api/standard/{domain}?code=` (총 7개, 전부 읽기 전용·재빌드 0). `ef_yd`(조문시행일자)는 **중앙법령 조문에만** 저장(article 37867 중 2134; 조례·고시·판례·해석례는 미저장)·Reader+카드 근거칩+RAG 인용칩+`/api/article`에 `2026-03-24` 형식으로 전파됨(C-3 완료 2026-06-30, `fmtEf`/`efDate`/`RefChip`). 빌더가 `현행연혁구분!=현행` 필터 → **현행 법령만** 보유(연혁 타임라인 없음). **카드 회귀 테스트 11건**(C-1+Opt3+B-6, 2026-06-30 — zoning/landscape × frozen·extractor_sync·plausible + LLM카드(주차·이격·심의·완화) × frozen·structural·plausible + standards.json × sync·structural; GitHub Actions CI(`test.yml`) push·PR 실행; diagnose는 262건). **카드 데이터는 `data/standards.json`으로 단일소스화돼 API·diagnose가 당겨씀**(B-6 완료, JS는 1차소스 유지·JSON은 생성물).
 
 ### 우선순위 로드맵 (정확도 + 정체성 기준)
 
@@ -308,13 +308,15 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 - ✅ **3. 시행일 전파** (완료 2026-06-30) — `ef_yd`를 Reader(포맷 `2026-03-24`)·카드 근거 조문 칩·RAG 인용칩(하단 출처칩 가시 + 인라인 ref 툴팁)에 전파. 공유 헬퍼 `fmtEf`/`efDate`(data.js) + 공유 컴포넌트 `views/RefChip.jsx`(6개 카드 칩 중복 제거, `.cc-ef` CSS). ⚠ **ef_yd는 중앙법령(법령 29종) 조문에만 존재**(article 37867 중 2134) — 조례·고시·판례·해석례 조문은 빌더가 시행일 미저장 → 해당 칩은 라벨만(graceful degrade). 건폐율·용적률(시행령 제84·85조)·주차·이격(시행령 별표) 등 국가기준 칩은 날짜 표시됨. 조례 시행일까지 보장하려면 빌더에 조례 `시행일자` 저장 + 재빌드 필요(후속·선택).
 - ✅ **4. RAG 인용 검증 라이트** (완료 2026-06-30) — `rag_engine.verify_citations()`가 답변 본문의 `법령명 제N조`(가지번호 포함) 인용을 사후 파싱해 graph 실재 여부 확인. **보수적**: 실재 법령명(본문 가진 article의 law_nm, 841개·긴이름우선)이 제N조 바로 앞에 올 때만 검증 → 해당 조문 노드 부재 시 unverified. 대명사("동법 제5조")·도시접두어 없는 조례("도시계획 조례 제44조" — phantom)·무공백명은 anchor 안 됨(오탐 0 검증). `answer_stream`이 토큰 누적→검증→`done` 이벤트에 `unverified[]` 동봉, ChatPanel이 답변 하단 호박색 경고(`.chat-unverified`) 렌더. 임베딩·재빌드 불필요(순수 사후처리). **잘못된 법령명 anchor 주의**: phantom law 노드(인용추출 산물, 본문無)를 article-law-set으로 배제하는 게 정확도 핵심.
 
-#### B. 법령 API / 호출가능성 — 높음 (고유 역할 + 통합·MCP 전조)
+#### B. 법령 API / 호출가능성 — ✅ 완료 (2026-06-30, 고유 역할 + 통합·MCP 전조)
 
 > ⚠ "법령 API" = graph가 **제공자(서버)** 가 되는 것. **외부 법 API를 새로 붙이는 게 아니라**, 이미 가진 graph.json을 엔드포인트로 노출. 소스는 법제처 하나로 충분(권위는 소스 수가 아니라 *건축 법령 내 깊이*에서 나옴). diagnose의 VWorld/EUM/LURIS는 대지 데이터라 graph가 끌어오지 않음.
+> 목적: **앱 통합 + 호출가능성**(정확도 아님=C그룹). 웹앱 동작은 불변(순수 추가). 상세 계획 `doc/B-law-api-plan.md`.
 
-- **5. 구조화 조회 엔드포인트 확장** — `/api/article/{id}`(메타+본문+시행일)·`/api/citations/{id}`(인용/피인용)·`/api/standard?city=&zone=`(카드 데이터를 API로 → diagnose가 전국 비교를 graph에서 당겨씀).
-- **6. 카드 데이터 단일 소스화** — 추출 산출물을 `web/src/*.js`에서 `data/standards.json` 같은 **데이터 자산으로 분리**. (a) 5번 API 가능 (b) MCP 서버화·추출기 라이브러리 분리와 동일 방향. **한 작업이 API·MCP·통합 세 목표로 수렴.**
-- **7. 응답 안정성** — `@app.on_event("startup")` deprecated(과거 502 이력 → starlette 핀으로 막아둠) → lifespan 핸들러로 이전, 핀 해제.
+- ✅ **5. 구조화 조회 엔드포인트 확장** (완료) — `GET /api/article/{id:path}`(메타+본문+시행일 ef_yd)·`GET /api/citations/{id:path}`(인용 out/피인용 in, contains 제외·type별)·`GET /api/standard/{domain}?code=`(카드 데이터를 API로 → diagnose가 전국 비교를 graph에서 당겨씀). 전부 이미 로드된 graph/standards에서 읽기(신규 fetch·재빌드 0). 엔진에 `_out_rel`/`_in_rel` 엣지 인덱스(프론트 outRel/inRel 동일 의미론) + `get_article`/`get_citations` 추가. id 슬래시 포함 → `{id:path}` 컨버터. nginx `/api/` 프록시·CORS GET 기존 설정 그대로.
+- ✅ **6. 카드 데이터 단일 소스화** (완료) — `builder/gen_standards.mjs`가 6개 카드 JS(`web/src/*.js`)를 Node로 평가 → `data/standards.json`(생성물, git 추적, ~1.5MB). **(A) 추출 방식**: JS가 여전히 1차 소스(SSOT), JSON은 동기화 산출물 → 웹앱 동작 불변. incentive 함수(relax/gg/green)는 Node 평가로 정적화. 회귀 게이트 `test_standards_sync.py`(node `--stdout` 재평가 == 커밋본, +structural). Docker `data/` 복사로 자동 포함. **한 작업이 API·MCP·통합 세 목표로 수렴.** ⚠ 카드 JS 수정 시 `node builder/gen_standards.mjs` 재실행 필요(미실행 시 sync 테스트 실패).
+- ✅ **7. 응답 안정성** (완료) — `@app.on_event("startup")`(deprecated) → `lifespan` 컨텍스트 핸들러로 이전(`backend/main.py`). on_event 의존 제거 → starlette/fastapi 핀의 *사유*(과거 502) 해소. 핀 자체는 재현성 위해 유지(주석만 갱신, 무검증 업그레이드 회피).
+- (후속·선택) **카드 1차소스 역전(B안)·실제 MCP 서버 구현** — B-6이 전조. 필요해지면 착수.
 
 #### D. 관계 그래프 심화 — 높음 (graph라는 *이름값*, diagnose 불가 영역)
 

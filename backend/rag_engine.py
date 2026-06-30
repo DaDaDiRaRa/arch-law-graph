@@ -84,6 +84,17 @@ class RAGEngine:
             and len(n["content"]) > 30
         ]
         self._by_id = {n["id"]: n for n in nodes}
+        # 1-hop 관계 인덱스 (B-5 /api/citations) — 프론트 data.js outRel/inRel 과 동일 의미론:
+        #   contains(법→조문 구조)는 제외, 방향 보존. type 보존(references·cross_law·byeolpyo·
+        #   delegates·applied·interpreted). 인용/피인용을 API 로 노출(클라이언트 전용 로직 서버화).
+        self._out_rel: dict = {}
+        self._in_rel: dict = {}
+        for l in g.get("links", []):
+            if l.get("type") == "contains":
+                continue
+            s, t, ty = l.get("source"), l.get("target"), l.get("type")
+            self._out_rel.setdefault(s, []).append({"id": t, "type": ty})
+            self._in_rel.setdefault(t, []).append({"id": s, "type": ty})
         # 인용 검증용 anchor: 본문(article)을 실제로 가진 법령명만(긴 이름 우선 —
         # "건축법 시행령"을 "건축법"보다 먼저 매칭). 인용 추출로 생긴 phantom law 노드
         # (본문 없는 "도시계획 조례"·"같은 법 시행령" 등)는 제외 — 도시 접두어 없는 조례
@@ -262,6 +273,56 @@ class RAGEngine:
                 "source_url": node.get("source_url"),
             })
         return out
+
+    def get_article(self, node_id: str):
+        """노드 단건 조회 (B-5 /api/article). 없으면 None.
+
+        조문(article)뿐 아니라 법령/고시/조례/판례/해석례 노드도 반환(있으면 content 포함).
+        ef_yd 는 원본(YYYYMMDD) — 중앙법령 조문에만 존재(조례·고시·판례 미저장, C-3 참조).
+        """
+        n = self._by_id.get(node_id)
+        if n is None:
+            return None
+        return {
+            "id": n.get("id"),
+            "type": n.get("type"),
+            "category": n.get("category"),
+            "law_nm": n.get("law_nm"),
+            "article_no": n.get("article_no"),
+            "title": n.get("title"),
+            "content": n.get("content"),
+            "ef_yd": n.get("ef_yd"),
+            "domain_tags": n.get("domain_tags"),
+            "source_url": n.get("source_url"),
+        }
+
+    def get_citations(self, node_id: str):
+        """노드의 인용(out)·피인용(in) 관계 (B-5 /api/citations). 노드 미존재 시 None.
+
+        contains(구조)는 제외. 각 항목에 상대 노드의 title·law_nm 을 보강해 단건 조회 불필요.
+        type: references(참조)·cross_law(타법령)·byeolpyo(별표)·delegates(위임)·
+              applied(판례)·interpreted(해석례).
+        """
+        if node_id not in self._by_id:
+            return None
+
+        def _enrich(rels):
+            out = []
+            for r in rels:
+                m = self._by_id.get(r["id"])
+                out.append({
+                    "id": r["id"],
+                    "type": r["type"],
+                    "title": m.get("title") if m else None,
+                    "law_nm": m.get("law_nm") if m else None,
+                })
+            return out
+
+        return {
+            "id": node_id,
+            "out": _enrich(self._out_rel.get(node_id, [])),   # 이 조문이 인용한
+            "in": _enrich(self._in_rel.get(node_id, [])),     # 이 조문을 인용한(피인용)
+        }
 
     def _trailing_law(self, pre: str):
         """문자열 pre 의 끝과 정확히 일치하는 실재 법령명(가장 긴 것) 반환. 없으면 None.
