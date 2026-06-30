@@ -71,8 +71,20 @@ export default function ChatPanel({ selectedNode, onOpenRef, open, onClose }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [ctxPinned, setCtxPinned] = useState(true);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+
+  // selectedNode가 바뀌면(새 조문 열기) 핀을 자동 복원
+  const prevNodeId = useRef(null);
+  useEffect(() => {
+    if (selectedNode?.id && selectedNode.id !== prevNodeId.current) {
+      setCtxPinned(true);
+      prevNodeId.current = selectedNode.id;
+    }
+  }, [selectedNode?.id]);
+
+  const effectiveSelectedId = ctxPinned && selectedNode ? selectedNode.id : null;
 
   useEffect(() => {
     if (open && inputRef.current) inputRef.current.focus();
@@ -100,7 +112,7 @@ export default function ChatPanel({ selectedNode, onOpenRef, open, onClose }) {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, selected_id: selectedNode?.id || null }),
+        body: JSON.stringify({ question, selected_id: effectiveSelectedId }),
       });
 
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -165,11 +177,18 @@ export default function ChatPanel({ selectedNode, onOpenRef, open, onClose }) {
       <div className="chat-header">
         <span className="chat-title">💬 AI 법령 질의</span>
         {selectedNode && (
-          <span className="chat-ctx-badge" title={selectedNode.id}>
-            📌&nbsp;
-            {shortLawName(selectedNode.law_nm)}
-            {selectedNode.article_no ? ` 제${selectedNode.article_no}조` : ""}
-          </span>
+          <button
+            className={`chat-ctx-badge${ctxPinned ? "" : " unpinned"}`}
+            onClick={() => setCtxPinned((v) => !v)}
+            title={ctxPinned
+              ? "클릭하면 전체 법령 기준으로 검색합니다"
+              : "클릭하면 이 조문을 컨텍스트로 고정합니다"}
+          >
+            {ctxPinned ? "📌" : "🔍"}&nbsp;
+            {ctxPinned
+              ? `${shortLawName(selectedNode.law_nm)}${selectedNode.article_no ? ` 제${selectedNode.article_no}조` : ""}`
+              : "전체 법령"}
+          </button>
         )}
         <button className="chat-close" onClick={onClose} title="닫기">✕</button>
       </div>
@@ -188,12 +207,22 @@ export default function ChatPanel({ selectedNode, onOpenRef, open, onClose }) {
             </div>
             {selectedNode && (
               <p className="chat-hint-ctx">
-                현재&nbsp;
-                <b>
-                  {shortLawName(selectedNode.law_nm)}
-                  {selectedNode.article_no ? ` 제${selectedNode.article_no}조` : ""}
-                </b>
-                가 컨텍스트로 자동 포함됩니다.
+                {ctxPinned ? (
+                  <>
+                    현재&nbsp;
+                    <b>
+                      {shortLawName(selectedNode.law_nm)}
+                      {selectedNode.article_no ? ` 제${selectedNode.article_no}조` : ""}
+                    </b>
+                    가 컨텍스트로 자동 포함됩니다.&nbsp;
+                    <button className="ctx-pin-link" onClick={() => setCtxPinned(false)}>전체 법령으로 변경</button>
+                  </>
+                ) : (
+                  <>
+                    전체 법령을 기준으로 검색합니다.&nbsp;
+                    <button className="ctx-pin-link" onClick={() => setCtxPinned(true)}>📌 조문 고정</button>
+                  </>
+                )}
               </p>
             )}
           </div>
