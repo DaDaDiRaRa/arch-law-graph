@@ -37,21 +37,25 @@ builder/             # Python — 법제처 fetch → graph.json 빌드
   gen_*_llm.py       # Claude(temp0)로 별표 → 카드 데이터 추출 (주차·이격·심의·완화)
   gen_card_data.py   # 정규식 추출 → zoning_auto.js·landscape_auto.js
   build_embeddings.py  # 조문 → Voyage 임베딩 → data/embeddings.npy
+  gen_standards.mjs    # 카드 6종 JS → data/standards.json 단일소스 생성(B-6, Node)
   law_go_kr_client.py  # 법제처 DRF 클라이언트 (HWP/HWPX 별표 폴백 포함)
   tests/             # 카드 회귀 스냅샷 테스트(pytest, 골든 대조)
 
-backend/             # FastAPI — AI 자연어 질의 API (SSE 스트리밍)
-  main.py            # /api/ping, /api/zoning, /api/lookup, /api/chat
+backend/             # FastAPI — AI 자연어 질의 API + 구조화 조회 API (SSE 스트리밍)
+  main.py            # /api/ping, /api/zoning, /api/lookup, /api/chat,
+                     #   /api/article/{id}, /api/citations/{id}, /api/standard/{domain}?code= (B-5)
   rag_engine.py      # RRF 하이브리드(벡터+키워드 top-30 융합) + 도메인 핀 + 인용 검증 → Claude API (키워드 FTS 폴백)
+                     #   + 엣지 인덱스(_out_rel/_in_rel) + get_article/get_citations 단건 조회
 
 web/src/             # React/Vite SPA
   views/             # SearchView, ChatPanel, ComplianceCard, ParkingCard, RefChip, SourceBadge, ...
-  *.js               # 손큐레이션 기준 데이터 (17개 시)
+  *.js               # 손큐레이션 기준 데이터 (17개 시) — 카드 단일소스(SSOT)
   *_auto.js          # 자동생성 기준 데이터 (builder 산출)
 
 data/
   graph.json         # 노드 42,703 / 엣지 119,911 (빌드 산출, git 추적, ~93MB)
   embeddings.npy     # Voyage 벡터 임베딩 30,784개 (git 추적, ~63MB)
+  standards.json     # 카드 6종 단일소스화 생성물 (gen_standards.mjs 산출, /api/standard 서빙, ~1.5MB)
 
 Dockerfile           # multistage: node:20-alpine 빌드 → python:3.12-slim + nginx
 nginx.conf           # :8080, gzip, /api/ → uvicorn, SPA fallback
@@ -59,8 +63,8 @@ nginx.conf           # :8080, gzip, /api/ → uvicorn, SPA fallback
 
 ## 데이터 규모
 
-- 법령 29 + 고시 17 + 조례 554(전국 84개 시 + 82개 군 × 4종) + 판례 100 + 해석례 150
-- 노드 42,703 / 엣지 119,911
+- 법령 29 + 고시 17 + 조례 554(전국 84개 시 + 82개 군 × 4종) + 판례 160 + 해석례 240
+- 노드 42,703 / 엣지 119,911 (contains·references·cross_law·byeolpyo·delegates·applied·interpreted)
 - 벡터 임베딩 30,784 (Voyage voyage-3-large, 1024차원)
 
 ## 빠른 시작 (로컬 개발)
@@ -101,6 +105,9 @@ D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe builder/gen_setback_l
 D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe builder/gen_review_llm.py
 D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe builder/gen_incentive_llm.py
 
+# 카드 단일소스 재생성 (위 카드 JS 변경 후 → data/standards.json, /api/standard 서빙)
+node builder/gen_standards.mjs
+
 # 새 지자체 조례 발견 (전국 자동 매칭 → ordin_group.py 갱신)
 D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe builder/inventory_ordin.py
 ```
@@ -108,11 +115,15 @@ D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe builder/inventory_ord
 ## 테스트
 
 ```powershell
-# 카드 회귀 스냅샷 (루트에서). 9검사: zoning/landscape × (frozen·extractor_sync·plausible)
-#                              + LLM카드(주차·이격·심의·완화) × (frozen·structural·plausible)
+# 카드 회귀 스냅샷 (루트에서). 11검사:
+#   zoning/landscape × (frozen·extractor_sync·plausible)
+#   + LLM카드(주차·이격·심의·완화) × (frozen·structural·plausible)
+#   + standards.json × (sync·structural)   ← 카드 JS ↔ data/standards.json 동기화 검증(B-6)
 D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe -m pytest
 D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe -m pytest --update-golden  # 카드 값 변경 승인
 ```
+
+> ⚠️ 카드 JS(`web/src/*.js`) 수정 후에는 `node builder/gen_standards.mjs` 로 `data/standards.json` 을 재생성해야 sync 테스트가 통과합니다.
 
 GitHub Actions(`.github/workflows/test.yml`)가 push·PR마다 pytest를 실행합니다(커밋된 graph.json+JS만 읽어 법제처 API 불필요).
 

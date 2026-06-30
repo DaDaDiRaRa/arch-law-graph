@@ -7,4 +7,3 @@ web/.vite
 .venv
 **/__pycache__
 *.pyc
-NEXT_STEPS.md

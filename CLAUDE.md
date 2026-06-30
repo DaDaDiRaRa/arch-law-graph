@@ -64,7 +64,7 @@ nginx.conf        # port 8080, gzip, /api/ → uvicorn 프록시(SSE buffering o
 
 ## 현재 상태 (2026-06-29 기준)
 
-- **graph.json**: node≈42405, edge≈118851 — 법령 29 + 고시 17 + 조례 **554** + 대법원 판례 100 + 법령해석례 150 (Phase 1–4 + Stage 1–13 완료)
+- **graph.json**: node≈42703, edge≈119911 — 법령 29 + 고시 17 + 조례 **554** + 대법원 판례 160 + 법령해석례 240 (Phase 1–4 + Stage 1–13 + E-10 완료. 판례·해석례 cap 100/150→160/240, build_graph.py `PREC_CAP`/`EXPC_CAP`)
   - 법령 29 = 건축 관련 법령 19 + **심의 별도 법령 5종(도시교통정비촉진법·환경영향평가법·경관법·지하안전관리에 관한 특별법·자연재해대책법) + 시행령 5종**(Stage 11).
   - 조례 554 = **전국 84개 시 + 82개 군 × 도시계획(군=군계획)·건축·주차·녹색건축 4종** + 경기도 도단위 2. 시 309 + 군 246(Stage 13). `builder/ordin_group.py`(자동생성)가 목록 보유, `build_graph.py`가 import.
     - **군(郡)은 검색·RAG·원문 corpus 전용** — 카드는 미생성(`gen_card_data.py`가 CITY_CODE=시만 처리). 군의 용도지역 조례명은 다양("○○군 도시계획/군계획/계획 조례") → `inventory_ordin.py`의 `COUNTY_PLAN_CANON` 접미사로 흡수. 광역시 산하 군(달성·군위·강화·옹진)은 자체 군계획 조례 없음(광역시 도시계획조례 적용). 청도군처럼 개정 꼬리표("[제명개정 …]") 붙은 조례명은 `clean_name()`으로 정규화(빌더 `search_ordin`도 동일 비교).
@@ -194,7 +194,7 @@ D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe builder/build_graph.p
 D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe builder/build_embeddings.py
 
 # ── 카드 회귀 스냅샷 테스트 (C-1). 루트에서 실행 ──────────────────────────
-D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe -m pytest        # 9검사: zoning/landscape × (frozen·extractor_sync·plausible) + LLM카드(주차·이격·심의·완화) × (frozen·structural·plausible). node 필요(LLM카드 평가)
+D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe -m pytest        # 11검사: zoning/landscape × (frozen·extractor_sync·plausible) + LLM카드(주차·이격·심의·완화) × (frozen·structural·plausible) + standards.json × (sync·structural, B-6). node 필요(LLM카드·standards 평가)
 D:\APPS\arch-law-diagnose\backend\.venv\Scripts\python.exe -m pytest --update-golden  # 카드 값 변경을 사람이 승인(골든 재생성)
 
 # ── 로컬 개발 (두 터미널 필요) ────────────────────────────────────────
@@ -325,7 +325,7 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 
 #### E. 데이터 폭 — 중간 (권위 corpus 강화)
 
-- **10. 판례·해석례 확대** — 현재 cap 100/150, 키워드 19개. 완화·심의·친환경 신규 토픽 키워드 보강.
+- ✅ **10. 판례·해석례 확대** (완료, E-10) — cap 100/150→**160/240**(build_graph.py `PREC_CAP`/`EXPC_CAP`), 키워드 보강(완화·심의·친환경 등). graph 실측: 판례 노드 151·해석례 240, applied 313·interpreted 2160 엣지.
 - ✅ **11. 군(郡) 지역 조례** (완료 2026-06-30, Stage 13) — 82개 군 추가(조례 309→554, node 25235→42405). 검색·RAG·원문 corpus(카드 미생성). 도 산하 군 전원 용도지역 조례 확보, 광역시 산하 4군은 광역시 조례 적용. 카드 회귀 게이트가 시 값 불변 확증. 임베딩 재계산 완료(`embeddings.npy` 17928→30635, 군 벡터 RAG 검증). **잔존**: graph.json 58→93MB·embeddings 37→63MB(서버 에셋). 클라이언트 graph 12.6MB gzip 첫 로드 — 모바일 체감 나빠지면 서버사이드 검색(B-5)으로 근본 해결.
 - ✅ **12. diagnose 인용 조문 보유 확인** (완료 2026-06-30) — diagnose `law_graph_auto.json`+`law_graph_seed.json`의 참조 조문 127개를 graph 실재성 검사(법령명 약칭·별표·가지번호 정규화 + 실제 `lookup()` 통과). **결과: graph corpus 빈틈 0 — 빌더 보강 불필요**. 분류: OK 72 / 19법령군 밖 EXTERNAL 48(용도분류·심의 외부법령, 정체성상 정상·degrade) / ARTICLE GAP 7. **7건 전부 diagnose 측 오류**(법제처 현행 fetch로 확정 — 4건은 法/시행령 오기재: 건축법 제13의2·53의2·77의2·77의4가 graph에 `건축법` 본문으로 실재하나 diagnose가 `건축법 시행령`으로 참조 / 3건은 현행 미존재 조문번호: 건축법 제7의2·주차장법 제51·녹색건축법 제61). 빌더 fetch 조문수가 graph와 정확 일치(건축법166·시행령203·녹색46·주차71)로 빌더 완전성도 교차확인. **후속(graph 무관, diagnose 숙제)**: diagnose가 7개 참조 수정.
 - **14. (선택·advanced) 개정 진행중(입법예고) 추적** — 법제처 DRF는 **현행 법령만** 제공(빌더가 `현행연혁구분!=현행` 버림) → graph는 "곧 시행될 개정"을 모름. "최신" 정체성을 날카롭게 하는 **유일한 정당한 외부 소스 추가**(국회 의안정보시스템·법제처 입법예고). 실무가치: "준공 시점엔 바뀐 법 적용". ⚠ 난도·유지보수 있어 1·6번보다 후순위.
@@ -349,8 +349,8 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 
 ### 완료 이력
 
-- ✅ **B. 데이터** — 조례 전국 84개 시(Stage 12) + 82개 군(Stage 13, 조례 554·node 42405).
-- ✅ **카드 회귀 스냅샷 테스트(C-1+Opt3)** — `pytest` 9검사(zoning/landscape × frozen·extractor_sync·plausible + LLM카드 × frozen·structural·plausible) + 골든 + refresh_local.ps1 게이트 + GitHub Actions CI(`test.yml`). 군포 용적률 1% garbage 적발·수정.
+- ✅ **B. 데이터** — 조례 전국 84개 시(Stage 12) + 82개 군(Stage 13, 조례 554) + 판례·해석례 확대(E-10) → node 42703.
+- ✅ **카드 회귀 스냅샷 테스트(C-1+Opt3+B-6)** — `pytest` 11검사(zoning/landscape × frozen·extractor_sync·plausible + LLM카드 × frozen·structural·plausible + standards.json × sync·structural) + 골든 + refresh_local.ps1 게이트 + GitHub Actions CI(`test.yml`). 군포 용적률 1% garbage 적발·수정.
 - ✅ **주소 카드 미지원 지역 fallback 수정** — 군 등 매칭 실패 시 서울 카드 오표시 → "시 단위 카드 미지원(용도지역만 확인)" 안내.
 - ✅ **C-1 검색 고도화** — 동의어(20그룹)+초성. `web/src/search.js`.
 - ✅ **C-2 인용 관계 시각화** — Reader `CiteGraph`(좌=피인용·우=인용).
