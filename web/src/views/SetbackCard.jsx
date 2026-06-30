@@ -2,6 +2,7 @@
 // 건축선·인접대지경계선 이격거리를 국가 범위(시행령 별표2) vs 서울 적용(건축조례 별표4)으로 표시.
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
 import SourceBadge from "./SourceBadge.jsx";
+import RefChip from "./RefChip.jsx";
 
 function shortLaw(name = "") {
   return name
@@ -67,9 +68,7 @@ export default function SetbackCard({ use, refs, regionName, src, onOpen }) {
       <div className="cc-refs cc-refs-block">
         <span className="cc-reflabel">근거</span>
         {refs.map((id) => (
-          <button key={id} className="cc-refchip" onClick={() => onOpen(id)} title="원문 조문 열기">
-            {refLabel(id)} <span className="cc-go">↗</span>
-          </button>
+          <RefChip key={id} id={id} label={refLabel(id)} onOpen={onOpen} />
         ))}
       </div>
 

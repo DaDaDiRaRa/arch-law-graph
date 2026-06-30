@@ -296,7 +296,7 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 - 표어: **"이 법이 뭐라고 하는가, 어디 근거하며, 무엇과 연결되는가."**
 - **graph는 산정·대지탐지를 구현하지 않음**(diagnose 담당). 단 그 계산의 *근거 조문 원문*은 graph가 보유(diagnose RAG가 `/api/lookup`으로 당겨씀). 통합 웹사이트 시 중복 기능(AI채팅·법규그래프 뷰)은 주인을 하나로 명시.
 
-> **검증된 현재 상태(2026-06-29 코드 확인)**: `/api/lookup`(배치 50)·`/api/zoning`·`/api/chat` 3개뿐 — 법령 API 표면 얇음. `ef_yd`(조문시행일자)는 모든 조문 노드에 저장·Reader에 "시행 YYYY-MM-DD" 노출됨(카드·인용칩엔 미전파). 빌더가 `현행연혁구분!=현행` 필터 → **현행 법령만** 보유(연혁 타임라인 없음). **카드 회귀 테스트 9건**(C-1+Opt3, 2026-06-30 — zoning/landscape × frozen·extractor_sync·plausible + LLM카드(주차·이격·심의·완화) × frozen·structural·plausible; GitHub Actions CI(`test.yml`) push·PR 실행; 그 외 영역은 여전히 0건, diagnose는 262건). 카드 데이터는 `web/src/*.js`에 묶여 API·diagnose가 못 씀.
+> **검증된 현재 상태(2026-06-29 코드 확인)**: `/api/lookup`(배치 50)·`/api/zoning`·`/api/chat` 3개뿐 — 법령 API 표면 얇음. `ef_yd`(조문시행일자)는 **중앙법령 조문에만** 저장(article 37867 중 2134; 조례·고시·판례·해석례는 미저장)·Reader+카드 근거칩+RAG 인용칩에 `2026-03-24` 형식으로 전파됨(C-3 완료 2026-06-30, `fmtEf`/`efDate`/`RefChip`). 빌더가 `현행연혁구분!=현행` 필터 → **현행 법령만** 보유(연혁 타임라인 없음). **카드 회귀 테스트 9건**(C-1+Opt3, 2026-06-30 — zoning/landscape × frozen·extractor_sync·plausible + LLM카드(주차·이격·심의·완화) × frozen·structural·plausible; GitHub Actions CI(`test.yml`) push·PR 실행; 그 외 영역은 여전히 0건, diagnose는 262건). 카드 데이터는 `web/src/*.js`에 묶여 API·diagnose가 못 씀.
 
 ### 우선순위 로드맵 (정확도 + 정체성 기준)
 
@@ -305,8 +305,8 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 - ✅ **1. 카드 추출 회귀 스냅샷 테스트** (완료 2026-06-29) — `pytest`(루트, `pytest.ini`→`builder/tests/`). zoning 84·landscape 80개 시를 골든 스냅샷(`builder/tests/golden/*.json`, 값별 `src` 태그 extracted/hwp/manual/auto)에 고정. 카드당 3검사: **frozen**(live==골든, 사람 미승인 변경 차단)·**extractor_sync**(추출기 재실행==커밋카드, 재빌드/추출기수정 드리프트 검출)·**plausible**(건폐율 20~90·용적률 50~1500·조경 3~30 경계로 garbage 검출). `refresh_local.ps1`이 자동갱신 시 게이트로 실행 → 카드 값 바뀌면 자동 커밋 차단. 골든 승인은 `pytest --update-golden`. **버그 적발 실적**: 군포 중심상업 용적률 1%(쉼표 오파싱) garbage를 plausible이 검출 → 추출기 수정.
   - ✅ **Opt3 확장**(완료 2026-06-30) — LLM 카드(주차·이격·심의·완화) **frozen 동결**(`test_llm_cards.py`). LLM 출력이라 재현 불가 → extractor_sync 대신 frozen+structural+plausible. incentive items 가 함수 호출(relax/gg/green)이라 `dump_cards.mjs`(node)로 실제 평가 후 골든(`cards_llm.json`) 대조. **GitHub Actions CI**(`.github/workflows/test.yml`) push·PR 마다 pytest 실행(커밋된 graph.json+JS만 읽어 법제처 불필요, node 셋업). 카드 모듈 상대경로 import만 써 npm install 불요. 다음: 출처 배지(C-2).
 - ✅ **2. 값별 출처·신뢰도 배지** (완료 2026-06-30) — 6개 카드 데이터 모듈에 `src` 태깅(손큐레이션=manual·기계추출=machine·LLM보조=llm). 태깅은 export 스프레드에서 `...AUTO.map(r=>({...r,src})).` + `].map(r=>({src:"manual",...r}))`(손큐는 미지정→manual, AUTO는 자체 src 유지). `web/src/views/SourceBadge.jsx` 가 카드 cc-head 의 도시명 옆에 색상 배지+툴팁 렌더(6개 카드 전부). LLM 카드 골든(`cards_llm.json`)에 src 포함돼 frozen 테스트가 태깅 변경도 감시. guard "준비중"은 기존 빈-상태로 표시.
-- **3. 시행일 전파** — Reader엔 있는 `ef_yd`를 카드 근거 조문 칩·RAG 인용칩에도. "현행인가"를 모든 답변 지점에서 보장.
-- **4. RAG 인용 검증 라이트** — 답변의 `법령명 제N조`가 실제 graph 노드에 존재하는지 사후 체크(없으면 경고). `_name_to_node_id`/buildRefMap 재활용 → 저비용. 환각 인용 차단.
+- ✅ **3. 시행일 전파** (완료 2026-06-30) — `ef_yd`를 Reader(포맷 `2026-03-24`)·카드 근거 조문 칩·RAG 인용칩(하단 출처칩 가시 + 인라인 ref 툴팁)에 전파. 공유 헬퍼 `fmtEf`/`efDate`(data.js) + 공유 컴포넌트 `views/RefChip.jsx`(6개 카드 칩 중복 제거, `.cc-ef` CSS). ⚠ **ef_yd는 중앙법령(법령 29종) 조문에만 존재**(article 37867 중 2134) — 조례·고시·판례·해석례 조문은 빌더가 시행일 미저장 → 해당 칩은 라벨만(graceful degrade). 건폐율·용적률(시행령 제84·85조)·주차·이격(시행령 별표) 등 국가기준 칩은 날짜 표시됨. 조례 시행일까지 보장하려면 빌더에 조례 `시행일자` 저장 + 재빌드 필요(후속·선택).
+- ✅ **4. RAG 인용 검증 라이트** (완료 2026-06-30) — `rag_engine.verify_citations()`가 답변 본문의 `법령명 제N조`(가지번호 포함) 인용을 사후 파싱해 graph 실재 여부 확인. **보수적**: 실재 법령명(본문 가진 article의 law_nm, 841개·긴이름우선)이 제N조 바로 앞에 올 때만 검증 → 해당 조문 노드 부재 시 unverified. 대명사("동법 제5조")·도시접두어 없는 조례("도시계획 조례 제44조" — phantom)·무공백명은 anchor 안 됨(오탐 0 검증). `answer_stream`이 토큰 누적→검증→`done` 이벤트에 `unverified[]` 동봉, ChatPanel이 답변 하단 호박색 경고(`.chat-unverified`) 렌더. 임베딩·재빌드 불필요(순수 사후처리). **잘못된 법령명 anchor 주의**: phantom law 노드(인용추출 산물, 본문無)를 article-law-set으로 배제하는 게 정확도 핵심.
 
 #### B. 법령 API / 호출가능성 — 높음 (고유 역할 + 통합·MCP 전조)
 
@@ -318,8 +318,8 @@ GitHub Actions 크론은 **비활성화** — 법제처 API가 GH 러너(해외 
 
 #### D. 관계 그래프 심화 — 높음 (graph라는 *이름값*, diagnose 불가 영역)
 
-- **8. 엣지 타입 구분 노출** — `contains/applied/interpreted/위임/인용` 관계 존재하나 CiteGraph는 인용/피인용만. 관계 종류별 색·필터로 "왜 연결됐나" 표시.
-- **9. 경로·영향 분석** — "조문 A→B 경로", "이 조문 개정 시 영향받는 피인용 트리". 권위 지식원의 고유 가치.
+- ✅ **8. 엣지 타입 구분 노출** (완료 2026-06-30) — Reader에 `RelLegend`(관계 타입 범례+단일 필터). 색은 이미 `REL_COLOR`로 있었음 → 범례(참조·타법령·별표·**위임**·판례·해석례)+타입별 카운트+클릭 필터 추가. `relFilter` state가 CiteGraph·RelCol 양쪽 list를 필터링 → 희소관계(위임 20개 등)를 끊어 봄. 데이터는 `outRel/inRel`의 type 재활용(빌더·백엔드 변경 0). `web/src/views/SearchView.jsx`+App.css.
+- ✅ **9. 경로·영향 분석** (완료 2026-06-30, 영향 트리) — Reader에 `ImpactTree`(접이식). 현재 조문의 **피인용 전이폐쇄**(`inRel` 역방향 BFS, 깊이3·총량cap80, visited 최단깊이1회·사이클가드)를 깊이별(1단계 직접·2~3단계 간접)로 노출 = "이 조문 개정 시 영향받는 조문 트리". 실측: 시행령 제84조 direct7→transitive28[7,5,16], 주차장법 제19조[11,9,6]. 클라이언트 전용(BFS 순수 JS). ⚠ 잔여(미구현): "조문 A→B 최단경로"(타깃 picker UX 필요)는 보류 — 영향트리가 핵심 가치라 우선.
 
 #### E. 데이터 폭 — 중간 (권위 corpus 강화)
 

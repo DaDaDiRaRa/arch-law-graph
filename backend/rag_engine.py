@@ -53,6 +53,10 @@ def _tokenize(text: str) -> list:
 _LAW_ABBR = [("국토계획법", "국토의 계획 및 이용에 관한 법률")]
 
 
+# 답변 본문에서 조문 인용을 찾는 패턴 — "제84조", "제84조의2"(공백 허용).
+_ART_CITE_RE = re.compile(r"제\s*(\d+)\s*조(?:\s*의\s*(\d+))?")
+
+
 def _name_to_node_id(name: str):
     """조문명("건축법 시행령 제119조 (면적…)") → 노드 id("건축법 시행령/제119조").
 
@@ -80,6 +84,15 @@ class RAGEngine:
             and len(n["content"]) > 30
         ]
         self._by_id = {n["id"]: n for n in nodes}
+        # 인용 검증용 anchor: 본문(article)을 실제로 가진 법령명만(긴 이름 우선 —
+        # "건축법 시행령"을 "건축법"보다 먼저 매칭). 인용 추출로 생긴 phantom law 노드
+        # (본문 없는 "도시계획 조례"·"같은 법 시행령" 등)는 제외 — 도시 접두어 없는 조례
+        # 인용·대명사 인용을 잘못 anchor 해 멀쩡한 인용을 환각으로 오판하는 것 방지.
+        self._law_names = sorted(
+            {n.get("law_nm") for n in nodes
+             if n.get("type") == "article" and n.get("law_nm")},
+            key=len, reverse=True,
+        )
         self._client = AsyncAnthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
         # 벡터 검색(Voyage) — 임베딩 파일 + 키 + 라이브러리 모두 있어야 활성. 없으면 키워드 FTS.
@@ -250,6 +263,39 @@ class RAGEngine:
             })
         return out
 
+    def _trailing_law(self, pre: str):
+        """문자열 pre 의 끝과 정확히 일치하는 실재 법령명(가장 긴 것) 반환. 없으면 None.
+
+        "…건축법 시행령 " → "건축법 시행령". 약칭·무공백·대명사("동법")는 매칭 안 됨(보수적).
+        """
+        pre = pre.rstrip()
+        for name in self._law_names:
+            if pre.endswith(name):
+                return name
+        return None
+
+    def verify_citations(self, text: str) -> list:
+        """답변 본문의 '법령명 제N조' 인용 중 graph 에 실재하지 않는 것 반환(환각 차단).
+
+        보수적 — 실재 법령명이 제N조 바로 앞에 올 때만 검증. 그 법령의 해당 조문 노드가
+        없으면 unverified. (실재 법령 + 가공 조문번호 = 가장 흔한 환각 유형)
+        """
+        if not text:
+            return []
+        seen, bad = set(), []
+        for m in _ART_CITE_RE.finditer(text):
+            art_no = f"{m.group(1)}의{m.group(2)}" if m.group(2) else m.group(1)
+            law = self._trailing_law(text[:m.start()])
+            if not law:
+                continue  # 법령명 미선행("동법 제5조" 등) → 검증 대상 아님
+            cite = f"{law} 제{art_no}조"
+            if cite in seen:
+                continue
+            seen.add(cite)
+            if f"{law}/제{art_no}조" not in self._by_id:
+                bad.append(cite)
+        return bad[:8]
+
     def _fmt(self, art: dict, max_chars: int = 6000) -> str:
         law_nm = art.get("law_nm", "")
         no = art.get("article_no", "")
@@ -275,7 +321,7 @@ class RAGEngine:
 
         if not context_arts:
             yield {"type": "token", "content": "관련 조문을 찾지 못했습니다. 좀 더 구체적인 키워드로 질문해주세요."}
-            yield {"type": "done", "source_ids": []}
+            yield {"type": "done", "source_ids": [], "unverified": []}
             return
 
         context_block = "\n\n---\n\n".join(self._fmt(a) for a in context_arts)
@@ -290,6 +336,7 @@ class RAGEngine:
 
         model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 
+        chunks: list[str] = []
         try:
             async with self._client.messages.stream(
                 model=model,
@@ -298,8 +345,11 @@ class RAGEngine:
                 messages=[{"role": "user", "content": user_msg}],
             ) as stream:
                 async for text in stream.text_stream:
+                    chunks.append(text)
                     yield {"type": "token", "content": text}
         except Exception as exc:
             yield {"type": "token", "content": f"\n\n[오류] {exc}"}
 
-        yield {"type": "done", "source_ids": source_ids}
+        # 사후 인용 검증 — 답변이 인용한 '법령명 제N조'가 graph 에 실재하는지 확인.
+        unverified = self.verify_citations("".join(chunks))
+        yield {"type": "done", "source_ids": source_ids, "unverified": unverified}

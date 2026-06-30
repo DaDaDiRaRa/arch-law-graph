@@ -3,6 +3,7 @@
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
 import { REVIEW_NATIONAL, REVIEW_OTHER, REVIEW_CROSSLAW, REVIEW_NOTES } from "../review.js";
 import SourceBadge from "./SourceBadge.jsx";
+import RefChip from "./RefChip.jsx";
 
 function shortLaw(name = "") {
   return name
@@ -92,9 +93,7 @@ export default function ReviewCard({ region, onOpen }) {
                 {liveRefs.length > 0 && (
                   <span className="rv-cross-chips">
                     {liveRefs.map((r) => (
-                      <button key={r} className="cc-refchip rv-chip-sm" onClick={() => onOpen(r)} title="원문 조문 열기">
-                        {refLabel(r)} <span className="cc-go">↗</span>
-                      </button>
+                      <RefChip key={r} id={r} label={refLabel(r)} onOpen={onOpen} className="rv-chip-sm" />
                     ))}
                   </span>
                 )}
@@ -107,9 +106,7 @@ export default function ReviewCard({ region, onOpen }) {
       <div className="cc-refs">
         <span className="cc-reflabel">근거</span>
         {refs.map((id) => (
-          <button key={id} className="cc-refchip" onClick={() => onOpen(id)} title="원문 조문 열기">
-            {refLabel(id)} <span className="cc-go">↗</span>
-          </button>
+          <RefChip key={id} id={id} label={refLabel(id)} onOpen={onOpen} />
         ))}
       </div>
 

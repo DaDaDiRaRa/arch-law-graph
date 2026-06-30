@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { nodeById } from "../data.js";
+import { nodeById, efDate } from "../data.js";
 
 const EXAMPLES = [
   "제2종일반주거지역 건폐율·용적률 기준과 예외 조건",
@@ -56,8 +56,9 @@ function renderAnswerText(text, sourceIds, onOpenRef) {
   return parts.map((part, i) => {
     const id = refMap[part];
     if (id) {
+      const ef = efDate(id);
       return (
-        <button key={i} className="answer-ref" onClick={() => onOpenRef(id)} title={id}>
+        <button key={i} className="answer-ref" onClick={() => onOpenRef(id)} title={ef ? `시행 ${ef}` : id}>
           {part}↗
         </button>
       );
@@ -131,6 +132,7 @@ export default function ChatPanel({ selectedNode, onOpenRef, open, onClose }) {
                 next[next.length - 1] = {
                   ...next[next.length - 1],
                   source_ids: chunk.source_ids || [],
+                  unverified: chunk.unverified || [],
                   loading: false,
                 };
                 return next;
@@ -216,6 +218,19 @@ export default function ChatPanel({ selectedNode, onOpenRef, open, onClose }) {
                   )}
                 </div>
 
+                {/* 인용 검증 경고 — DB에 실재하지 않는 '법령명 제N조' (환각 가능) */}
+                {!m.loading && m.unverified?.length > 0 && (
+                  <div className="chat-unverified" role="alert">
+                    <span className="cu-icon">⚠</span>
+                    <span className="cu-text">
+                      DB에서 확인되지 않은 인용 — 원문 확인 요망:{" "}
+                      {m.unverified.map((c, i) => (
+                        <span key={i} className="cu-cite">{c}</span>
+                      ))}
+                    </span>
+                  </div>
+                )}
+
                 {/* 하단 출처 칩 (빠른 전체 목록) */}
                 {!m.loading && m.source_ids?.length > 0 && (
                   <div className="chat-sources">
@@ -226,14 +241,16 @@ export default function ChatPanel({ selectedNode, onOpenRef, open, onClose }) {
                       const label = n.article_no
                         ? `${shortLawName(n.law_nm)} 제${n.article_no}조`
                         : shortLawName(n.law_nm);
+                      const ef = efDate(id);
                       return (
                         <button
                           key={id}
                           className="chat-src-chip"
                           onClick={() => onOpenRef(id)}
-                          title={id}
+                          title={ef ? `시행 ${ef}` : id}
                         >
                           {label}
+                          {ef && <span className="cc-ef">시행 {ef}</span>}
                         </button>
                       );
                     })}

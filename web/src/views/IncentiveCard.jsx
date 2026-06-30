@@ -2,6 +2,7 @@
 // item(label·rows·refs·notes)·regionName 은 SearchView 주입. rows = [{label,nat,sel,strict?}].
 import { nodeById, inRel, lawColor, lawOf, citeIn } from "../data.js";
 import SourceBadge from "./SourceBadge.jsx";
+import RefChip from "./RefChip.jsx";
 
 function shortLaw(name = "") {
   return name
@@ -62,9 +63,7 @@ export default function IncentiveCard({ item, regionName, src, onOpen }) {
       <div className="cc-refs">
         <span className="cc-reflabel">근거</span>
         {item.refs.map((id) => (
-          <button key={id} className="cc-refchip" onClick={() => onOpen(id)} title="원문 조문 열기">
-            {refLabel(id)} <span className="cc-go">↗</span>
-          </button>
+          <RefChip key={id} id={id} label={refLabel(id)} onOpen={onOpen} />
         ))}
       </div>
 

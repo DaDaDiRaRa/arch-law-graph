@@ -173,6 +173,19 @@ export function lawOf(id) {
   return n.type === "law" ? n.id : n.law_nm;
 }
 
+// ─── 조문 시행일 포맷 (C-3 시행일 전파) ──────────────────────────────────
+// ef_yd "20260227" → "2026-02-27". 빈 값/비정형은 원본 반환. "현행인가"를
+// Reader·카드 근거칩·RAG 인용칩 모든 답변 지점에서 보장하기 위한 공유 헬퍼.
+export function fmtEf(yd) {
+  if (!yd) return "";
+  const s = String(yd);
+  const m = s.match(/^(\d{4})(\d{2})(\d{2})$/);
+  return m ? `${m[1]}-${m[2]}-${m[3]}` : s;
+}
+export function efDate(id) {
+  return fmtEf(nodeById.get(id)?.ef_yd);
+}
+
 // ─── 도메인(주제) — 차별화 핵심: 주제로 법 횡단 ──────────────────────────
 export const DOMAINS = [
   "건폐율", "용적률", "높이·일조", "주차",

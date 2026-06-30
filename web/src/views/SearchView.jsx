@@ -11,6 +11,7 @@ import {
   outRel,
   inRel,
   DOMAINS,
+  fmtEf,
 } from "../data.js";
 import { LawBody, highlightTerms } from "../lib/lawContent.jsx";
 import ComplianceCard from "./ComplianceCard.jsx";
@@ -578,14 +579,26 @@ export default function SearchView() {
 // ─── 본문 + 근거 사슬 ────────────────────────────────────────────────────
 function Reader({ node, terms, marked, onStar, onPick, onLaw }) {
   const chain = familyChain(node.law_nm);
+  const [relFilter, setRelFilter] = useState(null); // 관계 타입 단일 필터 (null=전체)
 
   const dedupe = (list = []) => {
     const seen = new Map();
     for (const r of list) if (!seen.has(r.id)) seen.set(r.id, r);
     return [...seen.values()].sort((a, b) => tier(lawOf(a.id)) - tier(lawOf(b.id)) || artOrder(nodeById.get(a.id)?.article_no) - artOrder(nodeById.get(b.id)?.article_no));
   };
-  const outList = dedupe(outRel.get(node.id));
-  const inList = dedupe(inRel.get(node.id));
+  const outListAll = dedupe(outRel.get(node.id));
+  const inListAll = dedupe(inRel.get(node.id));
+
+  // 관계 타입별 개수(범례·필터용). 조문 바뀌면 필터 초기화.
+  const relTypes = useMemo(() => {
+    const m = new Map();
+    for (const r of [...outListAll, ...inListAll]) m.set(r.type, (m.get(r.type) || 0) + 1);
+    return m;
+  }, [outListAll, inListAll]);
+  useEffect(() => { setRelFilter(null); }, [node.id]);
+
+  const outList = relFilter ? outListAll.filter((r) => r.type === relFilter) : outListAll;
+  const inList = relFilter ? inListAll.filter((r) => r.type === relFilter) : inListAll;
 
   return (
     <div className="reader2">
@@ -613,13 +626,18 @@ function Reader({ node, terms, marked, onStar, onPick, onLaw }) {
       </div>
       <div className="r-meta">
         {(node.domain_tags || []).map((t) => <span key={t} className="tag">{t}</span>)}
-        {node.ef_yd && <span className="meta-dim">시행 {node.ef_yd}</span>}
+        {node.ef_yd && <span className="meta-dim">시행 {fmtEf(node.ef_yd)}</span>}
         {(citeIn.get(node.id) || 0) > 0 && <span className="meta-dim">피인용 {citeIn.get(node.id)}</span>}
       </div>
 
       <LawBody text={node.content} terms={terms} law={node.law_nm} selfId={node.id} onRef={onPick} onLaw={onLaw} />
       {node.source_url && (
         <a className="link" href={node.source_url} target="_blank" rel="noreferrer">국가법령정보센터 원문 ↗</a>
+      )}
+
+      {/* 관계 타입 범례·필터 — 왜 연결됐나(참조·타법령·별표·위임·판례·해석례) */}
+      {relTypes.size > 0 && (
+        <RelLegend types={relTypes} active={relFilter} onToggle={setRelFilter} />
       )}
 
       {/* 인용 관계 미니 그래프 — 피인용(좌) ← 현재 조문 → 인용(우) */}
@@ -632,6 +650,9 @@ function Reader({ node, terms, marked, onStar, onPick, onLaw }) {
         <RelCol title="이 조문이 인용" sub="나가는 근거" list={outList} onPick={onPick} />
         <RelCol title="이 조문을 인용" sub="피인용" list={inList} onPick={onPick} />
       </div>
+
+      {/* 개정 영향 분석 — 이 조문이 바뀌면 영향받는 피인용 전이폐쇄 */}
+      <ImpactTree node={node} onPick={onPick} />
     </div>
   );
 }
@@ -640,6 +661,30 @@ const REL_COLOR = {
   references: "#3182f6", cross_law: "#8b5cf6", byeolpyo: "#f59e0b",
   delegates: "#10b981", applied: "#ef4444", interpreted: "#ec4899",
 };
+const REL_ORDER = ["references", "cross_law", "byeolpyo", "delegates", "applied", "interpreted"];
+
+// 관계 타입 범례 + 단일 필터 — 색이 무엇을 뜻하는지 + 종류별로 끊어 보기(위임 등 희소관계 surface).
+function RelLegend({ types, active, onToggle }) {
+  const present = REL_ORDER.filter((t) => types.has(t));
+  return (
+    <div className="rel-legend">
+      <span className="rl-cap">관계</span>
+      <button className={"rl-chip" + (!active ? " on" : "")} onClick={() => onToggle(null)}>전체</button>
+      {present.map((t) => (
+        <button
+          key={t}
+          className={"rl-chip" + (active === t ? " on" : "")}
+          style={active === t ? { borderColor: REL_COLOR[t], color: REL_COLOR[t] } : undefined}
+          onClick={() => onToggle(active === t ? null : t)}
+          title={`${TYPE_LABEL[t]} 관계만 보기`}
+        >
+          <span className="rl-dot" style={{ background: REL_COLOR[t] }} />
+          {TYPE_LABEL[t]} <em>{types.get(t)}</em>
+        </button>
+      ))}
+    </div>
+  );
+}
 
 // 인용 관계도 — 현재 조문(중앙) 기준 피인용(좌)·인용(우)을 SVG 방사형으로. 노드 클릭 시 이동.
 function CiteGraph({ node, outList, inList, onPick }) {
@@ -700,6 +745,81 @@ function CiteGraph({ node, outList, inList, onPick }) {
           {node.type === "law" ? shortLaw(node.law_nm) : (node.article_no || node.title)}
         </text>
       </svg>
+    </div>
+  );
+}
+
+// 역방향(피인용) 너비우선 전이폐쇄 — "이 조문이 바뀌면 영향받는" 조문들을 깊이별로.
+// visited 로 최단깊이 1회만, depth·총량 cap 으로 폭주 방지. 노드 변경마다 재계산.
+function buildImpact(rootId, maxDepth = 3, cap = 80) {
+  const visited = new Set([rootId]);
+  const levels = [];
+  let frontier = [rootId];
+  let capped = false;
+  for (let d = 0; d < maxDepth; d++) {
+    const layer = [], next = [];
+    for (const fid of frontier) {
+      for (const r of inRel.get(fid) || []) {
+        if (visited.has(r.id)) continue;
+        if (visited.size >= cap + 1) { capped = true; break; }
+        visited.add(r.id);
+        layer.push({ id: r.id, type: r.type });
+        next.push(r.id);
+      }
+      if (capped) break;
+    }
+    if (!layer.length) break;
+    levels.push(layer);
+    frontier = next;
+    if (capped) break;
+  }
+  return { levels, total: visited.size - 1, capped };
+}
+
+function ImpactItem({ r, onPick }) {
+  const n = nodeById.get(r.id);
+  const isLaw = n?.type === "law";
+  return (
+    <li onClick={() => onPick(r.id)}>
+      <span className="ty" data-t={r.type}>{TYPE_LABEL[r.type]}</span>
+      <span className="rl-law" style={{ color: lawColor(lawOf(r.id)) }}>{shortLaw(lawOf(r.id))}</span>
+      <b>{isLaw ? "" : n?.article_no}</b>
+      <span className="rl-title">{isLaw ? "(법령)" : n?.title}</span>
+    </li>
+  );
+}
+
+function ImpactTree({ node, onPick }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => { setOpen(false); }, [node.id]);
+  const directCount = (inRel.get(node.id) || []).length;
+  const impact = useMemo(() => (open ? buildImpact(node.id) : null), [open, node.id]);
+  if (directCount === 0) return null;
+  return (
+    <div className="impact">
+      <button className={"impact-toggle" + (open ? " open" : "")} onClick={() => setOpen((v) => !v)}>
+        <span className="impact-arr">{open ? "▾" : "▸"}</span>
+        개정 영향 분석
+        <span className="impact-sub">
+          {open && impact
+            ? `직·간접 피인용 ${impact.total}개${impact.capped ? "+" : ""} (깊이 3)`
+            : "이 조문이 바뀌면 영향받는 조문 트리"}
+        </span>
+      </button>
+      {open && impact && (
+        <div className="impact-body">
+          {impact.levels.map((layer, di) => (
+            <div key={di} className="impact-level">
+              <div className="impact-lh">
+                {di + 1}단계 <span>{di === 0 ? "직접 피인용" : `간접 (${di + 1}-hop)`} · {layer.length}</span>
+              </div>
+              <ul>{layer.map((r) => <ImpactItem key={r.id} r={r} onPick={onPick} />)}</ul>
+            </div>
+          ))}
+          {impact.capped && <div className="impact-more">상위 {impact.total}개까지만 표시 — 더 깊은 영향은 각 조문에서 이어서 탐색하세요.</div>}
+          <p className="impact-disc">참조·별표·위임은 직접 영향, 판례·해석례는 적용 맥락 영향. 관계 종류는 좌측 배지로 구분.</p>
+        </div>
+      )}
     </div>
   );
 }
