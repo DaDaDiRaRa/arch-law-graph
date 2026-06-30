@@ -89,7 +89,7 @@ def main() -> None:
     OUT_META.write_text(json.dumps(
         {"model": MODEL, "dim": DIM, "count": len(ids), "ids": ids},
         ensure_ascii=False), encoding="utf-8")
-    print(f"✓ {OUT_NPY.name} {mat.shape} ({mat.nbytes/1e6:.1f}MB) + {OUT_META.name}")
+    print(f"OK {OUT_NPY.name} {mat.shape} ({mat.nbytes/1e6:.1f}MB) + {OUT_META.name}")
 
 
 if __name__ == "__main__":
