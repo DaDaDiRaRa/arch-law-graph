@@ -121,9 +121,11 @@ EXPC_KEYWORDS = ["건축법", "건폐율", "용적률", "건축물 높이", "주
                  "가설건축물", "국토계획법", "건축물 대수선", "부설주차장", "조경",
                  # 상호 보완(PREC엔 있고 EXPC엔 없던 것)
                  "일조", "도로 사선",
+                 # 실무 상황어 추가 (diag_expc.py 검증 기여분)
+                 "이행강제금", "장애인 편의시설", "방화구획", "바닥면적 산정", "연면적 산정",
                  *_CARD_TOPIC_KEYWORDS]
 PREC_CAP = 160   # 대법원 판례 상한 (Stage E-10: 100→160)
-EXPC_CAP = 240   # 법령해석례 상한 (Stage E-10: 150→240)
+EXPC_CAP = 1100  # 법령해석례 상한 (E-11: 240→1100. diag 실측 가용 1077건+여유)
 
 
 def _ref_pattern(law_names: list[str]) -> re.Pattern:
@@ -517,7 +519,7 @@ async def build(targets: list[str], include_admrul: bool = True) -> None:
             content = "\n\n".join(filter(None, [
                 f"【질의요지】\n{doc['질의요지']}" if doc["질의요지"] else "",
                 f"【회답】\n{doc['회답']}" if doc["회답"] else "",
-                f"【이유】\n{doc['이유'][:1500]}" if doc["이유"] else "",
+                f"【이유】\n{doc['이유'][:4000]}" if doc["이유"] else "",
             ]))
             refs = extract_article_refs(doc["안건명"] + "\n" + doc["이유"], pat)
             node_id = f"해석례 {doc['안건번호']}" if doc["안건번호"] else f"해석례 {eid}"

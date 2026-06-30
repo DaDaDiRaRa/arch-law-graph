@@ -158,8 +158,8 @@ export function highlightTerms(text, terms) {
   );
 }
 
-// 제○조 또는 「법령명」
-const RE_NAV = /(제\d+조(?:의\d+)?)|「([^」]+)」/g;
+// 제○조(의○)? (제○항)? 또는 「법령명」
+const RE_NAV = /(제\d+조(?:의\d+)?(?:\s*제\d+항)?)|「([^」]+)」/g;
 
 function renderText(text, re, law, selfId, onRef, onLaw) {
   const out = [];
@@ -172,9 +172,18 @@ function renderText(text, re, law, selfId, onRef, onLaw) {
       // 제N조 (같은 법령 내)
       const mm = /제(\d+)조(?:의(\d+))?/.exec(full);
       const tgt = `${law}/제${mm[2] ? `${mm[1]}의${mm[2]}` : mm[1]}조`;
-      if (nodeById.has(tgt) && tgt !== selfId)
-        out.push(<span key={`r${kref.k++}`} className="ref" onClick={() => onRef(tgt)}>{full}</span>);
-      else pushHi(out, full, re, kref);
+      const mh = /(\s*)(제\d+항)$/.exec(full); // 뒤따르는 제M항
+      if (nodeById.has(tgt) && tgt !== selfId) {
+        if (mh) {
+          // "제49조" 클릭 → 제49조 이동
+          out.push(<span key={`r${kref.k++}`} className="ref" onClick={() => onRef(tgt)}>{full.slice(0, full.length - mh[0].length)}</span>);
+          if (mh[1]) out.push(mh[1]);
+          // "제2항" 클릭 → 같은 제49조 이동, 툴팁에 "제49조 제2항" 표시
+          out.push(<span key={`r${kref.k++}`} className="ref" onClick={() => onRef(tgt)} title={full.trim()}>{mh[2]}</span>);
+        } else {
+          out.push(<span key={`r${kref.k++}`} className="ref" onClick={() => onRef(tgt)}>{full}</span>);
+        }
+      } else pushHi(out, full, re, kref);
     } else {
       // 「법령명」 — 군 내부 법령이면 이동
       const name = m[2].trim();
