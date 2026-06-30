@@ -12,7 +12,7 @@
   --radius: 12px;
   --canvas: #fafafa;
   --canvas-elevated: #ffffff;
-  --font-sans: "Geist", "Inter", Arial, sans-serif;
+  --font-sans: "Geist", "Inter", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
   --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
   --shadow-sm: 0px 1px 1px rgba(0, 0, 0, 0.04);
 }

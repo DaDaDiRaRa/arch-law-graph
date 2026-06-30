@@ -12,7 +12,7 @@ body,
   overflow: hidden;
 }
 body {
-  font-family: "Geist", "Inter", Arial, sans-serif;
+  font-family: "Geist", "Inter", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
   background: #ffffff;
   color: #191f28;
   -webkit-font-smoothing: antialiased;
