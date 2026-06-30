@@ -90,9 +90,29 @@ function snippetOf(content, terms, win = 100) {
   return s;
 }
 
+// zoning.js 관리코드: 광역시·특별자치는 2자리 커스텀(공식 행정코드 아님), 기초시는 5자리 법정동코드
+const DO_LABEL = {
+  "11": "서울", "26": "부산", "27": "대구", "28": "인천",
+  "29": "광주", "30": "대전", "31": "울산", "36": "세종", "50": "제주",
+  "41": "경기", "43": "충북", "44": "충남", "45": "전북",
+  "46": "전남", "47": "경북", "48": "경남", "51": "강원",
+};
+// 전북: 기존 손큐레이션("45xxx")과 신규 자동생성("52xxx") 코드가 혼재 → 동일 그룹으로 통일
+const doNorm = (p) => p === "52" ? "45" : p;
+const doCodeOf = (r) => doNorm(r.code.length <= 2 ? r.code : r.code.slice(0, 2));
+const DO_LIST = (() => {
+  const seen = new Set();
+  return REGIONS.reduce((acc, r) => {
+    const dc = doCodeOf(r);
+    if (!seen.has(dc)) { seen.add(dc); acc.push({ code: dc, label: DO_LABEL[dc] || dc }); }
+    return acc;
+  }, []);
+})();
+
 export default function SearchView() {
   const [mode, setMode] = useState("search"); // "search" | "zoning"
   const [region, setRegion] = useState(REGIONS[0]); // 서울·부산·인천
+  const [doFilter, setDoFilter] = useState(null); // 도·광역시 필터 (null = 전국)
   const [zaxis, setZaxis] = useState("zone"); // "zone" | "parking" | "setback" | "landscape" | "benefit"
   const [zone, setZone] = useState(null);
   const [use, setUse] = useState(null);
@@ -105,6 +125,8 @@ export default function SearchView() {
   const [q, setQ] = useState("");
   const [domain, setDomain] = useState(null);
   const [kind, setKind] = useState(null); // 문서 종류 필터
+  const [searchDoFilter, setSearchDoFilter] = useState(null); // 조례 도 필터
+  const [cityFilter, setCityFilter] = useState(null); // 조례 도시 필터 (region.code)
   const [selected, setSelected] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [bm, setBm] = useState(() => {
@@ -174,9 +196,13 @@ export default function SearchView() {
     }
 
     let list = kind ? matched.filter((a) => kindOf(a.law_nm) === kind) : matched;
+    if (kind === "조례" && cityFilter) {
+      const cr = REGIONS.find((r) => r.code === cityFilter);
+      if (cr) list = list.filter((a) => a.law_nm.includes(cr.name));
+    }
     list = list.slice(0, empty ? 60 : 200);
     return { results: list, kindCounts: counts };
-  }, [pq, domain, onlyBm, bm, kind]);
+  }, [pq, domain, onlyBm, bm, kind, cityFilter]);
 
   // 멀티리전 파생값
   const lsRegion = REGIONS_LS.find((r) => r.code === region.code);
@@ -190,6 +216,19 @@ export default function SearchView() {
   const pickRegion = (r) => {
     setRegion(r);
     setZone(null); setLand(null); setUse(null); setSb(null); setBenefit(null); setSelected(null);
+  };
+  const filteredRegions = doFilter ? REGIONS.filter(r => doCodeOf(r) === doFilter) : REGIONS;
+  const handleDoFilter = (code) => {
+    setDoFilter(code);
+    const matching = REGIONS.filter(r => doCodeOf(r) === code);
+    if (matching.length === 1) pickRegion(matching[0]);
+  };
+
+  const clearCityFilter = () => { setSearchDoFilter(null); setCityFilter(null); };
+  const handleSearchDoFilter = (code) => {
+    setSearchDoFilter(code);
+    const matching = REGIONS.filter(r => doCodeOf(r) === code);
+    setCityFilter(matching.length === 1 ? matching[0].code : null);
   };
 
   // VWorld 주소 → 용도지역 자동 세팅
@@ -262,26 +301,37 @@ export default function SearchView() {
 
       {mode === "zoning" ? (
         <>
-        {/* 주소 입력 → 용도지역 자동 조회 */}
+        {/* 주소 입력 → 용도지역 자동 조회 + 도 토글 */}
         <div className="addr-search">
-          <input
-            className="addr-input"
-            placeholder="주소 입력 후 Enter — 용도지역 자동 조회"
-            value={addrQ}
-            onChange={(e) => setAddrQ(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter") handleAddrSearch(); }}
-          />
-          <button className="addr-btn" onClick={handleAddrSearch} disabled={addrLoading}>
-            {addrLoading ? "…" : "📍"}
-          </button>
-          {addrMsg && (
-            <span className={"addr-msg" + (addrMsg.ok ? " ok" : " err")}>{addrMsg.text}</span>
-          )}
+          <div className="addr-main">
+            <input
+              className="addr-input"
+              placeholder="주소 입력 후 Enter — 용도지역 자동 조회"
+              value={addrQ}
+              onChange={(e) => setAddrQ(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleAddrSearch(); }}
+            />
+            <button className="addr-btn" onClick={handleAddrSearch} disabled={addrLoading}>
+              {addrLoading ? "…" : "📍"}
+            </button>
+            {addrMsg && (
+              <span className={"addr-msg" + (addrMsg.ok ? " ok" : " err")}>{addrMsg.text}</span>
+            )}
+          </div>
+          <div className="do-toggle">
+            <button className={"do-btn" + (!doFilter ? " on" : "")} onClick={() => setDoFilter(null)}>전국</button>
+            {DO_LIST.map(d => (
+              <button key={d.code} className={"do-btn" + (doFilter === d.code ? " on" : "")}
+                onClick={() => handleDoFilter(d.code)}>
+                {d.label}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* 도시 전환 */}
+        {/* 도시 전환 (도 필터 적용) */}
         <div className="region-switch">
-          {REGIONS.map((r) => (
+          {filteredRegions.map((r) => (
             <button key={r.code} className={"region-btn" + (region.code === r.code ? " on" : "")} onClick={() => pickRegion(r)}>
               {r.name}
             </button>
@@ -482,25 +532,60 @@ export default function SearchView() {
         </div>
         {/* 종류 필터 — 법령/고시/조례/판례/해석례 (결과에 존재하는 종류만) */}
         <div className="kchips">
-          <button className={"kchip" + (!kind ? " on" : "")} onClick={() => setKind(null)}>전체</button>
+          <button className={"kchip" + (!kind ? " on" : "")} onClick={() => { setKind(null); clearCityFilter(); }}>전체</button>
           {KINDS.filter((k) => kindCounts[k]).map((k) => (
             <button
               key={k}
               className={"kchip k-" + k + (kind === k ? " on" : "")}
-              onClick={() => setKind(kind === k ? null : k)}
+              onClick={() => { const nk = kind === k ? null : k; setKind(nk); if (nk !== "조례") clearCityFilter(); }}
             >
               <span className="kdot" style={{ background: KIND_COLOR[k] }} />
               {k} <b>{kindCounts[k]}</b>
             </button>
           ))}
         </div>
+        {/* 조례 도시 서브필터 */}
+        {kind === "조례" && (
+          <div className="ordin-filter">
+            <div className="do-toggle">
+              <button className={"do-btn" + (!searchDoFilter ? " on" : "")} onClick={clearCityFilter}>전국</button>
+              {DO_LIST.map(d => (
+                <button key={d.code} className={"do-btn" + (searchDoFilter === d.code ? " on" : "")}
+                  onClick={() => handleSearchDoFilter(d.code)}>
+                  {d.label}
+                </button>
+              ))}
+            </div>
+            {searchDoFilter && (() => {
+              const cities = REGIONS.filter(r => doCodeOf(r) === searchDoFilter);
+              if (cities.length <= 1) return null;
+              return (
+                <div className="ordin-city-row">
+                  <button className={"region-btn sm" + (!cityFilter ? " on" : "")} onClick={() => setCityFilter(null)}>
+                    전체({DO_LABEL[searchDoFilter]})
+                  </button>
+                  {cities.map(r => (
+                    <button key={r.code} className={"region-btn sm" + (cityFilter === r.code ? " on" : "")}
+                      onClick={() => setCityFilter(r.code)}>
+                      {r.name}
+                    </button>
+                  ))}
+                </div>
+              );
+            })()}
+          </div>
+        )}
       </div>
 
       <div className="sv-body">
         {/* 결과 리스트 */}
         <aside className="result-col">
           <div className="rc-head">
-            {onlyBm ? "즐겨찾기" : query ? `"${query}" 검색` : domain ? `${domain} 분야` : "영향력 높은 조문"}
+            {onlyBm ? "즐겨찾기" : (() => {
+              const cityName = cityFilter ? REGIONS.find(r => r.code === cityFilter)?.name : null;
+              const base = query ? `"${query}" 검색` : domain ? `${domain} 분야` : "영향력 높은 조문";
+              return cityName ? `${cityName} 조례 · ${base}` : base;
+            })()}
             <span>{results.length}{results.length >= 200 ? "+" : ""}</span>
           </div>
           <ul className="result-list">
