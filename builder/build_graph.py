@@ -400,12 +400,28 @@ async def fetch_admrul(
 async def fetch_ordin(
     client: LawGoKrClient, org: str, name: str
 ) -> tuple[list[dict], str] | None:
-    """자치법규명+지자체 정확 일치 검색 → 조문 목록. (articles, source_url) 또는 None."""
-    info = await client.search_ordin(name, org)
+    """자치법규명+지자체 정확 일치 검색 → 조문 목록. (articles, source_url) 또는 None.
+
+    법제처 API가 대량 연속 호출 중 일시적으로(레이트리밋·네트워크 blip) 빈 응답을
+    돌려주는 경우가 있어(Stage 12/13 재빌드에서 관측), 재시도로 흡수한다.
+    """
+    info = None
+    for attempt, delay in enumerate((0, 2, 5)):
+        if delay:
+            await asyncio.sleep(delay)
+        info = await client.search_ordin(name, org)
+        if info:
+            break
     if not info:
         print(f"  ✗ 조례 검색 결과 없음: {org} | {name}")
         return None
     articles = await client.get_law_articles(info["ordin_id"], "CST")
+    if not articles:
+        for delay in (2, 5):
+            await asyncio.sleep(delay)
+            articles = await client.get_law_articles(info["ordin_id"], "CST")
+            if articles:
+                break
     if not articles:
         print(f"  ⚠ 본문 없음 — 스킵: {name}")
         return None
@@ -457,16 +473,25 @@ async def build(targets: list[str], include_admrul: bool = True) -> None:
 
     # 1.6단계: 자치법규(조례) fetch + 노드 생성
     fetched_ordin: dict[str, list[dict]] = {}
+    failed_ordin: list[tuple[str, str]] = []
     if include_admrul:
         print(f"\n[1.6] 자치법규(조례) fetch ({len(ORDIN_GROUP)}개)")
         for org, name in ORDIN_GROUP:
             res = await fetch_ordin(client, org, name)
             if res is None:
+                failed_ordin.append((org, name))
                 continue
             articles, source_url = res
             fetched_ordin[name] = articles
             known_laws.add(name)
             add_law_nodes(G, name, articles, source_url, category="조례")
+
+        # 개별 fetch 실패는 위 fetch_ordin 경고로 콘솔에 찍히지만 555개 출력에 묻히기 쉬움
+        # → 끝에 누락 목록을 모아 한 번 더 명시(다음 빌드에서 재시도하면 보통 복구되는 일시적 실패).
+        if failed_ordin:
+            print(f"\n  ⚠ 조례 {len(failed_ordin)}건 fetch 실패(누락) — 재실행 시 복구 여부 확인 필요:")
+            for org, name in failed_ordin:
+                print(f"    - {org} | {name}")
 
     # 2단계: 엣지 추출 (노드 모두 등록된 뒤) — 법령 + 행정규칙 + 조례
     print(f"\n[2] 엣지 추출")
@@ -542,6 +567,7 @@ async def build(targets: list[str], include_admrul: bool = True) -> None:
         "law_count": len(fetched),
         "admrul_count": len(fetched_admrul),
         "ordin_count": len(fetched_ordin),
+        "ordin_failed": [name for _, name in failed_ordin],
         "prec_count": prec_count,
         "expc_count": expc_count,
         "node_count": G.number_of_nodes(),
