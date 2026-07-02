@@ -280,6 +280,9 @@ async def main() -> None:
     # ─── build_graph.py 가 import 하는 ORDIN_GROUP 모듈 생성 ───
     # 단일 진실원천(single source of truth): 인벤토리 재실행만으로 전국 목록 갱신.
     grp_path = ROOT / "builder" / "ordin_group.py"
+    old_pairs: set[tuple[str, str]] = set()
+    if grp_path.exists():
+        old_pairs = set(re.findall(r'\("([^"]+)",\s*"([^"]+)"\)', grp_path.read_text(encoding="utf-8")))
     lines = [
         '"""전국 시·군 조례 목록 — builder/inventory_ordin.py 자동 생성.',
         "",
@@ -307,6 +310,19 @@ async def main() -> None:
     emit(gun_rows, "군(郡) — 검색·RAG·원문 corpus")
     lines.append("]")
     grp_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    # ─── 이전 목록과 diff — 지자체기관명 개편·조례 폐지/개칭이 조용히 묻히지 않도록 명시 ───
+    # (Stage E-11에서 광주·전남 기관명 개편, 제주 조례 개칭이 재시도로도 복구 안 되는 채로
+    #  ordin_group.py 에 그대로 남아있다가 조례 73건 fetch 실패로 뒤늦게 발견된 사고 재발 방지)
+    new_pairs = set(re.findall(r'\("([^"]+)",\s*"([^"]+)"\)', "\n".join(lines)))
+    removed, added = old_pairs - new_pairs, new_pairs - old_pairs
+    if old_pairs and (removed or added):
+        print(f"\n⚠ ordin_group.py 변경 감지 — 제거 {len(removed)}건, 추가 {len(added)}건 "
+              "(지자체기관명 개편·조례 폐지/개칭 가능성 — 확인 후 커밋):")
+        for org, name in sorted(removed):
+            print(f"    - {org} | {name}")
+        for org, name in sorted(added):
+            print(f"    + {org} | {name}")
 
     # ─── 요약 ───
     def stat(rs):

@@ -397,6 +397,19 @@ async def fetch_admrul(
     return articles, source_url, info
 
 
+async def _retry(fn, delays: tuple[int, ...] = (2, 5)):
+    """fn()을 성공(참값)할 때까지 delays 간격으로 재시도. 자치법규명 개편·폐지처럼 영구적으로
+    실패하는 경우는 재시도로 복구되지 않는다 — 그런 경우는 build() 끝의 failed_ordin 게이트가
+    자동 커밋을 막아 사람이 검토하게 한다(재시도는 진짜 일시적 blip만 흡수하면 충분)."""
+    result = await fn()
+    for delay in delays:
+        if result:
+            return result
+        await asyncio.sleep(delay)
+        result = await fn()
+    return result
+
+
 async def fetch_ordin(
     client: LawGoKrClient, org: str, name: str
 ) -> tuple[list[dict], str] | None:
@@ -405,23 +418,11 @@ async def fetch_ordin(
     법제처 API가 대량 연속 호출 중 일시적으로(레이트리밋·네트워크 blip) 빈 응답을
     돌려주는 경우가 있어(Stage 12/13 재빌드에서 관측), 재시도로 흡수한다.
     """
-    info = None
-    for attempt, delay in enumerate((0, 2, 5)):
-        if delay:
-            await asyncio.sleep(delay)
-        info = await client.search_ordin(name, org)
-        if info:
-            break
+    info = await _retry(lambda: client.search_ordin(name, org))
     if not info:
         print(f"  ✗ 조례 검색 결과 없음: {org} | {name}")
         return None
-    articles = await client.get_law_articles(info["ordin_id"], "CST")
-    if not articles:
-        for delay in (2, 5):
-            await asyncio.sleep(delay)
-            articles = await client.get_law_articles(info["ordin_id"], "CST")
-            if articles:
-                break
+    articles = await _retry(lambda: client.get_law_articles(info["ordin_id"], "CST"))
     if not articles:
         print(f"  ⚠ 본문 없음 — 스킵: {name}")
         return None
@@ -486,12 +487,17 @@ async def build(targets: list[str], include_admrul: bool = True) -> None:
             known_laws.add(name)
             add_law_nodes(G, name, articles, source_url, category="조례")
 
-        # 개별 fetch 실패는 위 fetch_ordin 경고로 콘솔에 찍히지만 555개 출력에 묻히기 쉬움
-        # → 끝에 누락 목록을 모아 한 번 더 명시(다음 빌드에서 재시도하면 보통 복구되는 일시적 실패).
+        # fetch_ordin이 재시도까지 다 쓰고도 실패했다면 일시적 blip일 가능성은 낮다(Stage E-11
+        # 재빌드에서 실제 원인은 지자체기관명 개편·조례 폐지 — 재시도로 복구 안 됨). 여기서 중단해
+        # 기존 graph.json을 보존한다 — 그렇지 않으면 조례 누락분이 조용히 커밋·배포될 위험이 있다
+        # (실제로 73건이 이렇게 새 나갔던 사고). ordin_group.py 갱신(inventory_ordin.py 재실행) 등
+        # 원인 조사 후 재실행하면 통과한다.
         if failed_ordin:
-            print(f"\n  ⚠ 조례 {len(failed_ordin)}건 fetch 실패(누락) — 재실행 시 복구 여부 확인 필요:")
-            for org, name in failed_ordin:
-                print(f"    - {org} | {name}")
+            sys.exit(
+                f"✗ 빌드 중단: 조례 {len(failed_ordin)}건 fetch 실패(누락) — "
+                "기존 graph.json 을 보존하기 위해 파일을 쓰지 않습니다.\n"
+                + "\n".join(f"    - {org} | {name}" for org, name in failed_ordin)
+            )
 
     # 2단계: 엣지 추출 (노드 모두 등록된 뒤) — 법령 + 행정규칙 + 조례
     print(f"\n[2] 엣지 추출")
@@ -567,7 +573,6 @@ async def build(targets: list[str], include_admrul: bool = True) -> None:
         "law_count": len(fetched),
         "admrul_count": len(fetched_admrul),
         "ordin_count": len(fetched_ordin),
-        "ordin_failed": [name for _, name in failed_ordin],
         "prec_count": prec_count,
         "expc_count": expc_count,
         "node_count": G.number_of_nodes(),

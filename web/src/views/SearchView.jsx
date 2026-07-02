@@ -478,7 +478,9 @@ export default function SearchView() {
                 <div className="empty"><div className="empty-art">📏</div>왼쪽에서 건물 용도를 고르세요.</div>
               )
             ) : zaxis === "landscape" ? (
-              land ? (
+              !lsRegion ? (
+                <div className="empty"><div className="empty-art">🌳</div>{region.name} 조경 기준은 데이터 준비 중입니다.</div>
+              ) : land ? (
                 <LandscapeCard tier={land} refs={lsRegion.refs} regionName={lsRegion.name} src={lsRegion.src} onOpen={openRef} />
               ) : (
                 <div className="empty"><div className="empty-art">🌳</div>왼쪽에서 연면적 규모를 고르세요.</div>
